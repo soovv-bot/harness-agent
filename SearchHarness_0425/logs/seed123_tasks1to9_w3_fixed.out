@@ -1,0 +1,38 @@
+
+============================================================
+BrowseComp Evaluation Results (SearchHarness v4)
+============================================================
+Model:          deepseek-chat
+Grader:         gpt-4o-2024-11-20
+Examples:       9
+Correct:        0
+Accuracy:       0.00%
+Total time:     3514.8s (390.5s/task)
+Max workers:    3
+Pipeline:       max_iter=6, planner_search=10, executor_search=30, total_search=80, max_crawl=12
+============================================================
+
+  [X ] #  0 {
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi | best_effort
+  [X ] #  1 {
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi | best_effort
+  [X ] #  2 {
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi | best_effort
+  [X ] #  3 Judd Trump                                                   | solved
+  [X ] #  4 ...                                                          | solved
+  [X ] #  5 University of Amsterdam                                      | best_effort
+  [X ] #  6 {
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi | best_effort
+  [X ] #  7 Buon Natale 2016                                             | best_effort
+  [X ] #  8 {
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi | best_effort

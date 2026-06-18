@@ -1,0 +1,422 @@
+2026-04-13 09:02:08.304 | INFO     | __main__:_load_fixed_sample:50 - Loading BrowseComp dataset...
+2026-04-13 09:02:10.806 | INFO     | __main__:_load_fixed_sample:55 - Loaded fixed sample of 10 examples
+2026-04-13 09:02:10.813 | INFO     | __main__:run_fixed_evaluation:101 - Manifest saved to docs\seed123_k10_manifest.json
+2026-04-13 09:02:11.911 | INFO     | __main__:run_fixed_evaluation:117 - Running fixed-sample evaluation for positions=[2, 3, 4, 5, 6, 7, 8, 9]
+2026-04-13 09:02:16.546 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:02:19.921 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:03:43.909 | INFO     | subtask_critic:evaluate:142 - [SubtaskCritic] Rule-based verdict: allow
+2026-04-13 09:03:43.909 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-04-13 09:03:46.848 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: allow
+2026-04-13 09:03:48.733 | DEBUG    | query_history:record:182 - [QueryHistory] #0 query='song lyrics childhood romance separation hears about death l...' phase=candidate_narrowing quality=high
+2026-04-13 09:03:55.261 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:03:57.468 | DEBUG    | query_history:record:182 - [QueryHistory] #1 query='song about childhood sweetheart dies later in life lyrics...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:04.632 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:04:06.889 | DEBUG    | query_history:record:182 - [QueryHistory] #2 query='musical based on a single song closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:13.245 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:04:15.069 | DEBUG    | query_history:record:182 - [QueryHistory] #3 query='musical premiered 2018 closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:21.714 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:04:23.737 | DEBUG    | query_history:record:182 - [QueryHistory] #4 query='musical based on one song title same as song...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:31.318 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:04:33.258 | DEBUG    | query_history:record:182 - [QueryHistory] #5 query='musical adaptation of song about childhood sweetheart...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:40.943 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:04:42.980 | DEBUG    | query_history:record:182 - [QueryHistory] #6 query='song lyrics 'heard the news' 'she died' childhood...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:49.977 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:04:51.936 | DEBUG    | query_history:record:182 - [QueryHistory] #7 query='musical closed 2023 final show curtain call screen animation...' phase=candidate_narrowing quality=high
+2026-04-13 09:04:59.054 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:05:06.811 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:05:09.027 | DEBUG    | query_history:record:182 - [QueryHistory] #8 query='2023 Broadway closing musical based on song...' phase=candidate_narrowing quality=high
+2026-04-13 09:05:13.184 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: crawl_now
+2026-04-13 09:05:28.019 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:05:35.644 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:05:37.802 | DEBUG    | query_history:record:182 - [QueryHistory] #9 query='musical premiered 2019 closed 2023 Broadway...' phase=candidate_narrowing quality=high
+2026-04-13 09:05:41.257 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:06:09.770 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:06:11.830 | DEBUG    | query_history:record:182 - [QueryHistory] #10 query='song about childhood friend dies adult narrator hears news...' phase=candidate_narrowing quality=high
+2026-04-13 09:07:16.494 | WARNING  | tools.search_tools:_crawl_url:242 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://whatsyourgrief.com/64-songs-about-the-death-of-a-friend/ (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-04-13 09:07:37.794 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:07:39.764 | DEBUG    | query_history:record:182 - [QueryHistory] #11 query='musical based on song about death childhood romance...' phase=candidate_narrowing quality=high
+2026-04-13 09:08:04.525 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:08:06.373 | DEBUG    | query_history:record:182 - [QueryHistory] #12 query='musical based on song by band...' phase=candidate_narrowing quality=high
+2026-04-13 09:08:11.248 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:09:04.899 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow
+2026-04-13 09:09:04.899 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=The proposed subtask explores a genuinely new direction by shifting from a direct song search to a search for musicals w
+2026-04-13 09:09:13.717 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:09:18.258 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:09:20.484 | DEBUG    | query_history:record:182 - [QueryHistory] #13 query='musicals that closed in 2023 premiered 2018...' phase=candidate_narrowing quality=high
+2026-04-13 09:09:20.489 | DEBUG    | query_history:record:182 - [QueryHistory] #14 query='2019 musical closed 2023 Broadway West End...' phase=candidate_narrowing quality=high
+2026-04-13 09:09:27.810 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:09:31.138 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:09:35.235 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:09:37.297 | DEBUG    | query_history:record:182 - [QueryHistory] #15 query='2023 closing musical premiered 2017...' phase=candidate_narrowing quality=high
+2026-04-13 09:09:45.170 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:09:47.840 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:09:50.244 | DEBUG    | query_history:record:182 - [QueryHistory] #16 query='Broadway musicals closed 2023 list...' phase=candidate_narrowing quality=high
+2026-04-13 09:09:50.244 | DEBUG    | query_history:record:182 - [QueryHistory] #17 query='West End musicals closed 2023 list...' phase=candidate_narrowing quality=high
+2026-04-13 09:10:28.336 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:10:32.475 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:10:36.317 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:10:39.673 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:10:42.538 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:10:45.162 | DEBUG    | query_history:record:182 - [QueryHistory] #18 query='Beetlejuice musical closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:10:45.162 | DEBUG    | query_history:record:182 - [QueryHistory] #19 query='Hadestown closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:10:45.162 | DEBUG    | query_history:record:182 - [QueryHistory] #20 query='Moulin Rouge musical closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:10:45.162 | DEBUG    | query_history:record:182 - [QueryHistory] #21 query='The Band's Visit closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:10:45.162 | DEBUG    | query_history:record:182 - [QueryHistory] #22 query='Come From Away closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:10:56.840 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:11:01.388 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:11:06.237 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:11:09.948 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:11:12.516 | DEBUG    | query_history:record:182 - [QueryHistory] #23 query='The Prom musical closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:11:12.516 | DEBUG    | query_history:record:182 - [QueryHistory] #24 query='Mean Girls musical closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:11:12.516 | DEBUG    | query_history:record:182 - [QueryHistory] #25 query='Frozen musical closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:11:12.516 | DEBUG    | query_history:record:182 - [QueryHistory] #26 query='Tina Turner musical closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:11:18.987 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:11:39.694 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:11:43.359 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:11:47.477 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:11:49.880 | DEBUG    | query_history:record:182 - [QueryHistory] #27 query='musical based on a single song title...' phase=candidate_narrowing quality=high
+2026-04-13 09:11:49.880 | DEBUG    | query_history:record:182 - [QueryHistory] #28 query='musical named after a single song...' phase=candidate_narrowing quality=high
+2026-04-13 09:11:55.038 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:12:01.814 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:12:01.817 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:12:05.365 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:12:07.489 | DEBUG    | query_history:record:182 - [QueryHistory] #29 query='2023 final show musical based on single song...' phase=candidate_narrowing quality=high
+2026-04-13 09:12:14.857 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:12:14.863 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:12:16.826 | DEBUG    | query_history:record:182 - [QueryHistory] #30 query='2018 musical closed January 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:12:45.971 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:12:45.973 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:12:50.271 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:12:53.840 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:12:55.715 | DEBUG    | query_history:record:182 - [QueryHistory] #31 query='musical based on pop song closed 2023...' phase=candidate_narrowing quality=high
+2026-04-13 09:13:24.504 | INFO     | planning_direction_critic:evaluate:157 - [DirectionCritic] is_stagnant=True | reason=Planner remains in 'candidate_narrowing' phase with the same objective and primary source focus (theatre databases). Exe
+2026-04-13 09:13:24.510 | WARNING  | search_harness_pipeline_v4:run:218 - [Pipeline] Direction stagnation: Planner remains in 'candidate_narrowing' phase with the same objective and primary source focus (theatre databases). Exe
+2026-04-13 09:14:02.433 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow_with_warning
+2026-04-13 09:14:02.433 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow_with_warning | reason=The subtask introduces a meaningful variation by focusing on a specific album position (third album) and a narrower time
+2026-04-13 09:14:10.464 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:14:12.637 | DEBUG    | query_history:record:182 - [QueryHistory] #32 query='song about childhood romance friend dies years later hears n...' phase=candidate_narrowing quality=high
+2026-04-13 09:14:20.940 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:14:23.304 | DEBUG    | query_history:record:182 - [QueryHistory] #33 query='lyrics childhood friend romance grows up apart hears they di...' phase=candidate_narrowing quality=high
+2026-04-13 09:14:33.061 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:14:35.290 | DEBUG    | query_history:record:182 - [QueryHistory] #34 query='musical based on song about childhood friend dies...' phase=candidate_narrowing quality=high
+2026-04-13 09:14:39.952 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:14:48.712 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:14:50.689 | DEBUG    | query_history:record:182 - [QueryHistory] #35 query='musical based on song premiered 2018...' phase=candidate_narrowing quality=high
+2026-04-13 09:14:58.956 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:15:00.963 | DEBUG    | query_history:record:182 - [QueryHistory] #36 query='song lyrics 'heard the news' 'childhood friend' died...' phase=candidate_narrowing quality=high
+2026-04-13 09:15:14.692 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:15:24.714 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:15:27.049 | DEBUG    | query_history:record:182 - [QueryHistory] #37 query='musical band third studio album 1980 2000 song childhood rom...' phase=candidate_narrowing quality=high
+2026-04-13 09:15:31.798 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:15:40.174 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:15:42.202 | DEBUG    | query_history:record:182 - [QueryHistory] #38 query='what musical is based on a song about childhood friend dying...' phase=candidate_narrowing quality=high
+2026-04-13 09:16:00.469 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:16:02.356 | DEBUG    | query_history:record:182 - [QueryHistory] #39 query='musical based on song title premiered 2019...' phase=candidate_narrowing quality=high
+2026-04-13 09:16:10.333 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:16:12.402 | DEBUG    | query_history:record:182 - [QueryHistory] #40 query='musical closed 2023 curtain call screen display phrase...' phase=candidate_narrowing quality=high
+2026-04-13 09:16:17.394 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:16:23.979 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:16:25.898 | DEBUG    | query_history:record:182 - [QueryHistory] #41 query='curtain call screen displayed 'thank you' 2023 musical...' phase=candidate_narrowing quality=high
+2026-04-13 09:16:34.154 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:16:42.200 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:16:44.161 | DEBUG    | query_history:record:182 - [QueryHistory] #42 query='song about childhood sweetheart dies years later...' phase=candidate_narrowing quality=high
+2026-04-13 09:16:53.597 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:16:55.792 | DEBUG    | query_history:record:182 - [QueryHistory] #43 query='third studio album 1990s band storytelling songs...' phase=candidate_narrowing quality=high
+2026-04-13 09:18:51.168 | INFO     | trajectory_recorder:finalize:134 - [TrajectoryRecorder] Saved trajectory to logs\trajectories_fixed\deepseek-chat\task_000002.json
+2026-04-13 09:18:51.475 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-13 09:18:51.518 | INFO     | run_browsecomp:run_single_task:181 - [Task 2] grade['correct']=False | answer='{
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi' | status=best_effort | 982.3s
+2026-04-13 09:18:59.358 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:19:02.050 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:20:32.300 | INFO     | subtask_critic:evaluate:142 - [SubtaskCritic] Rule-based verdict: allow
+2026-04-13 09:20:32.302 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-04-13 09:20:36.195 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: allow
+2026-04-13 09:20:38.536 | DEBUG    | query_history:record:182 - [QueryHistory] #0 query='rock bands that sold over 100 million records worldwide...' phase=candidate_narrowing quality=high
+2026-04-13 09:20:42.785 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: crawl_now
+2026-04-13 09:21:23.454 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:21:27.234 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:21:31.357 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:21:34.046 | DEBUG    | query_history:record:182 - [QueryHistory] #1 query='worked in a boutique musician...' phase=candidate_narrowing quality=high
+2026-04-13 09:21:34.052 | DEBUG    | query_history:record:182 - [QueryHistory] #2 query='worked in boutique before music career...' phase=candidate_narrowing quality=high
+2026-04-13 09:21:34.053 | DEBUG    | query_history:record:182 - [QueryHistory] #3 query='fashion boutique job musician...' phase=candidate_narrowing quality=high
+2026-04-13 09:21:43.546 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:21:47.816 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:21:55.243 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:21:59.837 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:22:01.935 | DEBUG    | query_history:record:182 - [QueryHistory] #4 query='art college attended musician biography...' phase=candidate_narrowing quality=high
+2026-04-13 09:22:01.937 | DEBUG    | query_history:record:182 - [QueryHistory] #5 query='attended art school musician early career...' phase=candidate_narrowing quality=high
+2026-04-13 09:22:19.721 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:22:21.796 | DEBUG    | query_history:record:182 - [QueryHistory] #6 query='musician worked in boutique attended art college married thr...' phase=candidate_narrowing quality=high
+2026-04-13 09:22:25.969 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:22:30.008 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:22:32.799 | DEBUG    | query_history:record:182 - [QueryHistory] #7 query='quiz rock musician boutique art college...' phase=candidate_narrowing quality=high
+2026-04-13 09:22:36.993 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:22:41.118 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:22:43.390 | DEBUG    | query_history:record:182 - [QueryHistory] #8 query='art school graduate rock star...' phase=candidate_narrowing quality=high
+2026-04-13 09:23:01.780 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:23:04.787 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:23:07.606 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:23:10.447 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:23:12.834 | DEBUG    | query_history:record:182 - [QueryHistory] #9 query='John Lennon worked in boutique...' phase=candidate_narrowing quality=high
+2026-04-13 09:23:12.837 | DEBUG    | query_history:record:182 - [QueryHistory] #10 query='Keith Richards boutique job...' phase=candidate_narrowing quality=high
+2026-04-13 09:23:12.838 | DEBUG    | query_history:record:182 - [QueryHistory] #11 query='Freddie Mercury boutique work...' phase=candidate_narrowing quality=high
+2026-04-13 09:23:12.838 | DEBUG    | query_history:record:182 - [QueryHistory] #12 query='Jimmy Page boutique...' phase=candidate_narrowing quality=high
+2026-04-13 09:23:39.799 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:23:43.732 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:23:45.885 | DEBUG    | query_history:record:182 - [QueryHistory] #13 query='Freddie Mercury Biba boutique job...' phase=candidate_narrowing quality=high
+2026-04-13 09:23:45.890 | DEBUG    | query_history:record:182 - [QueryHistory] #14 query='Freddie Mercury worked at Biba clothing store...' phase=candidate_narrowing quality=high
+2026-04-13 09:24:00.794 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:24:04.008 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:24:06.632 | DEBUG    | query_history:record:182 - [QueryHistory] #15 query='Freddie Mercury marriages how many times married...' phase=candidate_narrowing quality=high
+2026-04-13 09:24:06.634 | DEBUG    | query_history:record:182 - [QueryHistory] #16 query='Freddie Mercury children son daughter...' phase=candidate_narrowing quality=high
+2026-04-13 09:24:16.037 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:24:20.277 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:24:29.649 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:24:32.979 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:24:36.386 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:24:40.146 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:24:43.086 | DEBUG    | query_history:record:182 - [QueryHistory] #17 query='John Lennon art college...' phase=candidate_narrowing quality=high
+2026-04-13 09:24:43.090 | DEBUG    | query_history:record:182 - [QueryHistory] #18 query='Paul McCartney art school...' phase=candidate_narrowing quality=high
+2026-04-13 09:24:43.090 | DEBUG    | query_history:record:182 - [QueryHistory] #19 query='George Harrison art college...' phase=candidate_narrowing quality=high
+2026-04-13 09:24:43.090 | DEBUG    | query_history:record:182 - [QueryHistory] #20 query='Ringo Starr art school...' phase=candidate_narrowing quality=high
+2026-04-13 09:25:09.380 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:26:13.322 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow
+2026-04-13 09:26:13.322 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=This subtask is a targeted candidate verification. The history shows a partial success identifying rock bands with 100M+
+2026-04-13 09:26:16.978 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:26:39.685 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:26:42.900 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:26:45.045 | DEBUG    | query_history:record:182 - [QueryHistory] #21 query='David Bowie record sales 100 million...' phase=verification quality=high
+2026-04-13 09:26:45.049 | DEBUG    | query_history:record:182 - [QueryHistory] #22 query='Mick Ronson early life art college boutique work...' phase=verification quality=high
+2026-04-13 09:26:48.874 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:27:10.120 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:27:13.402 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:27:16.131 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:27:18.516 | DEBUG    | query_history:record:182 - [QueryHistory] #23 query='David Bowie art college attended...' phase=verification quality=high
+2026-04-13 09:27:18.516 | DEBUG    | query_history:record:182 - [QueryHistory] #24 query='David Bowie boutique work early career...' phase=verification quality=high
+2026-04-13 09:27:18.517 | DEBUG    | query_history:record:182 - [QueryHistory] #25 query='David Bowie married three times children...' phase=verification quality=high
+2026-04-13 09:27:46.865 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:27:49.746 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:27:52.559 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:27:54.889 | DEBUG    | query_history:record:182 - [QueryHistory] #26 query='Mick Ronson married three times children...' phase=verification quality=high
+2026-04-13 09:27:54.889 | DEBUG    | query_history:record:182 - [QueryHistory] #27 query='Mick Ronson art college education...' phase=verification quality=high
+2026-04-13 09:27:54.889 | DEBUG    | query_history:record:182 - [QueryHistory] #28 query='Mick Ronson boutique work...' phase=verification quality=high
+2026-04-13 09:28:19.404 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:28:22.403 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:28:25.821 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:28:28.144 | DEBUG    | query_history:record:182 - [QueryHistory] #29 query='Mick Ronson formed band 1970 1980 1990...' phase=verification quality=high
+2026-04-13 09:28:28.144 | DEBUG    | query_history:record:182 - [QueryHistory] #30 query='Mick Ronson band formed 1975...' phase=verification quality=high
+2026-04-13 09:28:28.144 | DEBUG    | query_history:record:182 - [QueryHistory] #31 query='Mick Ronson solo band...' phase=verification quality=high
+2026-04-13 09:28:53.514 | INFO     | planning_direction_critic:evaluate:157 - [DirectionCritic] is_stagnant=True | reason=Planner remains in verification/narrowing phase with same objective, source, and focus on boutique/art college constrain
+2026-04-13 09:28:53.516 | WARNING  | search_harness_pipeline_v4:run:218 - [Pipeline] Direction stagnation: Planner remains in verification/narrowing phase with same objective, source, and focus on boutique/art college constrain
+2026-04-13 09:29:25.877 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow
+2026-04-13 09:29:25.877 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=This subtask is a targeted candidate verification. Jonathan Cain is a new, concrete candidate not previously examined in
+2026-04-13 09:29:31.987 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:29:34.082 | DEBUG    | query_history:record:182 - [QueryHistory] #32 query='Jonathan Cain Journey biography married three times children...' phase=candidate_narrowing quality=high
+2026-04-13 09:29:45.836 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:29:48.170 | DEBUG    | query_history:record:182 - [QueryHistory] #33 query='Jonathan Cain art college attended Chicago Conservatory of M...' phase=candidate_narrowing quality=high
+2026-04-13 09:29:54.420 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:29:56.401 | DEBUG    | query_history:record:182 - [QueryHistory] #34 query='Jonathan Cain worked in a boutique early job clothing store...' phase=candidate_narrowing quality=high
+2026-04-13 09:30:04.132 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:30:06.160 | DEBUG    | query_history:record:182 - [QueryHistory] #35 query='Journey record sales 100 million certified RIAA...' phase=candidate_narrowing quality=high
+2026-04-13 09:30:13.594 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:30:15.655 | DEBUG    | query_history:record:182 - [QueryHistory] #36 query='Jonathan Cain formed band 1970 1980 1990 The Babys Bad Engli...' phase=candidate_narrowing quality=high
+2026-04-13 09:30:30.278 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:30:32.238 | DEBUG    | query_history:record:182 - [QueryHistory] #37 query='Jonathan Cain biography early life Chicago boutique job art ...' phase=candidate_narrowing quality=high
+2026-04-13 09:30:44.062 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:30:47.945 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:30:54.700 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:30:56.935 | DEBUG    | query_history:record:182 - [QueryHistory] #38 query='Jonathan Cain began performing professionally teen years ear...' phase=candidate_narrowing quality=high
+2026-04-13 09:31:03.477 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:31:05.485 | DEBUG    | query_history:record:182 - [QueryHistory] #39 query='Jonathan Cain children daughter son...' phase=candidate_narrowing quality=high
+2026-04-13 09:31:56.205 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow_with_warning
+2026-04-13 09:31:56.205 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow_with_warning | reason=The subtask introduces a meaningful variation by explicitly combining the art college and boutique constraints with the 
+2026-04-13 09:32:05.020 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:32:09.169 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:32:13.180 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:32:15.348 | DEBUG    | query_history:record:182 - [QueryHistory] #40 query='rock musician attended art college worked in boutique...' phase=candidate_narrowing quality=high
+2026-04-13 09:32:15.350 | DEBUG    | query_history:record:182 - [QueryHistory] #41 query='art college graduate musician boutique work...' phase=candidate_narrowing quality=high
+2026-04-13 09:32:23.388 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:32:28.150 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:32:31.681 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:32:34.315 | DEBUG    | query_history:record:182 - [QueryHistory] #42 query='art school graduate rock band 100 million records...' phase=candidate_narrowing quality=high
+2026-04-13 09:32:34.315 | DEBUG    | query_history:record:182 - [QueryHistory] #43 query='attended art college member of band sold 100 million...' phase=candidate_narrowing quality=high
+2026-04-13 09:32:38.195 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:32:42.007 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:32:46.627 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:33:09.259 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:33:12.900 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:33:15.382 | DEBUG    | query_history:record:182 - [QueryHistory] #44 query='rock musician one daughter one son married three times...' phase=candidate_narrowing quality=high
+2026-04-13 09:33:15.382 | DEBUG    | query_history:record:182 - [QueryHistory] #45 query='musician one son one daughter three marriages...' phase=candidate_narrowing quality=high
+2026-04-13 09:33:23.814 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:33:27.295 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:33:35.341 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:33:38.466 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:33:40.680 | DEBUG    | query_history:record:182 - [QueryHistory] #46 query='worked at a clothing store before music career...' phase=candidate_narrowing quality=high
+2026-04-13 09:33:44.964 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:34:29.091 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:34:32.830 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:34:36.375 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:34:45.060 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:34:48.334 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:34:50.551 | DEBUG    | query_history:record:182 - [QueryHistory] #47 query='"three marriages" "art school" musician...' phase=candidate_narrowing quality=high
+2026-04-13 09:35:03.451 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-04-13 09:35:26.777 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:35:29.746 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:35:37.385 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:35:40.357 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:35:47.798 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:35:51.195 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:36:00.672 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:36:05.230 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:36:07.659 | DEBUG    | query_history:record:182 - [QueryHistory] #48 query='started performing as teenager rock band sold 100 million re...' phase=candidate_narrowing quality=high
+2026-04-13 09:36:07.662 | DEBUG    | query_history:record:182 - [QueryHistory] #49 query='teenage musician joined band sold over 100 million...' phase=candidate_narrowing quality=high
+2026-04-13 09:36:21.723 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:36:24.246 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:36:27.479 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:36:29.768 | DEBUG    | query_history:record:182 - [QueryHistory] #50 query='attended art college member of Queen...' phase=candidate_narrowing quality=high
+2026-04-13 09:36:29.771 | DEBUG    | query_history:record:182 - [QueryHistory] #51 query='art school graduate Pink Floyd member...' phase=candidate_narrowing quality=high
+2026-04-13 09:36:29.772 | DEBUG    | query_history:record:182 - [QueryHistory] #52 query='Rolling Stones member art college...' phase=candidate_narrowing quality=high
+2026-04-13 09:37:14.708 | INFO     | planning_direction_critic:evaluate:157 - [DirectionCritic] is_stagnant=True | reason=Planner has remained in 'candidate_narrowing' phase for 3 of 4 rounds, repeatedly assigning the same core task of verify
+2026-04-13 09:37:14.710 | WARNING  | search_harness_pipeline_v4:run:218 - [Pipeline] Direction stagnation: Planner has remained in 'candidate_narrowing' phase for 3 of 4 rounds, repeatedly assigning the same core task of verify
+2026-04-13 09:38:10.274 | INFO     | trajectory_recorder:finalize:134 - [TrajectoryRecorder] Saved trajectory to logs\trajectories_fixed\deepseek-chat\task_000003.json
+2026-04-13 09:38:10.484 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-13 09:38:10.558 | INFO     | run_browsecomp:run_single_task:181 - [Task 3] grade['correct']=False | answer='{
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi' | status=best_effort | 1140.4s
+2026-04-13 09:38:18.496 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:38:21.147 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:40:24.335 | WARNING  | tools.search_tools:_crawl_url:242 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://cuetracker.net/players/mark-selby/season/2023-2024?status=professional (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-04-13 09:41:17.102 | INFO     | subtask_critic:evaluate:142 - [SubtaskCritic] Rule-based verdict: allow
+2026-04-13 09:41:17.102 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-04-13 09:41:20.745 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: allow
+2026-04-13 09:41:22.827 | DEBUG    | query_history:record:182 - [QueryHistory] #0 query='Matthew Selt snooker centuries career total 2025...' phase=verification quality=high
+2026-04-13 09:41:27.097 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: crawl_now
+2026-04-13 09:41:43.469 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:41:45.538 | DEBUG    | query_history:record:182 - [QueryHistory] #1 query='Mark Selby 2023 Scottish Open results lost to...' phase=verification quality=high
+2026-04-13 09:42:26.360 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:42:46.284 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:43:08.003 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:43:28.513 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:43:30.654 | DEBUG    | query_history:record:182 - [QueryHistory] #2 query='snooker players with over 400 career centuries 2025...' phase=verification quality=high
+2026-04-13 09:43:55.529 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:44:18.599 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:44:37.018 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:44:39.092 | DEBUG    | query_history:record:182 - [QueryHistory] #3 query='Mark Selby Chang Bingyu 2023 Scottish Open...' phase=verification quality=high
+2026-04-13 09:44:48.368 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:44:50.352 | DEBUG    | query_history:record:182 - [QueryHistory] #4 query='Chang Bingyu snooker centuries career total...' phase=verification quality=high
+2026-04-13 09:46:14.873 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow_with_warning
+2026-04-13 09:46:14.873 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow_with_warning | reason=The subtask meaningfully pivots from verifying a specific opponent's century count to systematically checking all player
+2026-04-13 09:46:24.008 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:46:29.088 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:46:34.305 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:46:59.017 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:47:03.853 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:47:08.465 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:47:11.308 | DEBUG    | query_history:record:182 - [QueryHistory] #5 query='Mark Selby head to head Ronnie O'Sullivan 2023 2024...' phase=verification quality=high
+2026-04-13 09:47:11.314 | DEBUG    | query_history:record:182 - [QueryHistory] #6 query='Selby vs O'Sullivan 2023 Scottish Open...' phase=verification quality=high
+2026-04-13 09:47:11.314 | DEBUG    | query_history:record:182 - [QueryHistory] #7 query='Mark Selby lost to Judd Trump 2023 2024...' phase=verification quality=high
+2026-04-13 09:47:56.448 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:48:00.773 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:48:04.356 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:48:09.093 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:48:11.311 | DEBUG    | query_history:record:182 - [QueryHistory] #8 query='John Higgins century breaks total 2025...' phase=verification quality=high
+2026-04-13 09:48:11.314 | DEBUG    | query_history:record:182 - [QueryHistory] #9 query='Neil Robertson century breaks 2025...' phase=verification quality=high
+2026-04-13 09:48:11.314 | DEBUG    | query_history:record:182 - [QueryHistory] #10 query='Ding Junhui century breaks 2025...' phase=verification quality=high
+2026-04-13 09:49:44.458 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:49:48.632 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:49:48.635 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:50:05.917 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:50:11.310 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:50:14.767 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:50:16.705 | DEBUG    | query_history:record:182 - [QueryHistory] #11 query='snooker match sequence 4-3 4-0 4-3...' phase=verification quality=high
+2026-04-13 09:50:54.176 | INFO     | planning_direction_critic:evaluate:157 - [DirectionCritic] is_stagnant=True | reason=Planner remains in verification phase with identical objective and focus on Selby's opponent with >400 centuries, despit
+2026-04-13 09:50:54.176 | WARNING  | search_harness_pipeline_v4:run:218 - [Pipeline] Direction stagnation: Planner remains in verification phase with identical objective and focus on Selby's opponent with >400 centuries, despit
+2026-04-13 09:51:50.614 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow
+2026-04-13 09:51:50.616 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=This subtask explores a genuinely new direction by systematically checking Mark Selby's specific tournament results agai
+2026-04-13 09:51:59.498 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:52:04.288 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:52:06.402 | DEBUG    | query_history:record:182 - [QueryHistory] #12 query='Mark Selby tournament results 2023 2024 match history...' phase=candidate_narrowing quality=high
+2026-04-13 09:52:06.404 | DEBUG    | query_history:record:182 - [QueryHistory] #13 query='Mark Selby 2023 2024 season results snooker...' phase=candidate_narrowing quality=high
+2026-04-13 09:52:33.785 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:52:38.263 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:52:40.554 | DEBUG    | query_history:record:182 - [QueryHistory] #14 query='Mark Selby 2023 British Open 2023 match sequence...' phase=candidate_narrowing quality=high
+2026-04-13 09:53:05.395 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:53:09.305 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:53:11.539 | DEBUG    | query_history:record:182 - [QueryHistory] #15 query='Mark Selby 4-3 4-0 2023 match sequence...' phase=candidate_narrowing quality=high
+2026-04-13 09:53:11.539 | DEBUG    | query_history:record:182 - [QueryHistory] #16 query='Selby 4-3 4-0 2023 Scottish Open results...' phase=candidate_narrowing quality=high
+2026-04-13 09:54:17.665 | WARNING  | tools.search_tools:_crawl_url:242 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://cuetracker.net/tournaments/scottish-open/2023/5848 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
+2026-04-13 09:54:40.014 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:54:43.385 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:54:45.453 | DEBUG    | query_history:record:182 - [QueryHistory] #17 query='Selby vs Matthew Stevens 2023 Scottish Open...' phase=candidate_narrowing quality=high
+2026-04-13 09:55:08.692 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:55:12.096 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:55:14.732 | DEBUG    | query_history:record:182 - [QueryHistory] #18 query='Mark Selby Scottish Open 2023 round 2 results...' phase=candidate_narrowing quality=high
+2026-04-13 09:55:14.732 | DEBUG    | query_history:record:182 - [QueryHistory] #19 query='Selby vs Yuan Sijun 2023 Scottish Open...' phase=candidate_narrowing quality=high
+2026-04-13 09:55:45.465 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:55:45.466 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:55:47.619 | DEBUG    | query_history:record:182 - [QueryHistory] #20 query='Mark Selby 4-2 Sean O'Sullivan 4-3 Matthew Stevens 2023 Scot...' phase=candidate_narrowing quality=high
+2026-04-13 09:55:52.139 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:55:54.802 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:56:02.761 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:56:07.207 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:56:09.238 | DEBUG    | query_history:record:182 - [QueryHistory] #21 query='Mark Selby lost to who 2023 Scottish Open round 3...' phase=candidate_narrowing quality=high
+2026-04-13 09:56:09.238 | DEBUG    | query_history:record:182 - [QueryHistory] #22 query='Selby Scottish Open 2023 quarterfinal loss...' phase=candidate_narrowing quality=high
+2026-04-13 09:56:28.651 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:56:32.237 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 09:56:34.319 | DEBUG    | query_history:record:182 - [QueryHistory] #23 query='Mark Selby 2024 Masters results...' phase=candidate_narrowing quality=high
+2026-04-13 09:56:34.322 | DEBUG    | query_history:record:182 - [QueryHistory] #24 query='Selby vs Ronnie O'Sullivan 2024 Masters...' phase=candidate_narrowing quality=high
+2026-04-13 09:57:04.927 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:57:08.113 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:57:10.512 | DEBUG    | query_history:record:182 - [QueryHistory] #25 query='Mark Selby 6-1 Robert Milkins 2024 Masters...' phase=candidate_narrowing quality=high
+2026-04-13 09:57:10.515 | DEBUG    | query_history:record:182 - [QueryHistory] #26 query='Selby vs Mark Allen 6-5 2024 Masters quarterfinal...' phase=candidate_narrowing quality=high
+2026-04-13 09:57:18.521 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:57:21.242 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 09:57:23.491 | DEBUG    | query_history:record:182 - [QueryHistory] #27 query='Mark Allen century breaks total 2025...' phase=candidate_narrowing quality=high
+2026-04-13 09:57:23.491 | DEBUG    | query_history:record:182 - [QueryHistory] #28 query='Mark Allen career centuries 2025...' phase=candidate_narrowing quality=high
+2026-04-13 09:57:47.031 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 09:57:51.492 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-04-13 09:59:37.098 | INFO     | trajectory_recorder:finalize:134 - [TrajectoryRecorder] Saved trajectory to logs\trajectories_fixed\deepseek-chat\task_000004.json
+2026-04-13 09:59:37.502 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-13 09:59:37.530 | INFO     | run_browsecomp:run_single_task:181 - [Task 4] grade['correct']=False | answer='Mark Selby' | status=solved | 1268.4s
+2026-04-13 09:59:46.475 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 09:59:49.122 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-13 10:00:42.427 | INFO     | subtask_critic:evaluate:142 - [SubtaskCritic] Rule-based verdict: allow
+2026-04-13 10:00:42.427 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-04-13 10:00:46.240 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: allow
+2026-04-13 10:00:48.558 | DEBUG    | query_history:record:182 - [QueryHistory] #0 query='opium author collection acquired library 2000 2020 donation...' phase=source_identification quality=high
+2026-04-13 10:00:56.549 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:00:58.805 | DEBUG    | query_history:record:182 - [QueryHistory] #1 query='author papers opium collection acquired library special coll...' phase=source_identification quality=high
+2026-04-13 10:01:02.771 | INFO     | search_crawl_controller:evaluate:197 - [SearchCrawlController] Rule-based verdict: crawl_now
+2026-04-13 10:01:15.881 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 10:01:17.804 | DEBUG    | query_history:record:182 - [QueryHistory] #2 query='Barbara Hodgson opium book author...' phase=source_identification quality=high
+2026-04-13 10:01:32.756 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:01:34.760 | DEBUG    | query_history:record:182 - [QueryHistory] #3 query='Barbara Hodgson Opium Collection UBC Library acquisition 201...' phase=source_identification quality=high
+2026-04-13 10:02:44.117 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow_with_warning
+2026-04-13 10:02:44.119 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow_with_warning | reason=This subtask builds on the successful identification of a specific author and collection. While it continues to examine 
+2026-04-13 10:02:57.837 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:02:59.687 | DEBUG    | query_history:record:182 - [QueryHistory] #4 query='UBC Library acquires Barbara Hodgson opium collection press ...' phase=candidate_narrowing quality=high
+2026-04-13 10:03:07.410 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:03:09.513 | DEBUG    | query_history:record:182 - [QueryHistory] #5 query='Barbara Hodgson opium collection Chung donation announcement...' phase=candidate_narrowing quality=medium
+2026-04-13 10:03:16.618 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:03:19.337 | DEBUG    | query_history:record:182 - [QueryHistory] #6 query='UBC Library news acquisition Barbara Hodgson...' phase=candidate_narrowing quality=high
+2026-04-13 10:03:49.003 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 10:03:55.871 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 10:03:57.908 | DEBUG    | query_history:record:182 - [QueryHistory] #7 query='Dr. Wallace B. Chung Madeline H. Chung UBC Library donation...' phase=candidate_narrowing quality=high
+2026-04-13 10:04:16.870 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:04:18.835 | DEBUG    | query_history:record:182 - [QueryHistory] #8 query='funded by Chung Barbara Hodgson opium collection acquisition...' phase=candidate_narrowing quality=high
+2026-04-13 10:04:29.279 | INFO     | query_critic:evaluate:172 - [QueryCritic] Rule-based verdict: reject_as_redundant
+2026-04-13 10:04:38.078 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:04:39.883 | DEBUG    | query_history:record:182 - [QueryHistory] #9 query='site:library.ubc.ca Barbara Hodgson Opium Collection...' phase=candidate_narrowing quality=high
+2026-04-13 10:05:19.286 | INFO     | planning_direction_critic:evaluate:157 - [DirectionCritic] is_stagnant=False | reason=Planner is making genuine progress: narrowed from general search to specific author/archive, and executor found definiti
+2026-04-13 10:07:41.423 | INFO     | subtask_critic:_llm_based_check:292 - [SubtaskCritic] LLM verdict: allow
+2026-04-13 10:07:41.425 | INFO     | search_harness_pipeline_v4:run:139 - [SubtaskCritic] verdict=allow | reason=The subtask is a targeted verification step for a specific candidate (the book 'Opium: A Portrait of the Heavenly Demon'
+2026-04-13 10:07:49.846 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow
+2026-04-13 10:07:52.023 | DEBUG    | query_history:record:182 - [QueryHistory] #10 query='Opium: A Portrait of the Heavenly Demon book description opi...' phase=verification quality=high
+2026-04-13 10:08:11.403 | INFO     | query_critic:_llm_based_check:319 - [QueryCritic] LLM verdict: allow_with_warning
+2026-04-13 10:08:13.227 | DEBUG    | query_history:record:182 - [QueryHistory] #11 query='Opium: A Portrait of the Heavenly Demon poppy plant opium pr...' phase=verification quality=high
+2026-04-13 10:09:04.869 | INFO     | trajectory_recorder:finalize:134 - [TrajectoryRecorder] Saved trajectory to logs\trajectories_fixed\deepseek-chat\task_000005.json
+2026-04-13 10:09:05.126 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-13 10:09:05.154 | INFO     | run_browsecomp:run_single_task:181 - [Task 5] grade['correct']=False | answer='Opium: A Portrait of the Heavenly Demon' | status=solved | 547.9s

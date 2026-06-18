@@ -1,0 +1,15 @@
+
+============================================================
+BrowseComp Fixed-Sample Baseline Results
+============================================================
+Seed:           123
+Sample size:    10
+Positions:      [5]
+Model:          deepseek-chat
+Grader:         gpt-4o-2024-11-20
+Examples:       1
+Correct:        0
+Accuracy:       0.00%
+Total time:     161.8s
+============================================================
+  [X ] pos= 5 Opium: A Portrait of the Heavenly Demon                      | completed

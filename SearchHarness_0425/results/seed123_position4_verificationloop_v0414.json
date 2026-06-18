@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-14T16:52:06",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    4
+  ],
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 918.1,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 12,
+    "max_planner_searches": 10,
+    "max_executor_searches": 30,
+    "max_total_searches": 80
+  },
+  "results": [
+    {
+      "task_index": 4,
+      "question_preview": "Can you tell me the name of the player who has more than 300 centuries to his name and has scored the highest break more than 3 times as of 30th Janua",
+      "correct_answer": "Ding Junhui",
+      "extracted_answer": "Ding Junhui",
+      "pipeline_answer_raw": "Ding Junhui",
+      "pipeline_status": "solved",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "elapsed_seconds": 911.9,
+      "sample_position": 4
+    }
+  ]
+}

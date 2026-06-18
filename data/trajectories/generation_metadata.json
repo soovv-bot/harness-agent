@@ -1,0 +1,52 @@
+{
+  "1": {
+    "task_index": 1,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "answer": "Puna de Atacama (Atacama Plateau)",
+        "status": "completed",
+        "timestamp": "2026-03-04T18:07:42.792794"
+      }
+    ],
+    "latest_answer": "Puna de Atacama (Atacama Plateau)",
+    "latest_status": "completed",
+    "total_attempts": 1,
+    "answer_match": true
+  },
+  "2": {
+    "task_index": 2,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "answer": "Dar Yusuf Nasri Jacir for Art and Research (also known as Dar Jacir)",
+        "status": "completed",
+        "timestamp": "2026-03-04T18:11:02.907759"
+      }
+    ],
+    "latest_answer": "Dar Yusuf Nasri Jacir for Art and Research (also known as Dar Jacir)",
+    "latest_status": "completed",
+    "total_attempts": 1,
+    "answer_match": true
+  },
+  "3": {
+    "task_index": 3,
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "answer": null,
+        "status": "max_turns_reached",
+        "timestamp": "2026-03-04T18:14:55.070578"
+      },
+      {
+        "attempt_number": 2,
+        "answer": null,
+        "status": "max_turns_reached",
+        "timestamp": "2026-03-04T18:19:11.021505"
+      }
+    ],
+    "latest_answer": null,
+    "latest_status": "max_turns_reached",
+    "total_attempts": 2
+  }
+}

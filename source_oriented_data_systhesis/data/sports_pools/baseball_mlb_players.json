@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Shohei Ohtani",
+    "id": "ohtansh01",
+    "url": "https://www.baseball-reference.com/players/o/ohtansh01.shtml",
+    "source": "mlb_fallback",
+    "team": "Los Angeles Dodgers",
+    "position": "DH/SP"
+  },
+  {
+    "name": "Aaron Judge",
+    "id": "judgeaa01",
+    "url": "https://www.baseball-reference.com/players/j/judgeaa01.shtml",
+    "source": "mlb_fallback",
+    "team": "New York Yankees",
+    "position": "RF"
+  },
+  {
+    "name": "Mookie Betts",
+    "id": "bettmm01",
+    "url": "https://www.baseball-reference.com/players/b/bettmm01.shtml",
+    "source": "mlb_fallback",
+    "team": "Los Angeles Dodgers",
+    "position": "SS/2B"
+  },
+  {
+    "name": "Ronald Acuña Jr.",
+    "id": "acunaro01",
+    "url": "https://www.baseball-reference.com/players/a/acunaro01.shtml",
+    "source": "mlb_fallback",
+    "team": "Atlanta Braves",
+    "position": "RF"
+  },
+  {
+    "name": "Juan Soto",
+    "id": "sotoju01",
+    "url": "https://www.baseball-reference.com/players/s/sotoju01.shtml",
+    "source": "mlb_fallback",
+    "team": "New York Yankees",
+    "position": "RF"
+  },
+  {
+    "name": "Freddie Freeman",
+    "id": "freemfr01",
+    "url": "https://www.baseball-reference.com/players/f/freemfr01.shtml",
+    "source": "mlb_fallback",
+    "team": "Los Angeles Dodgers",
+    "position": "1B"
+  },
+  {
+    "name": "Babe Ruth",
+    "id": "ruthba01",
+    "url": "https://www.baseball-reference.com/players/r/ruthba01.shtml",
+    "source": "mlb_fallback",
+    "team": "New York Yankees",
+    "position": "RF/P"
+  },
+  {
+    "name": "Hank Aaron",
+    "id": "aaronha01",
+    "url": "https://www.baseball-reference.com/players/a/aaronha01.shtml",
+    "source": "mlb_fallback",
+    "team": "Atlanta Braves",
+    "position": "RF"
+  },
+  {
+    "name": "Barry Bonds",
+    "id": "bondsba01",
+    "url": "https://www.baseball-reference.com/players/b/bondsba01.shtml",
+    "source": "mlb_fallback",
+    "team": "San Francisco Giants",
+    "position": "LF"
+  },
+  {
+    "name": "Ted Williams",
+    "id": "willite01",
+    "url": "https://www.baseball-reference.com/players/w/willite01.shtml",
+    "source": "mlb_fallback",
+    "team": "Boston Red Sox",
+    "position": "LF"
+  },
+  {
+    "name": "Mickey Mantle",
+    "id": "mantlmi01",
+    "url": "https://www.baseball-reference.com/players/m/mantlmi01.shtml",
+    "source": "mlb_fallback",
+    "team": "New York Yankees",
+    "position": "CF"
+  },
+  {
+    "name": "Willie Mays",
+    "id": "mayswi01",
+    "url": "https://www.baseball-reference.com/players/m/mayswi01.shtml",
+    "source": "mlb_fallback",
+    "team": "San Francisco Giants",
+    "position": "CF"
+  },
+  {
+    "name": "Jackie Robinson",
+    "id": "robinja01",
+    "url": "https://www.baseball-reference.com/players/r/robinja01.shtml",
+    "source": "mlb_fallback",
+    "team": "Brooklyn Dodgers",
+    "position": "2B"
+  },
+  {
+    "name": "Derek Jeter",
+    "id": "jeterde01",
+    "url": "https://www.baseball-reference.com/players/j/jeterde01.shtml",
+    "source": "mlb_fallback",
+    "team": "New York Yankees",
+    "position": "SS"
+  },
+  {
+    "name": "Ken Griffey Jr.",
+    "id": "griffke02",
+    "url": "https://www.baseball-reference.com/players/g/griffke02.shtml",
+    "source": "mlb_fallback",
+    "team": "Seattle Mariners",
+    "position": "CF"
+  },
+  {
+    "name": "Clayton Kershaw",
+    "id": "kershcl01",
+    "url": "https://www.baseball-reference.com/players/k/kershcl01.shtml",
+    "source": "mlb_fallback",
+    "team": "Los Angeles Dodgers",
+    "position": "SP"
+  },
+  {
+    "name": "Max Scherzer",
+    "id": "scherma01",
+    "url": "https://www.baseball-reference.com/players/s/scherma01.shtml",
+    "source": "mlb_fallback",
+    "team": "Texas Rangers",
+    "position": "SP"
+  },
+  {
+    "name": "Jacob deGrom",
+    "id": "degroja01",
+    "url": "https://www.baseball-reference.com/players/d/degroja01.shtml",
+    "source": "mlb_fallback",
+    "team": "Texas Rangers",
+    "position": "SP"
+  },
+  {
+    "name": "Mariano Rivera",
+    "id": "riverma01",
+    "url": "https://www.baseball-reference.com/players/r/riverma01.shtml",
+    "source": "mlb_fallback",
+    "team": "New York Yankees",
+    "position": "RP"
+  },
+  {
+    "name": "Nolan Ryan",
+    "id": "ryanno01",
+    "url": "https://www.baseball-reference.com/players/r/ryanno01.shtml",
+    "source": "mlb_fallback",
+    "team": "California Angels",
+    "position": "SP"
+  },
+  {
+    "name": "Greg Maddux",
+    "id": "maddugr01",
+    "url": "https://www.baseball-reference.com/players/m/maddugr01.shtml",
+    "source": "mlb_fallback",
+    "team": "Atlanta Braves",
+    "position": "SP"
+  },
+  {
+    "name": "Randy Johnson",
+    "id": "johnsra05",
+    "url": "https://www.baseball-reference.com/players/j/johnsra05.shtml",
+    "source": "mlb_fallback",
+    "team": "Arizona Diamondbacks",
+    "position": "SP"
+  }
+]

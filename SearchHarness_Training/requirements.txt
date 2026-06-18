@@ -1,0 +1,23 @@
+# SearchHarness dependencies
+# Python >= 3.10
+
+# LLM API
+openai>=1.0.0
+
+# Search tools (via OffSeeker-main)
+requests
+httpx
+beautifulsoup4
+html2text
+wikipedia-api
+PyPDF2
+
+# Environment
+python-dotenv>=1.0.0
+
+# Logging
+loguru>=0.7.0
+
+# BrowseComp evaluation
+pandas
+tqdm

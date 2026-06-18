@@ -1,0 +1,186 @@
+[
+  {
+    "name": "Connor McDavid",
+    "id": "mcdavco01",
+    "url": "https://www.hockey-reference.com/players/m/mcdavco01.html",
+    "source": "nhl_fallback",
+    "team": "Edmonton Oilers",
+    "position": "C"
+  },
+  {
+    "name": "Nathan MacKinnon",
+    "id": "mackina01",
+    "url": "https://www.hockey-reference.com/players/m/mackina01.html",
+    "source": "nhl_fallback",
+    "team": "Colorado Avalanche",
+    "position": "C"
+  },
+  {
+    "name": "Auston Matthews",
+    "id": "matthau01",
+    "url": "https://www.hockey-reference.com/players/m/matthau01.html",
+    "source": "nhl_fallback",
+    "team": "Toronto Maple Leafs",
+    "position": "C"
+  },
+  {
+    "name": "Leon Draisaitl",
+    "id": "draisle01",
+    "url": "https://www.hockey-reference.com/players/d/draisle01.html",
+    "source": "nhl_fallback",
+    "team": "Edmonton Oilers",
+    "position": "C"
+  },
+  {
+    "name": "Artemi Panarin",
+    "id": "panarar01",
+    "url": "https://www.hockey-reference.com/players/p/panarar01.html",
+    "source": "nhl_fallback",
+    "team": "New York Rangers",
+    "position": "LW"
+  },
+  {
+    "name": "Cale Makar",
+    "id": "makarca01",
+    "url": "https://www.hockey-reference.com/players/m/makarca01.html",
+    "source": "nhl_fallback",
+    "team": "Colorado Avalanche",
+    "position": "D"
+  },
+  {
+    "name": "Wayne Gretzky",
+    "id": "greetwa01",
+    "url": "https://www.hockey-reference.com/players/g/greetwa01.html",
+    "source": "nhl_fallback",
+    "team": "Edmonton Oilers",
+    "position": "C"
+  },
+  {
+    "name": "Mario Lemieux",
+    "id": "lemieuma01",
+    "url": "https://www.hockey-reference.com/players/l/lemieuma01.html",
+    "source": "nhl_fallback",
+    "team": "Pittsburgh Penguins",
+    "position": "C"
+  },
+  {
+    "name": "Bobby Orr",
+    "id": "orrbo01",
+    "url": "https://www.hockey-reference.com/players/o/orrbo01.html",
+    "source": "nhl_fallback",
+    "team": "Boston Bruins",
+    "position": "D"
+  },
+  {
+    "name": "Gordie Howe",
+    "id": "howego01",
+    "url": "https://www.hockey-reference.com/players/h/howego01.html",
+    "source": "nhl_fallback",
+    "team": "Detroit Red Wings",
+    "position": "RW"
+  },
+  {
+    "name": "Sidney Crosby",
+    "id": "crosbsi01",
+    "url": "https://www.hockey-reference.com/players/c/crosbsi01.html",
+    "source": "nhl_fallback",
+    "team": "Pittsburgh Penguins",
+    "position": "C"
+  },
+  {
+    "name": "Alex Ovechkin",
+    "id": "ovechal01",
+    "url": "https://www.hockey-reference.com/players/o/ovechal01.html",
+    "source": "nhl_fallback",
+    "team": "Washington Capitals",
+    "position": "LW"
+  },
+  {
+    "name": "Patrick Kane",
+    "id": "kanepa01",
+    "url": "https://www.hockey-reference.com/players/k/kanepa01.html",
+    "source": "nhl_fallback",
+    "team": "Chicago Blackhawks",
+    "position": "RW"
+  },
+  {
+    "name": "Steven Stamkos",
+    "id": "stamste01",
+    "url": "https://www.hockey-reference.com/players/s/stamste01.html",
+    "source": "nhl_fallback",
+    "team": "Tampa Bay Lightning",
+    "position": "C"
+  },
+  {
+    "name": "Mikhail Sergachev",
+    "id": "sergemm01",
+    "url": "https://www.hockey-reference.com/players/s/sergemm01.html",
+    "source": "nhl_fallback",
+    "team": "Tampa Bay Lightning",
+    "position": "D"
+  },
+  {
+    "name": "Victor Hedman",
+    "id": "hedmavi01",
+    "url": "https://www.hockey-reference.com/players/h/hedmavi01.html",
+    "source": "nhl_fallback",
+    "team": "Tampa Bay Lightning",
+    "position": "D"
+  },
+  {
+    "name": "Drew Doughty",
+    "id": "doughdr01",
+    "url": "https://www.hockey-reference.com/players/d/doughdr01.html",
+    "source": "nhl_fallback",
+    "team": "Los Angeles Kings",
+    "position": "D"
+  },
+  {
+    "name": "Erik Karlsson",
+    "id": "karler01",
+    "url": "https://www.hockey-reference.com/players/k/karler01.html",
+    "source": "nhl_fallback",
+    "team": "Pittsburgh Penguins",
+    "position": "D"
+  },
+  {
+    "name": "Nicklas Lidström",
+    "id": "lidstni01",
+    "url": "https://www.hockey-reference.com/players/l/lidstni01.html",
+    "source": "nhl_fallback",
+    "team": "Detroit Red Wings",
+    "position": "D"
+  },
+  {
+    "name": "Ray Bourque",
+    "id": "bourara01",
+    "url": "https://www.hockey-reference.com/players/b/bourara01.html",
+    "source": "nhl_fallback",
+    "team": "Boston Bruins",
+    "position": "D"
+  },
+  {
+    "name": "Martin Brodeur",
+    "id": "brodemr01",
+    "url": "https://www.hockey-reference.com/players/b/brodemr01.html",
+    "source": "nhl_fallback",
+    "team": "New Jersey Devils",
+    "position": "G"
+  },
+  {
+    "name": "Patrick Roy",
+    "id": "roypa01",
+    "url": "https://www.hockey-reference.com/players/r/roypa01.html",
+    "source": "nhl_fallback",
+    "team": "Montreal Canadiens",
+    "position": "G"
+  },
+  {
+    "name": "Dominik Hašek",
+    "id": "hasedo01",
+    "url": "https://www.hockey-reference.com/players/h/hasedo01.html",
+    "source": "nhl_fallback",
+    "team": "Buffalo Sabres",
+    "position": "G"
+  }
+]

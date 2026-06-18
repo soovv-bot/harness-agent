@@ -1,0 +1,218 @@
+[
+  {
+    "name": "Virat Kohli",
+    "id": "kohli",
+    "url": "https://www.espncricinfo.com/cricketers/virat-kohli-253798",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "Batsman"
+  },
+  {
+    "name": "Steve Smith",
+    "id": "smith",
+    "url": "https://www.espncricinfo.com/cricketers/steve-smith-270725",
+    "source": "cricket_fallback",
+    "country": "Australia",
+    "role": "Batsman"
+  },
+  {
+    "name": "Kane Williamson",
+    "id": "williamson",
+    "url": "https://www.espncricinfo.com/cricketers/kane-williamson-277907",
+    "source": "cricket_fallback",
+    "country": "New Zealand",
+    "role": "Batsman"
+  },
+  {
+    "name": "Joe Root",
+    "id": "root",
+    "url": "https://www.espncricinfo.com/cricketers/joe-root-303669",
+    "source": "cricket_fallback",
+    "country": "England",
+    "role": "Batsman"
+  },
+  {
+    "name": "Babar Azam",
+    "id": "azam",
+    "url": "https://www.espncricinfo.com/cricketers/babar-azam-1185654",
+    "source": "cricket_fallback",
+    "country": "Pakistan",
+    "role": "Batsman"
+  },
+  {
+    "name": "Sachin Tendulkar",
+    "id": "tendulkar",
+    "url": "https://www.espncricinfo.com/cricketers/sachin-tendulkar-35320",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "Batsman"
+  },
+  {
+    "name": "Brian Lara",
+    "id": "lara",
+    "url": "https://www.espncricinfo.com/cricketers/brian-lara-51780",
+    "source": "cricket_fallback",
+    "country": "West Indies",
+    "role": "Batsman"
+  },
+  {
+    "name": "Ricky Ponting",
+    "id": "ponting",
+    "url": "https://www.espncricinfo.com/cricketers/ricky-ponting-7113",
+    "source": "cricket_fallback",
+    "country": "Australia",
+    "role": "Batsman"
+  },
+  {
+    "name": "Jacques Kallis",
+    "id": "kallis",
+    "url": "https://www.espncricinfo.com/cricketers/jacques-kallis-45778",
+    "source": "cricket_fallback",
+    "country": "South Africa",
+    "role": "All-rounder"
+  },
+  {
+    "name": "Sir Don Bradman",
+    "id": "bradman",
+    "url": "https://www.espncricinfo.com/cricketers/don-bradman-4188",
+    "source": "cricket_fallback",
+    "country": "Australia",
+    "role": "Batsman"
+  },
+  {
+    "name": "Rahul Dravid",
+    "id": "dravid",
+    "url": "https://www.espncricinfo.com/cricketers/rahul-dravid-28114",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "Batsman"
+  },
+  {
+    "name": "Sourav Ganguly",
+    "id": "ganguly",
+    "url": "https://www.espncricinfo.com/cricketers/sourav-ganguly-28775",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "Batsman"
+  },
+  {
+    "name": "VVS Laxman",
+    "id": "laxman",
+    "url": "https://www.espncricinfo.com/cricketers/vvs-laxman-28780",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "Batsman"
+  },
+  {
+    "name": "Inzamam-ul-Haq",
+    "id": "inzamam",
+    "url": "https://www.espncricinfo.com/cricketers/inzamam-ul-haq-26066",
+    "source": "cricket_fallback",
+    "country": "Pakistan",
+    "role": "Batsman"
+  },
+  {
+    "name": "Mahela Jayawardene",
+    "id": "jayawardene",
+    "url": "https://www.espncricinfo.com/cricketers/mahela-jayawardene-49649",
+    "source": "cricket_fallback",
+    "country": "Sri Lanka",
+    "role": "Batsman"
+  },
+  {
+    "name": "Kumar Sangakkara",
+    "id": "sangakkara",
+    "url": "https://www.espncricinfo.com/cricketers/kumar-sangakkara-50710",
+    "source": "cricket_fallback",
+    "country": "Sri Lanka",
+    "role": "Batsman/Wicketkeeper"
+  },
+  {
+    "name": "Muttiah Muralitharan",
+    "id": "muralitharan",
+    "url": "https://www.espncricinfo.com/cricketers/muttiah-muralitharan-49364",
+    "source": "cricket_fallback",
+    "country": "Sri Lanka",
+    "role": "Bowler"
+  },
+  {
+    "name": "Shane Warne",
+    "id": "warne",
+    "url": "https://www.espncricinfo.com/cricketers/shane-warne-8551",
+    "source": "cricket_fallback",
+    "country": "Australia",
+    "role": "Bowler"
+  },
+  {
+    "name": "Glenn McGrath",
+    "id": "mcgrath",
+    "url": "https://www.espncricinfo.com/cricketers/glenn-mcgrath-8552",
+    "source": "cricket_fallback",
+    "country": "Australia",
+    "role": "Bowler"
+  },
+  {
+    "name": "Wasim Akram",
+    "id": "akram",
+    "url": "https://www.espncricinfo.com/cricketers/wasim-akram-25779",
+    "source": "cricket_fallback",
+    "country": "Pakistan",
+    "role": "Bowler"
+  },
+  {
+    "name": "James Anderson",
+    "id": "anderson",
+    "url": "https://www.espncricinfo.com/cricketers/james-anderson-11272",
+    "source": "cricket_fallback",
+    "country": "England",
+    "role": "Bowler"
+  },
+  {
+    "name": "Dale Steyn",
+    "id": "steyn",
+    "url": "https://www.espncricinfo.com/cricketers/dale-steyn-45794",
+    "source": "cricket_fallback",
+    "country": "South Africa",
+    "role": "Bowler"
+  },
+  {
+    "name": "Ben Stokes",
+    "id": "stokes",
+    "url": "https://www.espncricinfo.com/cricketers/ben-stokes-328263",
+    "source": "cricket_fallback",
+    "country": "England",
+    "role": "All-rounder"
+  },
+  {
+    "name": "Ravindra Jadeja",
+    "id": "jadeja",
+    "url": "https://www.espncricinfo.com/cricketers/ravindra-jadeja-423882",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "All-rounder"
+  },
+  {
+    "name": "MS Dhoni",
+    "id": "dhoni",
+    "url": "https://www.espncricinfo.com/cricketers/ms-dhoni-28114",
+    "source": "cricket_fallback",
+    "country": "India",
+    "role": "Wicketkeeper-Batsman"
+  },
+  {
+    "name": "Adam Gilchrist",
+    "id": "gilchrist",
+    "url": "https://www.espncricinfo.com/cricketers/adam-gilchrist-8708",
+    "source": "cricket_fallback",
+    "country": "Australia",
+    "role": "Wicketkeeper-Batsman"
+  },
+  {
+    "name": "Mark Boucher",
+    "id": "boucher",
+    "url": "https://www.espncricinfo.com/cricketers/mark-boucher-44904",
+    "source": "cricket_fallback",
+    "country": "South Africa",
+    "role": "Wicketkeeper"
+  }
+]

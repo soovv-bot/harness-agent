@@ -1,0 +1,1234 @@
+[
+  {
+    "name": "Islam Makhachev",
+    "slug": "islam-makhachev",
+    "url": "https://www.ufc.com/athlete/islam-makhachev",
+    "source": "ufc_rankings",
+    "rank": "1"
+  },
+  {
+    "name": "Ilia Topuria",
+    "slug": "ilia-topuria",
+    "url": "https://www.ufc.com/athlete/ilia-topuria",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Khamzat Chimaev",
+    "slug": "khamzat-chimaev",
+    "url": "https://www.ufc.com/athlete/khamzat-chimaev",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Alexander Volkanovski",
+    "slug": "alexander-volkanovski",
+    "url": "https://www.ufc.com/athlete/alexander-volkanovski",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Alex Pereira",
+    "slug": "alex-pereira",
+    "url": "https://www.ufc.com/athlete/alex-pereira",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Petr Yan",
+    "slug": "petr-yan",
+    "url": "https://www.ufc.com/athlete/petr-yan",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Merab Dvalishvili",
+    "slug": "merab-dvalishvili",
+    "url": "https://www.ufc.com/athlete/merab-dvalishvili",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Tom Aspinall",
+    "slug": "tom-aspinall",
+    "url": "https://www.ufc.com/athlete/tom-aspinall",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Alexandre Pantoja",
+    "slug": "alexandre-pantoja",
+    "url": "https://www.ufc.com/athlete/alexandre-pantoja",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Max Holloway",
+    "slug": "max-holloway",
+    "url": "https://www.ufc.com/athlete/max-holloway",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Joshua Van",
+    "slug": "joshua-van",
+    "url": "https://www.ufc.com/athlete/joshua-van",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Magomed Ankalaev",
+    "slug": "magomed-ankalaev",
+    "url": "https://www.ufc.com/athlete/magomed-ankalaev",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Dricus Du Plessis",
+    "slug": "dricus-du-plessis",
+    "url": "https://www.ufc.com/athlete/dricus-du-plessis",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Jack Della Maddalena",
+    "slug": "jack-della-maddalena",
+    "url": "https://www.ufc.com/athlete/jack-della-maddalena",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Arman Tsarukyan",
+    "slug": "arman-tsarukyan",
+    "url": "https://www.ufc.com/athlete/arman-tsarukyan",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Manel Kape",
+    "slug": "manel-kape",
+    "url": "https://www.ufc.com/athlete/manel-kape",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Tatsuro Taira",
+    "slug": "tatsuro-taira",
+    "url": "https://www.ufc.com/athlete/tatsuro-taira",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Brandon Royval",
+    "slug": "brandon-royval",
+    "url": "https://www.ufc.com/athlete/brandon-royval",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Brandon Moreno",
+    "slug": "brandon-moreno",
+    "url": "https://www.ufc.com/athlete/brandon-moreno",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Amir Albazi",
+    "slug": "amir-albazi",
+    "url": "https://www.ufc.com/athlete/amir-albazi",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Asu Almabayev",
+    "slug": "asu-almabayev",
+    "url": "https://www.ufc.com/athlete/asu-almabayev",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Kyoji Horiguchi",
+    "slug": "kyoji-horiguchi",
+    "url": "https://www.ufc.com/athlete/kyoji-horiguchi",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Tim Elliott",
+    "slug": "tim-elliott",
+    "url": "https://www.ufc.com/athlete/tim-elliott",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Alex Perez",
+    "slug": "alex-perez",
+    "url": "https://www.ufc.com/athlete/alex-perez",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Steve Erceg",
+    "slug": "steve-erceg",
+    "url": "https://www.ufc.com/athlete/steve-erceg",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Tagir Ulanbekov",
+    "slug": "tagir-ulanbekov",
+    "url": "https://www.ufc.com/athlete/tagir-ulanbekov",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Charles Johnson",
+    "slug": "charles-johnson",
+    "url": "https://www.ufc.com/athlete/charles-johnson",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Bruno Silva",
+    "slug": "bruno-silva",
+    "url": "https://www.ufc.com/athlete/bruno-silva",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Lone’er Kavanagh",
+    "slug": "lone’er-kavanagh",
+    "url": "https://www.ufc.com/athlete/lone’er-kavanagh",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Umar Nurmagomedov",
+    "slug": "umar-nurmagomedov",
+    "url": "https://www.ufc.com/athlete/umar-nurmagomedov",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Sean O'Malley",
+    "slug": "sean-omalley",
+    "url": "https://www.ufc.com/athlete/sean-omalley",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Cory Sandhagen",
+    "slug": "cory-sandhagen",
+    "url": "https://www.ufc.com/athlete/cory-sandhagen",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Song Yadong",
+    "slug": "song-yadong",
+    "url": "https://www.ufc.com/athlete/song-yadong",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Aiemann Zahabi",
+    "slug": "aiemann-zahabi",
+    "url": "https://www.ufc.com/athlete/aiemann-zahabi",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Deiveson Figueiredo",
+    "slug": "deiveson-figueiredo",
+    "url": "https://www.ufc.com/athlete/deiveson-figueiredo",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Marlon Vera",
+    "slug": "marlon-vera",
+    "url": "https://www.ufc.com/athlete/marlon-vera",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Mario Bautista",
+    "slug": "mario-bautista",
+    "url": "https://www.ufc.com/athlete/mario-bautista",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "David Martinez",
+    "slug": "david-martinez",
+    "url": "https://www.ufc.com/athlete/david-martinez",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Vinicius Oliveira",
+    "slug": "vinicius-oliveira",
+    "url": "https://www.ufc.com/athlete/vinicius-oliveira",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Payton Talbott",
+    "slug": "payton-talbott",
+    "url": "https://www.ufc.com/athlete/payton-talbott",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Rob Font",
+    "slug": "rob-font",
+    "url": "https://www.ufc.com/athlete/rob-font",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Kyler Phillips",
+    "slug": "kyler-phillips",
+    "url": "https://www.ufc.com/athlete/kyler-phillips",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Montel Jackson",
+    "slug": "montel-jackson",
+    "url": "https://www.ufc.com/athlete/montel-jackson",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Movsar Evloev",
+    "slug": "movsar-evloev",
+    "url": "https://www.ufc.com/athlete/movsar-evloev",
+    "source": "ufc_rankings",
+    "rank": "1"
+  },
+  {
+    "name": "Diego Lopes",
+    "slug": "diego-lopes",
+    "url": "https://www.ufc.com/athlete/diego-lopes",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Lerone Murphy",
+    "slug": "lerone-murphy",
+    "url": "https://www.ufc.com/athlete/lerone-murphy",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Yair Rodriguez",
+    "slug": "yair-rodriguez",
+    "url": "https://www.ufc.com/athlete/yair-rodriguez",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Aljamain Sterling",
+    "slug": "aljamain-sterling",
+    "url": "https://www.ufc.com/athlete/aljamain-sterling",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Jean Silva",
+    "slug": "jean-silva",
+    "url": "https://www.ufc.com/athlete/jean-silva",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Arnold Allen",
+    "slug": "arnold-allen",
+    "url": "https://www.ufc.com/athlete/arnold-allen",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Youssef Zalal",
+    "slug": "youssef-zalal",
+    "url": "https://www.ufc.com/athlete/youssef-zalal",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Steve Garcia",
+    "slug": "steve-garcia",
+    "url": "https://www.ufc.com/athlete/steve-garcia",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Brian Ortega",
+    "slug": "brian-ortega",
+    "url": "https://www.ufc.com/athlete/brian-ortega",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Josh Emmett",
+    "slug": "josh-emmett",
+    "url": "https://www.ufc.com/athlete/josh-emmett",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Patricio Pitbull",
+    "slug": "patricio-pitbull",
+    "url": "https://www.ufc.com/athlete/patricio-pitbull",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Kevin Vallejos",
+    "slug": "kevin-vallejos",
+    "url": "https://www.ufc.com/athlete/kevin-vallejos",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Dan Ige",
+    "slug": "dan-ige",
+    "url": "https://www.ufc.com/athlete/dan-ige",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "David Onama",
+    "slug": "david-onama",
+    "url": "https://www.ufc.com/athlete/david-onama",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Justin Gaethje",
+    "slug": "justin-gaethje",
+    "url": "https://www.ufc.com/athlete/justin-gaethje",
+    "source": "ufc_rankings",
+    "rank": "1"
+  },
+  {
+    "name": "Charles Oliveira",
+    "slug": "charles-oliveira",
+    "url": "https://www.ufc.com/athlete/charles-oliveira",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Benoît Saint Denis",
+    "slug": "benoît-saint-denis",
+    "url": "https://www.ufc.com/athlete/benoît-saint-denis",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Paddy Pimblett",
+    "slug": "paddy-pimblett",
+    "url": "https://www.ufc.com/athlete/paddy-pimblett",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Mateusz Gamrot",
+    "slug": "mateusz-gamrot",
+    "url": "https://www.ufc.com/athlete/mateusz-gamrot",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Dan Hooker",
+    "slug": "dan-hooker",
+    "url": "https://www.ufc.com/athlete/dan-hooker",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Mauricio Ruffy",
+    "slug": "mauricio-ruffy",
+    "url": "https://www.ufc.com/athlete/mauricio-ruffy",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Renato Moicano",
+    "slug": "renato-moicano",
+    "url": "https://www.ufc.com/athlete/renato-moicano",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Rafael Fiziev",
+    "slug": "rafael-fiziev",
+    "url": "https://www.ufc.com/athlete/rafael-fiziev",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Beneil Dariush",
+    "slug": "beneil-dariush",
+    "url": "https://www.ufc.com/athlete/beneil-dariush",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Michael Chandler",
+    "slug": "michael-chandler",
+    "url": "https://www.ufc.com/athlete/michael-chandler",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Manuel Torres",
+    "slug": "manuel-torres",
+    "url": "https://www.ufc.com/athlete/manuel-torres",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Farès Ziam",
+    "slug": "farès-ziam",
+    "url": "https://www.ufc.com/athlete/farès-ziam",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Ian Machado Garry",
+    "slug": "ian-machado-garry",
+    "url": "https://www.ufc.com/athlete/ian-machado-garry",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Michael Morales",
+    "slug": "michael-morales",
+    "url": "https://www.ufc.com/athlete/michael-morales",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Belal Muhammad",
+    "slug": "belal-muhammad",
+    "url": "https://www.ufc.com/athlete/belal-muhammad",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Carlos Prates",
+    "slug": "carlos-prates",
+    "url": "https://www.ufc.com/athlete/carlos-prates",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Sean Brady",
+    "slug": "sean-brady",
+    "url": "https://www.ufc.com/athlete/sean-brady",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Kamaru Usman",
+    "slug": "kamaru-usman",
+    "url": "https://www.ufc.com/athlete/kamaru-usman",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Leon Edwards",
+    "slug": "leon-edwards",
+    "url": "https://www.ufc.com/athlete/leon-edwards",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Joaquin Buckley",
+    "slug": "joaquin-buckley",
+    "url": "https://www.ufc.com/athlete/joaquin-buckley",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Gilbert Burns",
+    "slug": "gilbert-burns",
+    "url": "https://www.ufc.com/athlete/gilbert-burns",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Gabriel Bonfim",
+    "slug": "gabriel-bonfim",
+    "url": "https://www.ufc.com/athlete/gabriel-bonfim",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Geoff Neal",
+    "slug": "geoff-neal",
+    "url": "https://www.ufc.com/athlete/geoff-neal",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Colby Covington",
+    "slug": "colby-covington",
+    "url": "https://www.ufc.com/athlete/colby-covington",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Daniel Rodriguez",
+    "slug": "daniel-rodriguez",
+    "url": "https://www.ufc.com/athlete/daniel-rodriguez",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Michael Page",
+    "slug": "michael-page",
+    "url": "https://www.ufc.com/athlete/michael-page",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Nassourdine Imavov",
+    "slug": "nassourdine-imavov",
+    "url": "https://www.ufc.com/athlete/nassourdine-imavov",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Sean Strickland",
+    "slug": "sean-strickland",
+    "url": "https://www.ufc.com/athlete/sean-strickland",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Anthony Hernandez",
+    "slug": "anthony-hernandez",
+    "url": "https://www.ufc.com/athlete/anthony-hernandez",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Brendan Allen",
+    "slug": "brendan-allen",
+    "url": "https://www.ufc.com/athlete/brendan-allen",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Israel Adesanya",
+    "slug": "israel-adesanya",
+    "url": "https://www.ufc.com/athlete/israel-adesanya",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Caio Borralho",
+    "slug": "caio-borralho",
+    "url": "https://www.ufc.com/athlete/caio-borralho",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Reinier de Ridder",
+    "slug": "reinier-de-ridder",
+    "url": "https://www.ufc.com/athlete/reinier-de-ridder",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Robert Whittaker",
+    "slug": "robert-whittaker",
+    "url": "https://www.ufc.com/athlete/robert-whittaker",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Jared Cannonier",
+    "slug": "jared-cannonier",
+    "url": "https://www.ufc.com/athlete/jared-cannonier",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Roman Dolidze",
+    "slug": "roman-dolidze",
+    "url": "https://www.ufc.com/athlete/roman-dolidze",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Paulo Costa",
+    "slug": "paulo-costa",
+    "url": "https://www.ufc.com/athlete/paulo-costa",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Gregory Rodrigues",
+    "slug": "gregory-rodrigues",
+    "url": "https://www.ufc.com/athlete/gregory-rodrigues",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Joe Pyfer",
+    "slug": "joe-pyfer",
+    "url": "https://www.ufc.com/athlete/joe-pyfer",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Brunno Ferreira",
+    "slug": "brunno-ferreira",
+    "url": "https://www.ufc.com/athlete/brunno-ferreira",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Jiří Procházka",
+    "slug": "jiří-procházka",
+    "url": "https://www.ufc.com/athlete/jiří-procházka",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Carlos Ulberg",
+    "slug": "carlos-ulberg",
+    "url": "https://www.ufc.com/athlete/carlos-ulberg",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Khalil Rountree Jr.",
+    "slug": "khalil-rountree-jr",
+    "url": "https://www.ufc.com/athlete/khalil-rountree-jr",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Jan Błachowicz",
+    "slug": "jan-błachowicz",
+    "url": "https://www.ufc.com/athlete/jan-błachowicz",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Azamat Murzakanov",
+    "slug": "azamat-murzakanov",
+    "url": "https://www.ufc.com/athlete/azamat-murzakanov",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Jamahal Hill",
+    "slug": "jamahal-hill",
+    "url": "https://www.ufc.com/athlete/jamahal-hill",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Volkan Oezdemir",
+    "slug": "volkan-oezdemir",
+    "url": "https://www.ufc.com/athlete/volkan-oezdemir",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Bogdan Guskov",
+    "slug": "bogdan-guskov",
+    "url": "https://www.ufc.com/athlete/bogdan-guskov",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Dominick Reyes",
+    "slug": "dominick-reyes",
+    "url": "https://www.ufc.com/athlete/dominick-reyes",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Aleksandar Rakić",
+    "slug": "aleksandar-rakić",
+    "url": "https://www.ufc.com/athlete/aleksandar-rakić",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Johnny Walker",
+    "slug": "johnny-walker",
+    "url": "https://www.ufc.com/athlete/johnny-walker",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Nikita Krylov",
+    "slug": "nikita-krylov",
+    "url": "https://www.ufc.com/athlete/nikita-krylov",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Zhang Mingyang",
+    "slug": "zhang-mingyang",
+    "url": "https://www.ufc.com/athlete/zhang-mingyang",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Alonzo Menifield",
+    "slug": "alonzo-menifield",
+    "url": "https://www.ufc.com/athlete/alonzo-menifield",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Ciryl Gane",
+    "slug": "ciryl-gane",
+    "url": "https://www.ufc.com/athlete/ciryl-gane",
+    "source": "ufc_rankings",
+    "rank": "1"
+  },
+  {
+    "name": "Alexander Volkov",
+    "slug": "alexander-volkov",
+    "url": "https://www.ufc.com/athlete/alexander-volkov",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Sergei Pavlovich",
+    "slug": "sergei-pavlovich",
+    "url": "https://www.ufc.com/athlete/sergei-pavlovich",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Curtis Blaydes",
+    "slug": "curtis-blaydes",
+    "url": "https://www.ufc.com/athlete/curtis-blaydes",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Waldo Cortes Acosta",
+    "slug": "waldo-cortes-acosta",
+    "url": "https://www.ufc.com/athlete/waldo-cortes-acosta",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Jailton Almeida",
+    "slug": "jailton-almeida",
+    "url": "https://www.ufc.com/athlete/jailton-almeida",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Serghei Spivac",
+    "slug": "serghei-spivac",
+    "url": "https://www.ufc.com/athlete/serghei-spivac",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Marcin Tybura",
+    "slug": "marcin-tybura",
+    "url": "https://www.ufc.com/athlete/marcin-tybura",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Derrick Lewis",
+    "slug": "derrick-lewis",
+    "url": "https://www.ufc.com/athlete/derrick-lewis",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Ante Delija",
+    "slug": "ante-delija",
+    "url": "https://www.ufc.com/athlete/ante-delija",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Tallison Teixeira",
+    "slug": "tallison-teixeira",
+    "url": "https://www.ufc.com/athlete/tallison-teixeira",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Shamil Gaziev",
+    "slug": "shamil-gaziev",
+    "url": "https://www.ufc.com/athlete/shamil-gaziev",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Mick Parkin",
+    "slug": "mick-parkin",
+    "url": "https://www.ufc.com/athlete/mick-parkin",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Valter Walker",
+    "slug": "valter-walker",
+    "url": "https://www.ufc.com/athlete/valter-walker",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Tai Tuivasa",
+    "slug": "tai-tuivasa",
+    "url": "https://www.ufc.com/athlete/tai-tuivasa",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Valentina Shevchenko",
+    "slug": "valentina-shevchenko",
+    "url": "https://www.ufc.com/athlete/valentina-shevchenko",
+    "source": "ufc_rankings",
+    "rank": "1"
+  },
+  {
+    "name": "Kayla Harrison",
+    "slug": "kayla-harrison",
+    "url": "https://www.ufc.com/athlete/kayla-harrison",
+    "source": "ufc_rankings",
+    "rank": "2"
+  },
+  {
+    "name": "Zhang Weili",
+    "slug": "zhang-weili",
+    "url": "https://www.ufc.com/athlete/zhang-weili",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Natalia Silva",
+    "slug": "natalia-silva",
+    "url": "https://www.ufc.com/athlete/natalia-silva",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Mackenzie Dern",
+    "slug": "mackenzie-dern",
+    "url": "https://www.ufc.com/athlete/mackenzie-dern",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Manon Fiorot",
+    "slug": "manon-fiorot",
+    "url": "https://www.ufc.com/athlete/manon-fiorot",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Erin Blanchfield",
+    "slug": "erin-blanchfield",
+    "url": "https://www.ufc.com/athlete/erin-blanchfield",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Julianna Peña",
+    "slug": "julianna-peña",
+    "url": "https://www.ufc.com/athlete/julianna-peña",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Alexa Grasso",
+    "slug": "alexa-grasso",
+    "url": "https://www.ufc.com/athlete/alexa-grasso",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Virna Jandiroba",
+    "slug": "virna-jandiroba",
+    "url": "https://www.ufc.com/athlete/virna-jandiroba",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Raquel Pennington",
+    "slug": "raquel-pennington",
+    "url": "https://www.ufc.com/athlete/raquel-pennington",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Tatiana Suarez",
+    "slug": "tatiana-suarez",
+    "url": "https://www.ufc.com/athlete/tatiana-suarez",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Rose Namajunas",
+    "slug": "rose-namajunas",
+    "url": "https://www.ufc.com/athlete/rose-namajunas",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Yan Xiaonan",
+    "slug": "yan-xiaonan",
+    "url": "https://www.ufc.com/athlete/yan-xiaonan",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Maycee Barber",
+    "slug": "maycee-barber",
+    "url": "https://www.ufc.com/athlete/maycee-barber",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Amanda Lemos",
+    "slug": "amanda-lemos",
+    "url": "https://www.ufc.com/athlete/amanda-lemos",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Loopy Godinez",
+    "slug": "loopy-godinez",
+    "url": "https://www.ufc.com/athlete/loopy-godinez",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Tabatha Ricci",
+    "slug": "tabatha-ricci",
+    "url": "https://www.ufc.com/athlete/tabatha-ricci",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Gillian Robertson",
+    "slug": "gillian-robertson",
+    "url": "https://www.ufc.com/athlete/gillian-robertson",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Jéssica Andrade",
+    "slug": "jéssica-andrade",
+    "url": "https://www.ufc.com/athlete/jéssica-andrade",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Amanda Ribas",
+    "slug": "amanda-ribas",
+    "url": "https://www.ufc.com/athlete/amanda-ribas",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Fatima Kline",
+    "slug": "fatima-kline",
+    "url": "https://www.ufc.com/athlete/fatima-kline",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Denise Gomes",
+    "slug": "denise-gomes",
+    "url": "https://www.ufc.com/athlete/denise-gomes",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Alexia Thainara",
+    "slug": "alexia-thainara",
+    "url": "https://www.ufc.com/athlete/alexia-thainara",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Angela Hill",
+    "slug": "angela-hill",
+    "url": "https://www.ufc.com/athlete/angela-hill",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Mizuki",
+    "slug": "mizuki",
+    "url": "https://www.ufc.com/athlete/mizuki",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Jasmine Jasudavicius",
+    "slug": "jasmine-jasudavicius",
+    "url": "https://www.ufc.com/athlete/jasmine-jasudavicius",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Tracy Cortez",
+    "slug": "tracy-cortez",
+    "url": "https://www.ufc.com/athlete/tracy-cortez",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Karine Silva",
+    "slug": "karine-silva",
+    "url": "https://www.ufc.com/athlete/karine-silva",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Miranda Maverick",
+    "slug": "miranda-maverick",
+    "url": "https://www.ufc.com/athlete/miranda-maverick",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Casey O'Neill",
+    "slug": "casey-oneill",
+    "url": "https://www.ufc.com/athlete/casey-oneill",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Wang Cong",
+    "slug": "wang-cong",
+    "url": "https://www.ufc.com/athlete/wang-cong",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Eduarda Moura",
+    "slug": "eduarda-moura",
+    "url": "https://www.ufc.com/athlete/eduarda-moura",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "JJ Aldrich",
+    "slug": "jj-aldrich",
+    "url": "https://www.ufc.com/athlete/jj-aldrich",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Gabriella Fernandes",
+    "slug": "gabriella-fernandes",
+    "url": "https://www.ufc.com/athlete/gabriella-fernandes",
+    "source": "ufc_rankings",
+    "rank": "15"
+  },
+  {
+    "name": "Norma Dumont",
+    "slug": "norma-dumont",
+    "url": "https://www.ufc.com/athlete/norma-dumont",
+    "source": "ufc_rankings",
+    "rank": "3"
+  },
+  {
+    "name": "Ketlen Vieira",
+    "slug": "ketlen-vieira",
+    "url": "https://www.ufc.com/athlete/ketlen-vieira",
+    "source": "ufc_rankings",
+    "rank": "4"
+  },
+  {
+    "name": "Yana Santos",
+    "slug": "yana-santos",
+    "url": "https://www.ufc.com/athlete/yana-santos",
+    "source": "ufc_rankings",
+    "rank": "5"
+  },
+  {
+    "name": "Irene Aldana",
+    "slug": "irene-aldana",
+    "url": "https://www.ufc.com/athlete/irene-aldana",
+    "source": "ufc_rankings",
+    "rank": "6"
+  },
+  {
+    "name": "Ailin Perez",
+    "slug": "ailin-perez",
+    "url": "https://www.ufc.com/athlete/ailin-perez",
+    "source": "ufc_rankings",
+    "rank": "7"
+  },
+  {
+    "name": "Macy Chiasson",
+    "slug": "macy-chiasson",
+    "url": "https://www.ufc.com/athlete/macy-chiasson",
+    "source": "ufc_rankings",
+    "rank": "8"
+  },
+  {
+    "name": "Karol Rosa",
+    "slug": "karol-rosa",
+    "url": "https://www.ufc.com/athlete/karol-rosa",
+    "source": "ufc_rankings",
+    "rank": "9"
+  },
+  {
+    "name": "Jacqueline Cavalcanti",
+    "slug": "jacqueline-cavalcanti",
+    "url": "https://www.ufc.com/athlete/jacqueline-cavalcanti",
+    "source": "ufc_rankings",
+    "rank": "10"
+  },
+  {
+    "name": "Mayra Bueno Silva",
+    "slug": "mayra-bueno-silva",
+    "url": "https://www.ufc.com/athlete/mayra-bueno-silva",
+    "source": "ufc_rankings",
+    "rank": "11"
+  },
+  {
+    "name": "Nora Cornolle",
+    "slug": "nora-cornolle",
+    "url": "https://www.ufc.com/athlete/nora-cornolle",
+    "source": "ufc_rankings",
+    "rank": "12"
+  },
+  {
+    "name": "Miesha Tate",
+    "slug": "miesha-tate",
+    "url": "https://www.ufc.com/athlete/miesha-tate",
+    "source": "ufc_rankings",
+    "rank": "13"
+  },
+  {
+    "name": "Joselyne Edwards",
+    "slug": "joselyne-edwards",
+    "url": "https://www.ufc.com/athlete/joselyne-edwards",
+    "source": "ufc_rankings",
+    "rank": "14"
+  },
+  {
+    "name": "Luana Santos",
+    "slug": "luana-santos",
+    "url": "https://www.ufc.com/athlete/luana-santos",
+    "source": "ufc_rankings",
+    "rank": "15"
+  }
+]

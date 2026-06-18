@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-14T15:52:09",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    4
+  ],
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 1815.2,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 12,
+    "max_planner_searches": 10,
+    "max_executor_searches": 30,
+    "max_total_searches": 80
+  },
+  "results": [
+    {
+      "task_index": 4,
+      "question_preview": "Can you tell me the name of the player who has more than 300 centuries to his name and has scored the highest break more than 3 times as of 30th Janua",
+      "correct_answer": "Ding Junhui",
+      "extracted_answer": "Neil Robertson",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"solved\",\n  \"answer\": \"Neil Robertson\",\n  \"confidence\": \"high\",\n  \"reason\": \"Neil Robertson satisfies all core constraints: >300 centuries (1035), >3 maximum breaks (5), professional debut 1998 (within 1995-2006). The 2022 English Open match sequence perfectly matches the described pattern: decider win vs Peifan Lei (<250 centuries), followed by 4-0 and 4-0 wins, then loss to Mark Selby (>400 centuries). No other candidate matches all constraints.\",\n  \"remaining_uncertainty",
+      "pipeline_status": "solved",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "elapsed_seconds": 1809.4,
+      "sample_position": 4
+    }
+  ]
+}

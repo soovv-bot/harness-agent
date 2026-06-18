@@ -1,0 +1,902 @@
+[
+  {
+    "name": "Precious Achiuwa",
+    "team": "SAC",
+    "position": "F",
+    "country": "Nigeria",
+    "slug": "precious-achiuwa",
+    "url": "https://www.nba.com/player/precious-achiuwa/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Steven Adams",
+    "team": "HOU",
+    "position": "C",
+    "country": "New Zealand",
+    "slug": "steven-adams",
+    "url": "https://www.nba.com/player/steven-adams/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Bam Adebayo",
+    "team": "MIA",
+    "position": "C-F",
+    "country": "USA",
+    "slug": "bam-adebayo",
+    "url": "https://www.nba.com/player/bam-adebayo/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Ochai Agbaji",
+    "team": "BKN",
+    "position": "G",
+    "country": "USA",
+    "slug": "ochai-agbaji",
+    "url": "https://www.nba.com/player/ochai-agbaji/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Santi Aldama",
+    "team": "MEM",
+    "position": "F-C",
+    "country": "Spain",
+    "slug": "santi-aldama",
+    "url": "https://www.nba.com/player/santi-aldama/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Trey Alexander",
+    "team": "NOP",
+    "position": "G",
+    "country": "USA",
+    "slug": "trey-alexander",
+    "url": "https://www.nba.com/player/trey-alexander/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Nickeil Alexander-Walker",
+    "team": "ATL",
+    "position": "G",
+    "country": "Canada",
+    "slug": "nickeil-alexander-walker",
+    "url": "https://www.nba.com/player/nickeil-alexander-walker/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Grayson Allen",
+    "team": "PHX",
+    "position": "G",
+    "country": "USA",
+    "slug": "grayson-allen",
+    "url": "https://www.nba.com/player/grayson-allen/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Jarrett Allen",
+    "team": "CLE",
+    "position": "C",
+    "country": "USA",
+    "slug": "jarrett-allen",
+    "url": "https://www.nba.com/player/jarrett-allen/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Jose Alvarado",
+    "team": "NYK",
+    "position": "G",
+    "country": "USA",
+    "slug": "jose-alvarado",
+    "url": "https://www.nba.com/player/jose-alvarado/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Kyle Anderson",
+    "team": "MEM",
+    "position": "F-G",
+    "country": "USA",
+    "slug": "kyle-anderson",
+    "url": "https://www.nba.com/player/kyle-anderson/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Alex Antetokounmpo",
+    "team": "MIL",
+    "position": "F",
+    "country": "Greece",
+    "slug": "alex-antetokounmpo",
+    "url": "https://www.nba.com/player/alex-antetokounmpo/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Giannis Antetokounmpo",
+    "team": "MIL",
+    "position": "F",
+    "country": "Greece",
+    "slug": "giannis-antetokounmpo",
+    "url": "https://www.nba.com/player/giannis-antetokounmpo/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Thanasis Antetokounmpo",
+    "team": "MIL",
+    "position": "F",
+    "country": "Greece",
+    "slug": "thanasis-antetokounmpo",
+    "url": "https://www.nba.com/player/thanasis-antetokounmpo/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Cole Anthony",
+    "team": "PHX",
+    "position": "G",
+    "country": "USA",
+    "slug": "cole-anthony",
+    "url": "https://www.nba.com/player/cole-anthony/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "OG Anunoby",
+    "team": "NYK",
+    "position": "F-G",
+    "country": "United Kingdom",
+    "slug": "og-anunoby",
+    "url": "https://www.nba.com/player/og-anunoby/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Deni Avdija",
+    "team": "POR",
+    "position": "F",
+    "country": "Israel",
+    "slug": "deni-avdija",
+    "url": "https://www.nba.com/player/deni-avdija/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Deandre Ayton",
+    "team": "LAL",
+    "position": "C",
+    "country": "Bahamas",
+    "slug": "deandre-ayton",
+    "url": "https://www.nba.com/player/deandre-ayton/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Marvin Bagley III",
+    "team": "DAL",
+    "position": "F",
+    "country": "USA",
+    "slug": "marvin-bagley-iii",
+    "url": "https://www.nba.com/player/marvin-bagley-iii/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Ace Bailey",
+    "team": "UTA",
+    "position": "F",
+    "country": "USA",
+    "slug": "ace-bailey",
+    "url": "https://www.nba.com/player/ace-bailey/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Patrick Baldwin Jr.",
+    "team": "PHI",
+    "position": "F",
+    "country": "USA",
+    "slug": "patrick-baldwin-jr",
+    "url": "https://www.nba.com/player/patrick-baldwin-jr/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "La Melo Ball",
+    "team": "CHA",
+    "position": "G",
+    "country": "USA",
+    "slug": "la-melo-ball",
+    "url": "https://www.nba.com/player/la-melo-ball/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Lonzo Ball",
+    "team": "USA",
+    "position": "G",
+    "country": "UCLA",
+    "slug": "lonzo-ball",
+    "url": "https://www.nba.com/player/lonzo-ball/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Mo Bamba",
+    "team": "USA",
+    "position": "C",
+    "country": "Texas",
+    "slug": "mo-bamba",
+    "url": "https://www.nba.com/player/mo-bamba/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Paolo Banchero",
+    "team": "ORL",
+    "position": "F",
+    "country": "USA",
+    "slug": "paolo-banchero",
+    "url": "https://www.nba.com/player/paolo-banchero/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Desmond Bane",
+    "team": "ORL",
+    "position": "G",
+    "country": "USA",
+    "slug": "desmond-bane",
+    "url": "https://www.nba.com/player/desmond-bane/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Dalano Banton",
+    "team": "LAC",
+    "position": "F",
+    "country": "Canada",
+    "slug": "dalano-banton",
+    "url": "https://www.nba.com/player/dalano-banton/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Dominick Barlow",
+    "team": "PHI",
+    "position": "F",
+    "country": "USA",
+    "slug": "dominick-barlow",
+    "url": "https://www.nba.com/player/dominick-barlow/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Harrison Barnes",
+    "team": "SAS",
+    "position": "F",
+    "country": "USA",
+    "slug": "harrison-barnes",
+    "url": "https://www.nba.com/player/harrison-barnes/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Scottie Barnes",
+    "team": "TOR",
+    "position": "F-G",
+    "country": "USA",
+    "slug": "scottie-barnes",
+    "url": "https://www.nba.com/player/scottie-barnes/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Brooks Barnhizer",
+    "team": "OKC",
+    "position": "G",
+    "country": "USA",
+    "slug": "brooks-barnhizer",
+    "url": "https://www.nba.com/player/brooks-barnhizer/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "RJ Barrett",
+    "team": "TOR",
+    "position": "F-G",
+    "country": "Canada",
+    "slug": "rj-barrett",
+    "url": "https://www.nba.com/player/rj-barrett/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Charles Bassey",
+    "team": "PHI",
+    "position": "C-F",
+    "country": "Nigeria",
+    "slug": "charles-bassey",
+    "url": "https://www.nba.com/player/charles-bassey/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Tamar Bates",
+    "team": "DEN",
+    "position": "G",
+    "country": "USA",
+    "slug": "tamar-bates",
+    "url": "https://www.nba.com/player/tamar-bates/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Jamison Battle",
+    "team": "TOR",
+    "position": "F",
+    "country": "USA",
+    "slug": "jamison-battle",
+    "url": "https://www.nba.com/player/jamison-battle/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Nicolas Batum",
+    "team": "LAC",
+    "position": "G-F",
+    "country": "France",
+    "slug": "nicolas-batum",
+    "url": "https://www.nba.com/player/nicolas-batum/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Bradley Beal",
+    "team": "LAC",
+    "position": "G",
+    "country": "USA",
+    "slug": "bradley-beal",
+    "url": "https://www.nba.com/player/bradley-beal/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Mar Jon Beauchamp",
+    "team": "PHI",
+    "position": "F",
+    "country": "USA",
+    "slug": "mar-jon-beauchamp",
+    "url": "https://www.nba.com/player/mar-jon-beauchamp/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Joan Beringer",
+    "team": "MIN",
+    "position": "F",
+    "country": "France",
+    "slug": "joan-beringer",
+    "url": "https://www.nba.com/player/joan-beringer/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Saddiq Bey",
+    "team": "NOP",
+    "position": "G-F",
+    "country": "USA",
+    "slug": "saddiq-bey",
+    "url": "https://www.nba.com/player/saddiq-bey/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Goga Bitadze",
+    "team": "ORL",
+    "position": "C-F",
+    "country": "Georgia",
+    "slug": "goga-bitadze",
+    "url": "https://www.nba.com/player/goga-bitadze/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Bismack Biyombo",
+    "team": "SAS",
+    "position": "C",
+    "country": "DRC",
+    "slug": "bismack-biyombo",
+    "url": "https://www.nba.com/player/bismack-biyombo/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Anthony Black",
+    "team": "ORL",
+    "position": "G",
+    "country": "USA",
+    "slug": "anthony-black",
+    "url": "https://www.nba.com/player/anthony-black/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Buddy Boeheim",
+    "team": "OKC",
+    "position": "F",
+    "country": "USA",
+    "slug": "buddy-boeheim",
+    "url": "https://www.nba.com/player/buddy-boeheim/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Bogdan Bogdanović",
+    "team": "LAC",
+    "position": "G",
+    "country": "Serbia",
+    "slug": "bogdan-bogdanović",
+    "url": "https://www.nba.com/player/bogdan-bogdanović/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Adem Bona",
+    "team": "PHI",
+    "position": "F",
+    "country": "Nigeria",
+    "slug": "adem-bona",
+    "url": "https://www.nba.com/player/adem-bona/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Devin Booker",
+    "team": "PHX",
+    "position": "G",
+    "country": "USA",
+    "slug": "devin-booker",
+    "url": "https://www.nba.com/player/devin-booker/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Chris Boucher",
+    "team": "F",
+    "position": "F",
+    "country": "Saint Lucia",
+    "slug": "chris-boucher",
+    "url": "https://www.nba.com/player/chris-boucher/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Jamaree Bouyea",
+    "team": "PHX",
+    "position": "G",
+    "country": "USA",
+    "slug": "jamaree-bouyea",
+    "url": "https://www.nba.com/player/jamaree-bouyea/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "Tony Bradley",
+    "team": "USA",
+    "position": "C-F",
+    "country": "North Carolina",
+    "slug": "tony-bradley",
+    "url": "https://www.nba.com/player/tony-bradley/123456",
+    "source": "nba_players_list"
+  },
+  {
+    "name": "PreciousAchiuwa",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630173",
+    "url": "https://www.nba.com/player/1630173/precious-achiuwa/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "StevenAdams",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203500",
+    "url": "https://www.nba.com/player/203500/steven-adams/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "BamAdebayo",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628389",
+    "url": "https://www.nba.com/player/1628389/bam-adebayo/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "OchaiAgbaji",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630534",
+    "url": "https://www.nba.com/player/1630534/ochai-agbaji/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "SantiAldama",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630583",
+    "url": "https://www.nba.com/player/1630583/santi-aldama/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "TreyAlexander",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1641725",
+    "url": "https://www.nba.com/player/1641725/trey-alexander/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "NickeilAlexander-Walker",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1629638",
+    "url": "https://www.nba.com/player/1629638/nickeil-alexander-walker/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "GraysonAllen",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628960",
+    "url": "https://www.nba.com/player/1628960/grayson-allen/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "JarrettAllen",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628386",
+    "url": "https://www.nba.com/player/1628386/jarrett-allen/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "JoseAlvarado",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630631",
+    "url": "https://www.nba.com/player/1630631/jose-alvarado/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "KyleAnderson",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203937",
+    "url": "https://www.nba.com/player/203937/kyle-anderson/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "AlexAntetokounmpo",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630828",
+    "url": "https://www.nba.com/player/1630828/alex-antetokounmpo/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "GiannisAntetokounmpo",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203507",
+    "url": "https://www.nba.com/player/203507/giannis-antetokounmpo/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "ThanasisAntetokounmpo",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203648",
+    "url": "https://www.nba.com/player/203648/thanasis-antetokounmpo/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "ColeAnthony",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630175",
+    "url": "https://www.nba.com/player/1630175/cole-anthony/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "OGAnunoby",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628384",
+    "url": "https://www.nba.com/player/1628384/og-anunoby/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "DeniAvdija",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630166",
+    "url": "https://www.nba.com/player/1630166/deni-avdija/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "DeandreAyton",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1629028",
+    "url": "https://www.nba.com/player/1629028/deandre-ayton/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "MarvinBagley III",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628963",
+    "url": "https://www.nba.com/player/1628963/marvin-bagley-iii/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "AceBailey",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1642846",
+    "url": "https://www.nba.com/player/1642846/ace-bailey/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "PatrickBaldwin Jr.",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1631116",
+    "url": "https://www.nba.com/player/1631116/patrick-baldwin-jr/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "LaMeloBall",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630163",
+    "url": "https://www.nba.com/player/1630163/lamelo-ball/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "LonzoBall",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628366",
+    "url": "https://www.nba.com/player/1628366/lonzo-ball/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "MoBamba",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628964",
+    "url": "https://www.nba.com/player/1628964/mo-bamba/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "PaoloBanchero",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1631094",
+    "url": "https://www.nba.com/player/1631094/paolo-banchero/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "DesmondBane",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630217",
+    "url": "https://www.nba.com/player/1630217/desmond-bane/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "DalanoBanton",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630625",
+    "url": "https://www.nba.com/player/1630625/dalano-banton/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "DominickBarlow",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1631230",
+    "url": "https://www.nba.com/player/1631230/dominick-barlow/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "HarrisonBarnes",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203084",
+    "url": "https://www.nba.com/player/203084/harrison-barnes/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "ScottieBarnes",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630567",
+    "url": "https://www.nba.com/player/1630567/scottie-barnes/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "BrooksBarnhizer",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1642964",
+    "url": "https://www.nba.com/player/1642964/brooks-barnhizer/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "RJBarrett",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1629628",
+    "url": "https://www.nba.com/player/1629628/rj-barrett/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "CharlesBassey",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1629646",
+    "url": "https://www.nba.com/player/1629646/charles-bassey/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "TamarBates",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1642926",
+    "url": "https://www.nba.com/player/1642926/tamar-bates/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "JamisonBattle",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1642419",
+    "url": "https://www.nba.com/player/1642419/jamison-battle/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "NicolasBatum",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "201587",
+    "url": "https://www.nba.com/player/201587/nicolas-batum/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "BradleyBeal",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203078",
+    "url": "https://www.nba.com/player/203078/bradley-beal/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "MarJonBeauchamp",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630699",
+    "url": "https://www.nba.com/player/1630699/marjon-beauchamp/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "JoanBeringer",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1642866",
+    "url": "https://www.nba.com/player/1642866/joan-beringer/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "SaddiqBey",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1630180",
+    "url": "https://www.nba.com/player/1630180/saddiq-bey/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "GogaBitadze",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1629048",
+    "url": "https://www.nba.com/player/1629048/goga-bitadze/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "BismackBiyombo",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "202687",
+    "url": "https://www.nba.com/player/202687/bismack-biyombo/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "AnthonyBlack",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1641710",
+    "url": "https://www.nba.com/player/1641710/anthony-black/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "BuddyBoeheim",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1631205",
+    "url": "https://www.nba.com/player/1631205/buddy-boeheim/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "BogdanBogdanović",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "203992",
+    "url": "https://www.nba.com/player/203992/bogdan-bogdanovic/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "AdemBona",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1641737",
+    "url": "https://www.nba.com/player/1641737/adem-bona/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "DevinBooker",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1626164",
+    "url": "https://www.nba.com/player/1626164/devin-booker/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "ChrisBoucher",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628449",
+    "url": "https://www.nba.com/player/1628449/chris-boucher/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "JamareeBouyea",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1631123",
+    "url": "https://www.nba.com/player/1631123/jamaree-bouyea/",
+    "source": "nba_player_link"
+  },
+  {
+    "name": "TonyBradley",
+    "team": "",
+    "position": "",
+    "country": "",
+    "slug": "1628396",
+    "url": "https://www.nba.com/player/1628396/tony-bradley/",
+    "source": "nba_player_link"
+  }
+]

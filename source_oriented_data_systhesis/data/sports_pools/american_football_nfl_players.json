@@ -1,0 +1,210 @@
+[
+  {
+    "name": "Patrick Mahomes",
+    "id": "MahoPa00",
+    "url": "https://www.pro-football-reference.com/players/M/MahoPa00.htm",
+    "source": "nfl_fallback",
+    "team": "Kansas City Chiefs",
+    "position": "QB"
+  },
+  {
+    "name": "Josh Allen",
+    "id": "AlleJo02",
+    "url": "https://www.pro-football-reference.com/players/A/AlleJo02.htm",
+    "source": "nfl_fallback",
+    "team": "Buffalo Bills",
+    "position": "QB"
+  },
+  {
+    "name": "Justin Herbert",
+    "id": "HerbJu00",
+    "url": "https://www.pro-football-reference.com/players/H/HerbJu00.htm",
+    "source": "nfl_fallback",
+    "team": "Los Angeles Chargers",
+    "position": "QB"
+  },
+  {
+    "name": "Lamar Jackson",
+    "id": "JackLa00",
+    "url": "https://www.pro-football-reference.com/players/J/JackLa00.htm",
+    "source": "nfl_fallback",
+    "team": "Baltimore Ravens",
+    "position": "QB"
+  },
+  {
+    "name": "Joe Burrow",
+    "id": "BurroJo00",
+    "url": "https://www.pro-football-reference.com/players/B/BurroJo00.htm",
+    "source": "nfl_fallback",
+    "team": "Cincinnati Bengals",
+    "position": "QB"
+  },
+  {
+    "name": "Trevor Lawrence",
+    "id": "LawrTr00",
+    "url": "https://www.pro-football-reference.com/players/L/LawrTr00.htm",
+    "source": "nfl_fallback",
+    "team": "Jacksonville Jaguars",
+    "position": "QB"
+  },
+  {
+    "name": "Dak Prescott",
+    "id": "PresDa00",
+    "url": "https://www.pro-football-reference.com/players/P/PresDa00.htm",
+    "source": "nfl_fallback",
+    "team": "Dallas Cowboys",
+    "position": "QB"
+  },
+  {
+    "name": "Tom Brady",
+    "id": "BradTo00",
+    "url": "https://www.pro-football-reference.com/players/B/BradTo00.htm",
+    "source": "nfl_fallback",
+    "team": "Tampa Bay Buccaneers",
+    "position": "QB"
+  },
+  {
+    "name": "Peyton Manning",
+    "id": "MannPe00",
+    "url": "https://www.pro-football-reference.com/players/M/MannPe00.htm",
+    "source": "nfl_fallback",
+    "team": "Denver Broncos",
+    "position": "QB"
+  },
+  {
+    "name": "Aaron Rodgers",
+    "id": "RodgAa00",
+    "url": "https://www.pro-football-reference.com/players/R/RodgAa00.htm",
+    "source": "nfl_fallback",
+    "team": "Green Bay Packers",
+    "position": "QB"
+  },
+  {
+    "name": "Brett Favre",
+    "id": "FavrBr00",
+    "url": "https://www.pro-football-reference.com/players/F/FavrBr00.htm",
+    "source": "nfl_fallback",
+    "team": "Green Bay Packers",
+    "position": "QB"
+  },
+  {
+    "name": "Dan Marino",
+    "id": "MariDa00",
+    "url": "https://www.pro-football-reference.com/players/M/MariDa00.htm",
+    "source": "nfl_fallback",
+    "team": "Miami Dolphins",
+    "position": "QB"
+  },
+  {
+    "name": "John Elway",
+    "id": "ElwaJo00",
+    "url": "https://www.pro-football-reference.com/players/E/ElwaJo00.htm",
+    "source": "nfl_fallback",
+    "team": "Denver Broncos",
+    "position": "QB"
+  },
+  {
+    "name": "Joe Montana",
+    "id": "MontJo00",
+    "url": "https://www.pro-football-reference.com/players/M/MontJo00.htm",
+    "source": "nfl_fallback",
+    "team": "San Francisco 49ers",
+    "position": "QB"
+  },
+  {
+    "name": "Jerry Rice",
+    "id": "RiceJe00",
+    "url": "https://www.pro-football-reference.com/players/R/RiceJe00.htm",
+    "source": "nfl_fallback",
+    "team": "San Francisco 49ers",
+    "position": "WR"
+  },
+  {
+    "name": "Emmitt Smith",
+    "id": "SmitEm00",
+    "url": "https://www.pro-football-reference.com/players/S/SmitEm00.htm",
+    "source": "nfl_fallback",
+    "team": "Dallas Cowboys",
+    "position": "RB"
+  },
+  {
+    "name": "Lawrence Taylor",
+    "id": "TaylLa00",
+    "url": "https://www.pro-football-reference.com/players/T/TaylLa00.htm",
+    "source": "nfl_fallback",
+    "team": "New York Giants",
+    "position": "LB"
+  },
+  {
+    "name": "Reggie White",
+    "id": "WhitRe00",
+    "url": "https://www.pro-football-reference.com/players/W/WhitRe00.htm",
+    "source": "nfl_fallback",
+    "team": "Green Bay Packers",
+    "position": "DE"
+  },
+  {
+    "name": "Walter Payton",
+    "id": "PaytWa00",
+    "url": "https://www.pro-football-reference.com/players/P/PaytWa00.htm",
+    "source": "nfl_fallback",
+    "team": "Chicago Bears",
+    "position": "RB"
+  },
+  {
+    "name": "T.J. Watt",
+    "id": "WattTJ00",
+    "url": "https://www.pro-football-reference.com/players/W/WattTJ00.htm",
+    "source": "nfl_fallback",
+    "team": "Pittsburgh Steelers",
+    "position": "LB"
+  },
+  {
+    "name": "Aaron Donald",
+    "id": "DonaAa00",
+    "url": "https://www.pro-football-reference.com/players/D/DonaAa00.htm",
+    "source": "nfl_fallback",
+    "team": "Los Angeles Rams",
+    "position": "DT"
+  },
+  {
+    "name": "Myles Garrett",
+    "id": "GarrMy00",
+    "url": "https://www.pro-football-reference.com/players/G/GarrMy00.htm",
+    "source": "nfl_fallback",
+    "team": "Cleveland Browns",
+    "position": "DE"
+  },
+  {
+    "name": "Travis Kelce",
+    "id": "KelcTr00",
+    "url": "https://www.pro-football-reference.com/players/K/KelcTr00.htm",
+    "source": "nfl_fallback",
+    "team": "Kansas City Chiefs",
+    "position": "TE"
+  },
+  {
+    "name": "Tyreek Hill",
+    "id": "HillTy00",
+    "url": "https://www.pro-football-reference.com/players/H/HillTy00.htm",
+    "source": "nfl_fallback",
+    "team": "Miami Dolphins",
+    "position": "WR"
+  },
+  {
+    "name": "Davante Adams",
+    "id": "AdamDa00",
+    "url": "https://www.pro-football-reference.com/players/A/AdamDa00.htm",
+    "source": "nfl_fallback",
+    "team": "Las Vegas Raiders",
+    "position": "WR"
+  },
+  {
+    "name": "Nick Bosa",
+    "id": "BosaNi00",
+    "url": "https://www.pro-football-reference.com/players/B/BosaNi00.htm",
+    "source": "nfl_fallback",
+    "team": "San Francisco 49ers",
+    "position": "DE"
+  }
+]

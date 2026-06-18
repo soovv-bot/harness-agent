@@ -1,0 +1,16 @@
+2026-04-15 04:03:59.550 | INFO     | __main__:_load_fixed_sample:55 - Loading BrowseComp dataset...
+2026-04-15 04:04:02.101 | INFO     | __main__:_load_fixed_sample:60 - Loaded fixed sample of 10 examples
+2026-04-15 04:04:02.107 | INFO     | __main__:run_fixed_baseline:153 - Manifest saved to D:\research\search_data_systhesis\SearchHarness_0414\docs\seed123_k10_manifest.json
+2026-04-15 04:04:03.224 | INFO     | __main__:run_fixed_baseline:163 - Running baseline fixed-sample evaluation for positions=[2]
+2026-04-15 04:04:04.338 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-15 04:04:04.338 | INFO     | trajectory_agent:__init__:112 - Initialized TrajectoryRecordingAgent with model: deepseek-chat, enable_hint: True, max_turns: None, hard_safety_turns: 200
+2026-04-15 04:04:04.345 | INFO     | trajectory_agent:run_with_trajectory:349 - Starting task: Solve the following web-search task carefully. Use the available tools to gather and verify evidence...
+2026-04-15 04:04:04.345 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 1
+2026-04-15 04:04:13.973 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['song about childhood romance friend dies news heard later', 'song about unrequited love from childhood to death', "song narrator hears news of childhood friend's death"]}
+2026-04-15 04:04:16.030 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:16.030 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 2
+2026-04-15 04:04:27.427 | INFO     | trajectory_agent:run_with_trajectory:425 - Task completed in 2 turns (no tool calls)
+2026-04-15 04:04:27.428 | INFO     | trajectory_agent:_save_trajectory:567 - Saved trajectory to: D:\research\search_data_systhesis\baseline_logs\pos2\deepseek-chat\task_000002.json
+2026-04-15 04:04:27.605 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-15 04:04:27.605 | INFO     | __main__:run_single_baseline_task:108 - [Baseline Task 2] correct=False | answer='Search results not specific. Let's think of known songs that' | status=completed_no_tool_calls | 23.3s
+2026-04-15 04:04:27.606 | INFO     | __main__:run_fixed_baseline:239 - Baseline results saved to: D:\research\search_data_systhesis\baseline_results\seed123_position2_baseline.json

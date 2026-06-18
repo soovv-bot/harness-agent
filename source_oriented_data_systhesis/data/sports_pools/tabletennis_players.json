@@ -1,0 +1,138 @@
+[
+  {
+    "name": "Ma Long",
+    "id": "malong",
+    "url": "https://www.ittf.com/players/long-ma",
+    "source": "tabletennis_fallback",
+    "country": "China",
+    "rankings": "Former World #1"
+  },
+  {
+    "name": "Zhang Jike",
+    "id": "zhangjike",
+    "url": "https://www.ittf.com/players/jike-zhang",
+    "source": "tabletennis_fallback",
+    "country": "China",
+    "rankings": "Grand Slam Winner"
+  },
+  {
+    "name": "Fan Zhendong",
+    "id": "fanzhendong",
+    "url": "https://www.ittf.com/players/zhendong-fan",
+    "source": "tabletennis_fallback",
+    "country": "China",
+    "rankings": "World #1"
+  },
+  {
+    "name": "Wang Hao",
+    "id": "wanghao",
+    "url": "https://www.ittf.com/players/hao-wang",
+    "source": "tabletennis_fallback",
+    "country": "China",
+    "rankings": "Former World #1"
+  },
+  {
+    "name": "Liu Guoliang",
+    "id": "liuguoliang",
+    "url": "https://www.ittf.com/players/guoliang-liu",
+    "source": "tabletennis_fallback",
+    "country": "China",
+    "rankings": "Hall of Famer"
+  },
+  {
+    "name": "Deng Yaping",
+    "id": "dengyaping",
+    "url": "https://www.ittf.com/players/yaping-deng",
+    "source": "tabletennis_fallback",
+    "country": "China",
+    "rankings": "4-time Olympic Champion"
+  },
+  {
+    "name": "Jan-Ove Waldner",
+    "id": "waldner",
+    "url": "https://www.ittf.com/players/jan-ove-waldner",
+    "source": "tabletennis_fallback",
+    "country": "Sweden",
+    "rankings": "Mozart of Table Tennis"
+  },
+  {
+    "name": "Timo Boll",
+    "id": "boll",
+    "url": "https://www.ittf.com/players/timo-boll",
+    "source": "tabletennis_fallback",
+    "country": "Germany",
+    "rankings": "European Legend"
+  },
+  {
+    "name": "Vladimir Samsonov",
+    "id": "samsonov",
+    "url": "https://www.ittf.com/players/vladimir-samsonov",
+    "source": "tabletennis_fallback",
+    "country": "Belarus",
+    "rankings": "European Legend"
+  },
+  {
+    "name": "Jörgen Persson",
+    "id": "persson",
+    "url": "https://www.ittf.com/players/jorgen-persson",
+    "source": "tabletennis_fallback",
+    "country": "Sweden",
+    "rankings": "European Legend"
+  },
+  {
+    "name": "Jun Mizutani",
+    "id": "mizutani",
+    "url": "https://www.ittf.com/players/jun-mizutani",
+    "source": "tabletennis_fallback",
+    "country": "Japan",
+    "rankings": "Olympic Medalist"
+  },
+  {
+    "name": "Tomokazu Harimoto",
+    "id": "harimoto",
+    "url": "https://www.ittf.com/players/tomokazu-harimoto",
+    "source": "tabletennis_fallback",
+    "country": "Japan",
+    "rankings": "Rising Star"
+  },
+  {
+    "name": "Mima Ito",
+    "id": "ito",
+    "url": "https://www.ittf.com/players/mima-ito",
+    "source": "tabletennis_fallback",
+    "country": "Japan",
+    "rankings": "Women's Star"
+  },
+  {
+    "name": "Lee Sang-su",
+    "id": "leesangsu",
+    "url": "https://www.ittf.com/players/sang-su-lee",
+    "source": "tabletennis_fallback",
+    "country": "South Korea",
+    "rankings": "Olympic Medalist"
+  },
+  {
+    "name": "Joo Sae-hyuk",
+    "id": "joosaehyuk",
+    "url": "https://www.ittf.com/players/sae-hyuk-joo",
+    "source": "tabletennis_fallback",
+    "country": "South Korea",
+    "rankings": "Defensive Master"
+  },
+  {
+    "name": "Ariel Hsing",
+    "id": "hsing",
+    "url": "https://www.ittf.com/players/ariel-hsing",
+    "source": "tabletennis_fallback",
+    "country": "USA",
+    "rankings": "US Champion"
+  },
+  {
+    "name": "Lily Zhang",
+    "id": "zhang",
+    "url": "https://www.ittf.com/players/lily-zhang",
+    "source": "tabletennis_fallback",
+    "country": "USA",
+    "rankings": "US Champion"
+  }
+]

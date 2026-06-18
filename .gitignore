@@ -1,0 +1,66 @@
+# Environment & Secrets
+.env
+.env.*
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE & Editor
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & Results
+# *.log
+# baseline_logs/
+# baseline_results/
+# logs/
+
+# Data & Trajectories (generated outputs, not source data)
+# data/trajectories/
+# data/offseeker_format/
+# *.partial.json
+
+# Temporary files
+tmp/
+*.tmp
+*.bak
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model checkpoints / large artifacts
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+
+# Large extracted text files
+EigentSearch_extracted.txt
+
+# Test outputs
+test.md

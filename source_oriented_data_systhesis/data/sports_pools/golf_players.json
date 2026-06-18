@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Scottie Scheffler",
+    "id": "scheffler",
+    "url": "https://www.pgatour.com/players/player.scottie-scheffler.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "OWGR #1"
+  },
+  {
+    "name": "Rory McIlroy",
+    "id": "mcilroy",
+    "url": "https://www.pgatour.com/players/player.rory-mcilroy.html",
+    "source": "golf_fallback",
+    "country": "Northern Ireland",
+    "rankings": "OWGR Top 10"
+  },
+  {
+    "name": "Jon Rahm",
+    "id": "rahm",
+    "url": "https://www.pgatour.com/players/player.jon-rahm.html",
+    "source": "golf_fallback",
+    "country": "Spain",
+    "rankings": "OWGR Top 10"
+  },
+  {
+    "name": "Viktor Hovland",
+    "id": "hovland",
+    "url": "https://www.pgatour.com/players/player.viktor-hovland.html",
+    "source": "golf_fallback",
+    "country": "Norway",
+    "rankings": "OWGR Top 10"
+  },
+  {
+    "name": "Xander Schauffele",
+    "id": "schauffele",
+    "url": "https://www.pgatour.com/players/player.xander-schauffele.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "OWGR Top 10"
+  },
+  {
+    "name": "Patrick Cantlay",
+    "id": "cantlay",
+    "url": "https://www.pgatour.com/players/player.patrick-cantlay.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "OWGR Top 10"
+  },
+  {
+    "name": "Dustin Johnson",
+    "id": "johnson",
+    "url": "https://www.pgatour.com/players/player.dustin-johnson.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "Major Winner"
+  },
+  {
+    "name": "Brooks Koepka",
+    "id": "koepka",
+    "url": "https://www.pgatour.com/players/player.brooks-koepka.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "Major Winner"
+  },
+  {
+    "name": "Bryson DeChambeau",
+    "id": "dechambeau",
+    "url": "https://www.pgatour.com/players/player.bryson-dechambeau.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "Major Winner"
+  },
+  {
+    "name": "Jordan Spieth",
+    "id": "spieth",
+    "url": "https://www.pgatour.com/players/player.jordan-spieth.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "Major Winner"
+  },
+  {
+    "name": "Tiger Woods",
+    "id": "woods",
+    "url": "https://www.pgatour.com/players/player.tiger-woods.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "15 Major Wins"
+  },
+  {
+    "name": "Jack Nicklaus",
+    "id": "nicklaus",
+    "url": "https://www.pgatour.com/players/player.jack-nicklaus.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "18 Major Wins"
+  },
+  {
+    "name": "Arnold Palmer",
+    "id": "palmer",
+    "url": "https://www.pgatour.com/players/player.arnold-palmer.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "7 Major Wins"
+  },
+  {
+    "name": "Gary Player",
+    "id": "player",
+    "url": "https://www.pgatour.com/players/player.gary-player.html",
+    "source": "golf_fallback",
+    "country": "South Africa",
+    "rankings": "9 Major Wins"
+  },
+  {
+    "name": "Ben Hogan",
+    "id": "hogan",
+    "url": "https://www.pgatour.com/players/player.ben-hogan.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "9 Major Wins"
+  },
+  {
+    "name": "Tom Watson",
+    "id": "watson",
+    "url": "https://www.pgatour.com/players/player.tom-watson.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "8 Major Wins"
+  },
+  {
+    "name": "Seve Ballesteros",
+    "id": "ballesteros",
+    "url": "https://www.pgatour.com/players/player.seve-ballesteros.html",
+    "source": "golf_fallback",
+    "country": "Spain",
+    "rankings": "5 Major Wins"
+  },
+  {
+    "name": "Nick Faldo",
+    "id": "faldo",
+    "url": "https://www.pgatour.com/players/player.nick-faldo.html",
+    "source": "golf_fallback",
+    "country": "England",
+    "rankings": "6 Major Wins"
+  },
+  {
+    "name": "Greg Norman",
+    "id": "norman",
+    "url": "https://www.pgatour.com/players/player.greg-norman.html",
+    "source": "golf_fallback",
+    "country": "Australia",
+    "rankings": "2 Major Wins"
+  },
+  {
+    "name": "Phil Mickelson",
+    "id": "mickelson",
+    "url": "https://www.pgatour.com/players/player.phil-mickelson.html",
+    "source": "golf_fallback",
+    "country": "USA",
+    "rankings": "6 Major Wins"
+  },
+  {
+    "name": "Hideki Matsuyama",
+    "id": "matsuyama",
+    "url": "https://www.pgatour.com/players/player.hideki-matsuyama.html",
+    "source": "golf_fallback",
+    "country": "Japan",
+    "rankings": "Masters Winner"
+  },
+  {
+    "name": "Jason Day",
+    "id": "day",
+    "url": "https://www.pgatour.com/players/player.jason-day.html",
+    "source": "golf_fallback",
+    "country": "Australia",
+    "rankings": "PGA Winner"
+  },
+  {
+    "name": "Adam Scott",
+    "id": "scott",
+    "url": "https://www.pgatour.com/players/player.adam-scott.html",
+    "source": "golf_fallback",
+    "country": "Australia",
+    "rankings": "Masters Winner"
+  },
+  {
+    "name": "Louis Oosthuizen",
+    "id": "oosthuizen",
+    "url": "https://www.pgatour.com/players/player.louis-oosthuizen.html",
+    "source": "golf_fallback",
+    "country": "South Africa",
+    "rankings": "Open Champion"
+  },
+  {
+    "name": "Cam Smith",
+    "id": "smith",
+    "url": "https://www.pgatour.com/players/player.cam-smith.html",
+    "source": "golf_fallback",
+    "country": "Australia",
+    "rankings": "Open Champion"
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-15T12:23:16",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    9
+  ],
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 2219.3,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 30,
+    "max_planner_searches": 10,
+    "max_executor_searches": 20,
+    "max_total_searches": 120
+  },
+  "results": [
+    {
+      "task_index": 9,
+      "question_preview": "There's a poet who lost two family members during a pandemic that occurred between 2005 and 2023, inclusive. In an interview dated before 2015, the po",
+      "correct_answer": "Cigarette",
+      "extracted_answer": "{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"No candidate matches all constraints. Andrea Gibson has critical conflicts: her poem 'Photograph' doesn't contain child dialogue in first lines, and spouse Megan Falley isn't identified as Appalachian writer. Benjamin Zephaniah fails spouse constraint (married to Qian Zheng, not Appalachian writer).\",\n  \"remaining_uncertainty\": \"The correct poet who matches all constraints (married to Appalachian writer, lost two family members during pandemic, pre-2015 interview about never being read to as child, poem with 'photograph' in title containing child dialogue) has not been identified.\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"https://ohandreagibson.tumblr.com/post/23525858992/photograph-i-wish-i-was-a-photograph-tucked\",\n      \"observation\": \"Andrea Gibson's poem 'Photograph' first lines: 'I wish I was a photograph tucked into the corners of your wallet...' No child dialogue.\",\n      \"relevance\": \"high\"\n    },\n    {\n      \"source\": \"Wikipedia - Silas House\",\n      \"observation\": \"Silas House is Appalachian writer married to Jason Kyle Howard, not a poet. Megan Falley (Andrea Gibson's spouse) not identified as Appalachian writer.\",\n      \"relevance\": \"high\"\n    },\n    {\n      \"source\": \"Wikipedia - Benjamin Zephaniah\",\n      \"observation\": \"Benjamin Zephaniah married to Qian Zheng (Chinese), not Appalachian writer.\",\n      \"relevance\": \"high\"\n    }\n  ]\n}",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"No candidate matches all constraints. Andrea Gibson has critical conflicts: her poem 'Photograph' doesn't contain child dialogue in first lines, and spouse Megan Falley isn't identified as Appalachian writer. Benjamin Zephaniah fails spouse constraint (married to Qian Zheng, not Appalachian writer).\",\n  \"remaining_uncertainty\": \"The correct poet who matches all constraints (married to Appalachian wri",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "elapsed_seconds": 2213.9,
+      "sample_position": 9
+    }
+  ]
+}

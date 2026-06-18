@@ -1,0 +1,170 @@
+[
+  {
+    "name": "Richie McCaw",
+    "id": "mccaw",
+    "url": "https://www.espnscrum.com/player/13543/Richie-McCaw",
+    "source": "rugby_fallback",
+    "country": "New Zealand",
+    "position": "Flanker"
+  },
+  {
+    "name": "Dan Carter",
+    "id": "carter",
+    "url": "https://www.espnscrum.com/player/13585/Dan-Carter",
+    "source": "rugby_fallback",
+    "country": "New Zealand",
+    "position": "Fly-half"
+  },
+  {
+    "name": "Jonah Lomu",
+    "id": "lomu",
+    "url": "https://www.espnscrum.com/player/9162/Jonah-Lomu",
+    "source": "rugby_fallback",
+    "country": "New Zealand",
+    "position": "Winger"
+  },
+  {
+    "name": "Colin Meads",
+    "id": "meads",
+    "url": "https://www.espnscrum.com/player/10416/Colin-Meads",
+    "source": "rugby_fallback",
+    "country": "New Zealand",
+    "position": "Lock"
+  },
+  {
+    "name": "Siya Kolisi",
+    "id": "kolisi",
+    "url": "https://www.espnscrum.com/player/185103/Siya-Kolisi",
+    "source": "rugby_fallback",
+    "country": "South Africa",
+    "position": "Flanker"
+  },
+  {
+    "name": "Francois Pienaar",
+    "id": "pienaar",
+    "url": "https://www.espnscrum.com/player/9093/Francois-Pienaar",
+    "source": "rugby_fallback",
+    "country": "South Africa",
+    "position": "Flanker"
+  },
+  {
+    "name": "Faf de Klerk",
+    "id": "deklerk",
+    "url": "https://www.espnscrum.com/player/167383/Faf-de-Klerk",
+    "source": "rugby_fallback",
+    "country": "South Africa",
+    "position": "Scrum-half"
+  },
+  {
+    "name": "Handre Pollard",
+    "id": "pollard",
+    "url": "https://www.espnscrum.com/player/177479/Handre-Pollard",
+    "source": "rugby_fallback",
+    "country": "South Africa",
+    "position": "Fly-half"
+  },
+  {
+    "name": "Johnny Wilkinson",
+    "id": "wilkinson",
+    "url": "https://www.espnscrum.com/player/9238/Jonny-Wilkinson",
+    "source": "rugby_fallback",
+    "country": "England",
+    "position": "Fly-half"
+  },
+  {
+    "name": "Martin Johnson",
+    "id": "johnson",
+    "url": "https://www.espnscrum.com/player/8730/Martin-Johnson",
+    "source": "rugby_fallback",
+    "country": "England",
+    "position": "Lock"
+  },
+  {
+    "name": "Owen Farrell",
+    "id": "farrell",
+    "url": "https://www.espnscrum.com/player/146126/Owen-Farrell",
+    "source": "rugby_fallback",
+    "country": "England",
+    "position": "Fly-half"
+  },
+  {
+    "name": "Brian O'Driscoll",
+    "id": "odriscoll",
+    "url": "https://www.espnscrum.com/player/9393/Brian-ODriscoll",
+    "source": "rugby_fallback",
+    "country": "Ireland",
+    "position": "Centre"
+  },
+  {
+    "name": "Ronan O'Gara",
+    "id": "ogara",
+    "url": "https://www.espnscrum.com/player/9408/Ronan-OGara",
+    "source": "rugby_fallback",
+    "country": "Ireland",
+    "position": "Fly-half"
+  },
+  {
+    "name": "Johnny Sexton",
+    "id": "sexton",
+    "url": "https://www.espnscrum.com/player/123578/Johnny-Sexton",
+    "source": "rugby_fallback",
+    "country": "Ireland",
+    "position": "Fly-half"
+  },
+  {
+    "name": "David Pocock",
+    "id": "pocock",
+    "url": "https://www.espnscrum.com/player/8973/David-Pocock",
+    "source": "rugby_fallback",
+    "country": "Australia",
+    "position": "Flanker"
+  },
+  {
+    "name": "Michael Hooper",
+    "id": "hooper",
+    "url": "https://www.espnscrum.com/player/157882/Michael-Hooper",
+    "source": "rugby_fallback",
+    "country": "Australia",
+    "position": "Flanker"
+  },
+  {
+    "name": "Israel Folau",
+    "id": "folau",
+    "url": "https://www.espnscrum.com/player/162556/Israel-Folau",
+    "source": "rugby_fallback",
+    "country": "Australia",
+    "position": "Full-back"
+  },
+  {
+    "name": "Shane Williams",
+    "id": "williams",
+    "url": "https://www.espnscrum.com/player/10018/Shane-Williams",
+    "source": "rugby_fallback",
+    "country": "Wales",
+    "position": "Winger"
+  },
+  {
+    "name": "Alun Wyn Jones",
+    "id": "jones",
+    "url": "https://www.espnscrum.com/player/128562/Alun-Wyn-Jones",
+    "source": "rugby_fallback",
+    "country": "Wales",
+    "position": "Lock"
+  },
+  {
+    "name": "Serge Blanco",
+    "id": "blanco",
+    "url": "https://www.espnscrum.com/player/8755/Serge-Blanco",
+    "source": "rugby_fallback",
+    "country": "France",
+    "position": "Full-back"
+  },
+  {
+    "name": "Antoine Dupont",
+    "id": "dupont",
+    "url": "https://www.espnscrum.com/player/224016/Antoine-Dupont",
+    "source": "rugby_fallback",
+    "country": "France",
+    "position": "Scrum-half"
+  }
+]

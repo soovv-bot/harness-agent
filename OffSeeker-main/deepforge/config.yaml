@@ -1,0 +1,41 @@
+# DeepForge Configuration File
+#
+# This file contains all configuration settings for the DeepForge pipeline.
+# Settings can also be overridden using environment variables (see .env.example).
+#
+# API keys should be set via environment variables for security.
+# Do not commit actual API keys to version control.
+
+api:
+  # Model names for different APIs
+  gemini_model: "gemini-2.5-pro"
+  serper_model: "api_serper_serper"
+  qwen_model: "qwen3-235b-a22b-instruct"
+  deepseek_model: "deepseek-chat"
+
+  # Local model server (for vLLM)
+  local_model_ip: "29.81.244.91"
+  local_model_port: 8010
+
+# Path configuration
+paths:
+  data_dir: "data"
+  tmp_dir: "tmp"
+
+# Concurrency settings for different pipeline stages
+concurrency:
+  url_generation_workers: 64
+  entity_extraction_workers: 80
+  qa_generation_workers: 64
+  difficulty_enhancement_workers: 16
+  quality_filter_workers: 32
+  post_enhancement_workers: 512
+
+# Generation parameters
+generation:
+  random_seed: 42
+  min_date_cutoff: "2024-01-01"
+  max_qa_generation_tries: 8
+  depth_weights: [10, 40, 40, 10]  # Weights for exploration depths 1, 2, 3, 4
+  max_url_content_length: 100000
+  exploration_timeout: 1200

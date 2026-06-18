@@ -1,0 +1,194 @@
+[
+  {
+    "name": "Iga Świątek",
+    "id": "swiatek",
+    "url": "https://www.wtatennis.com/players/player/iga-swiatek/318732",
+    "source": "wta_fallback",
+    "country": "Poland",
+    "rankings": "WTA #1"
+  },
+  {
+    "name": "Aryna Sabalenka",
+    "id": "sabalenka",
+    "url": "https://www.wtatennis.com/players/player/aryna-sabalenka/321760",
+    "source": "wta_fallback",
+    "country": "Belarus",
+    "rankings": "WTA Top 5"
+  },
+  {
+    "name": "Elena Rybakina",
+    "id": "rybakina",
+    "url": "https://www.wtatennis.com/players/player/elena-rybakina/321788",
+    "source": "wta_fallback",
+    "country": "Kazakhstan",
+    "rankings": "WTA Top 5"
+  },
+  {
+    "name": "Jessica Pegula",
+    "id": "pegula",
+    "url": "https://www.wtatennis.com/players/player/jessica-pegula/319233",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "WTA Top 10"
+  },
+  {
+    "name": "Coco Gauff",
+    "id": "gauff",
+    "url": "https://www.wtatennis.com/players/player/coco-gauff/326254",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "WTA Top 10"
+  },
+  {
+    "name": "Maria Sakkari",
+    "id": "sakkari",
+    "url": "https://www.wtatennis.com/players/player/maria-sakkari/314088",
+    "source": "wta_fallback",
+    "country": "Greece",
+    "rankings": "WTA Top 10"
+  },
+  {
+    "name": "Ons Jabeur",
+    "id": "jabeur",
+    "url": "https://www.wtatennis.com/players/player/ons-jabeur/315099",
+    "source": "wta_fallback",
+    "country": "Tunisia",
+    "rankings": "WTA Top 10"
+  },
+  {
+    "name": "Caroline Garcia",
+    "id": "garcia",
+    "url": "https://www.wtatennis.com/players/player/caroline-garcia/313839",
+    "source": "wta_fallback",
+    "country": "France",
+    "rankings": "WTA Top 20"
+  },
+  {
+    "name": "Serena Williams",
+    "id": "williams",
+    "url": "https://www.wtatennis.com/players/player/serena-williams/224000",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "23 Grand Slams"
+  },
+  {
+    "name": "Venus Williams",
+    "id": "williams_venus",
+    "url": "https://www.wtatennis.com/players/player/venus-williams/223999",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "7 Grand Slams"
+  },
+  {
+    "name": "Steffi Graf",
+    "id": "graf",
+    "url": "https://www.wtatennis.com/players/player/steffi-graf/224001",
+    "source": "wta_fallback",
+    "country": "Germany",
+    "rankings": "22 Grand Slams"
+  },
+  {
+    "name": "Martina Navratilova",
+    "id": "navratilova",
+    "url": "https://www.wtatennis.com/players/player/martina-navratilova/224002",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "18 Grand Slams"
+  },
+  {
+    "name": "Chris Evert",
+    "id": "evert",
+    "url": "https://www.wtatennis.com/players/player/chris-evert/224003",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "18 Grand Slams"
+  },
+  {
+    "name": "Margaret Court",
+    "id": "court",
+    "url": "https://www.wtatennis.com/players/player/margaret-court/224004",
+    "source": "wta_fallback",
+    "country": "Australia",
+    "rankings": "24 Grand Slams"
+  },
+  {
+    "name": "Monica Seles",
+    "id": "seles",
+    "url": "https://www.wtatennis.com/players/player/monica-seles/224005",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "9 Grand Slams"
+  },
+  {
+    "name": "Justine Henin",
+    "id": "henin",
+    "url": "https://www.wtatennis.com/players/player/justine-henin/224006",
+    "source": "wta_fallback",
+    "country": "Belgium",
+    "rankings": "7 Grand Slams"
+  },
+  {
+    "name": "Kim Clijsters",
+    "id": "clijsters",
+    "url": "https://www.wtatennis.com/players/player/kim-clijsters/224007",
+    "source": "wta_fallback",
+    "country": "Belgium",
+    "rankings": "4 Grand Slams"
+  },
+  {
+    "name": "Martina Hingis",
+    "id": "hingis",
+    "url": "https://www.wtatennis.com/players/player/martina-hingis/224008",
+    "source": "wta_fallback",
+    "country": "Switzerland",
+    "rankings": "5 Grand Slams"
+  },
+  {
+    "name": "Lindsay Davenport",
+    "id": "davenport",
+    "url": "https://www.wtatennis.com/players/player/lindsay-davenport/224009",
+    "source": "wta_fallback",
+    "country": "USA",
+    "rankings": "3 Grand Slams"
+  },
+  {
+    "name": "Naomi Osaka",
+    "id": "osaka",
+    "url": "https://www.wtatennis.com/players/player/naomi-osaka/319770",
+    "source": "wta_fallback",
+    "country": "Japan",
+    "rankings": "4 Grand Slams"
+  },
+  {
+    "name": "Simona Halep",
+    "id": "halep",
+    "url": "https://www.wtatennis.com/players/player/simona-halep/314590",
+    "source": "wta_fallback",
+    "country": "Romania",
+    "rankings": "2 Grand Slams"
+  },
+  {
+    "name": "Ashleigh Barty",
+    "id": "barty",
+    "url": "https://www.wtatennis.com/players/player/ashleigh-barty/313880",
+    "source": "wta_fallback",
+    "country": "Australia",
+    "rankings": "3 Grand Slams"
+  },
+  {
+    "name": "Angelique Kerber",
+    "id": "kerber",
+    "url": "https://www.wtatennis.com/players/player/angelique-kerber/223975",
+    "source": "wta_fallback",
+    "country": "Germany",
+    "rankings": "3 Grand Slams"
+  },
+  {
+    "name": "Petra Kvitová",
+    "id": "kvitova",
+    "url": "https://www.wtatennis.com/players/player/petra-kvitova/224054",
+    "source": "wta_fallback",
+    "country": "Czech Republic",
+    "rankings": "2 Grand Slams"
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-14T18:48:32",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    9
+  ],
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 1505.4,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 12,
+    "max_planner_searches": 10,
+    "max_executor_searches": 30,
+    "max_total_searches": 80
+  },
+  "results": [
+    {
+      "task_index": 9,
+      "question_preview": "There's a poet who lost two family members during a pandemic that occurred between 2005 and 2023, inclusive. In an interview dated before 2015, the po",
+      "correct_answer": "Cigarette",
+      "extracted_answer": "{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"No candidate matches all constraints. Andrea Gibson has critical conflicts with poem description, Benjamin Zephaniah fails Appalachian writer marriage constraint, and James Seay remains unverified for key constraints including the poem with 'photograph' in title.\",\n  \"remaining_uncertainty\": \"No verified poet found who matches all constraints: 1) lost two family members during pandemic (2005-2023), 2) interview before 2015 discussing never being read to as child and mental health, 3) married to Appalachian writer as of Dec 2023, 4) has poem with 'photograph' in title where child asks for something in first two lines.\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"Genius.com: Andrea Gibson - Photograph\",\n      \"observation\": \"Poem 'Photograph' by Andrea Gibson first two lines: 'I wish I was a photograph / tucked into the corners of your wallet.' No child asking for anything.\",\n      \"relevance\": \"high\"\n    },\n    {\n      \"source\": \"Wikipedia - Benjamin Zephaniah\",\n      \"observation\": \"Benjamin Zephaniah is married to Qian Zheng from China, not an Appalachian writer.\",\n      \"relevance\": \"high\"\n    },\n    {\n      \"source\": \"Wikipedia - Lee Smith\",\n      \"observation\": \"Lee Smith (Appalachian writer) was married to poet James Seay, but other constraints for Seay remain unverified.\",\n      \"relevance\": \"medium\"\n    }\n  ]\n}",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"No candidate matches all constraints. Andrea Gibson has critical conflicts with poem description, Benjamin Zephaniah fails Appalachian writer marriage constraint, and James Seay remains unverified for key constraints including the poem with 'photograph' in title.\",\n  \"remaining_uncertainty\": \"No verified poet found who matches all constraints: 1) lost two family members during pandemic (2005-2023), 2",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "",
+      "grader_reasoning": "Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "elapsed_seconds": 1499.8,
+      "sample_position": 9
+    }
+  ]
+}

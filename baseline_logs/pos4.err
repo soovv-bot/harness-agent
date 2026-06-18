@@ -1,0 +1,126 @@
+2026-04-15 04:03:49.158 | INFO     | __main__:_load_fixed_sample:55 - Loading BrowseComp dataset...
+2026-04-15 04:03:51.517 | INFO     | __main__:_load_fixed_sample:60 - Loaded fixed sample of 10 examples
+2026-04-15 04:03:51.520 | INFO     | __main__:run_fixed_baseline:153 - Manifest saved to D:\research\search_data_systhesis\SearchHarness_0414\docs\seed123_k10_manifest.json
+2026-04-15 04:03:52.478 | INFO     | __main__:run_fixed_baseline:163 - Running baseline fixed-sample evaluation for positions=[4]
+2026-04-15 04:03:53.472 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-15 04:03:53.475 | INFO     | trajectory_agent:__init__:112 - Initialized TrajectoryRecordingAgent with model: deepseek-chat, enable_hint: True, max_turns: None, hard_safety_turns: 200
+2026-04-15 04:03:53.475 | INFO     | trajectory_agent:run_with_trajectory:349 - Starting task: Solve the following web-search task carefully. Use the available tools to gather and verify evidence...
+2026-04-15 04:03:53.475 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 1
+2026-04-15 04:03:56.762 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['snooker players with more than 300 centuries', 'snooker highest break more than 3 times', 'professional snooker players 1995 to 2006']}
+2026-04-15 04:03:58.731 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:03:58.731 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 2
+2026-04-15 04:04:02.871 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['snooker players with more than 3 maximum breaks', 'most 147 breaks snooker', 'players with 4 or more 147 breaks']}
+2026-04-15 04:04:04.872 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:04.872 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 3
+2026-04-15 04:04:11.652 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['snooker players with over 300 centuries and multiple 147 breaks', 'centuries over 300 maximum breaks over 3']}
+2026-04-15 04:04:13.555 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:13.555 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 4
+2026-04-15 04:04:16.987 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://cuetracker.net/statistics/centuries/most-made/all-time']}
+2026-04-15 04:04:23.869 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:04:23.870 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 5
+2026-04-15 04:04:26.887 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://cuetracker.net/statistics/centuries/most-centuries-per-break/all-time?break=147']}
+2026-04-15 04:04:36.645 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:04:36.645 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 6
+2026-04-15 04:04:49.114 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ["Ronnie O'Sullivan turned professional year", 'John Higgins turned professional year', 'Stephen Hendry turned professional year', 'Shaun Murphy turned professional year']}
+2026-04-15 04:04:50.970 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:50.970 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 7
+2026-04-15 04:04:55.292 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Judd Trump turned professional year', 'Neil Robertson turned professional year', 'Mark Selby turned professional year', 'Ding Junhui turned professional year']}
+2026-04-15 04:04:57.077 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:57.077 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 8
+2026-04-15 04:05:00.611 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Stuart Bingham turned professional year', 'Mark Allen turned professional year', 'Kyren Wilson turned professional year']}
+2026-04-15 04:05:02.481 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:02.481 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 9
+2026-04-15 04:05:16.292 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['2023 snooker match decider win 4-3 4-0 then lost', '2023 tournament won decider then 4-3 4-0']}
+2026-04-15 04:05:18.049 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:18.049 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 10
+2026-04-15 04:05:22.293 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['2023 snooker tournament results 4-3 4-0 sequence', 'won decider 2023 then 4-3 then 4-0']}
+2026-04-15 04:05:24.144 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:24.145 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 11
+2026-04-15 04:05:28.108 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy 2023 tournament results decider win', 'Shaun Murphy 2023 4-3 4-0']}
+2026-04-15 04:05:30.455 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:30.455 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 12
+2026-04-15 04:05:34.053 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Stuart Bingham 2023 tournament results', 'Stuart Bingham 2023 4-3 4-0']}
+2026-04-15 04:05:35.806 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:35.807 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 13
+2026-04-15 04:05:40.232 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Judd Trump 2023 tournament results decider', 'Judd Trump 2023 4-3 4-0']}
+2026-04-15 04:05:41.852 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:41.852 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 14
+2026-04-15 04:05:45.318 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Neil Robertson 2023 tournament results decider', 'Neil Robertson 2023 4-3 4-0']}
+2026-04-15 04:05:47.150 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:47.150 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 15
+2026-04-15 04:05:58.226 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['2023 snooker tournament bracket 4-3 4-0', '2023 tournament round of 16 4-3 4-0']}
+2026-04-15 04:06:00.425 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:00.425 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 16
+2026-04-15 04:06:05.353 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"4-3" "4-0" snooker 2023 tournament', 'snooker 2023 match results 4-3 then 4-0']}
+2026-04-15 04:06:07.857 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:07.858 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 17
+2026-04-15 04:06:12.767 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"won 4-3 then 4-0 then lost" snooker 2023', '"4-3 4-0 then lost" snooker']}
+2026-04-15 04:06:14.971 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:14.971 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 18
+2026-04-15 04:06:20.627 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://en.wikipedia.org/wiki/2023_World_Grand_Prix_(snooker)']}
+2026-04-15 04:06:22.234 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:06:22.234 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 19
+2026-04-15 04:06:30.301 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['2023 Players Championship snooker results 4-3 4-0', '2023 Tour Championship snooker results 4-3']}
+2026-04-15 04:06:32.351 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:32.351 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 20
+2026-04-15 04:06:36.847 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://en.wikipedia.org/wiki/2023_Players_Championship_(snooker)']}
+2026-04-15 04:06:44.715 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:06:44.715 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 21
+2026-04-15 04:06:51.692 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['2023 British Open snooker results 4-3 4-0', 'British Open 2023 draw']}
+2026-04-15 04:06:53.473 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:53.473 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 22
+2026-04-15 04:06:58.098 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.snooker.org/res/index.asp?template=22&event=1444']}
+2026-04-15 04:07:12.187 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:07:12.187 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 23
+2026-04-15 04:07:21.903 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy decider win 2023 against', 'Stuart Bingham decider win 2023 against', 'Judd Trump decider win 2023 against']}
+2026-04-15 04:07:23.579 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:23.579 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 24
+2026-04-15 04:07:30.731 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy 2023 decider 4-3 4-0 lost to', 'Murphy 2023 tournament decider win 4-3 4-0']}
+2026-04-15 04:07:32.440 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:32.440 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 25
+2026-04-15 04:07:39.899 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy 4-3 decider 2023 against', 'Murphy 4-3 2023 decider']}
+2026-04-15 04:07:41.785 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:41.785 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 26
+2026-04-15 04:07:48.795 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy Liu Hongyu 2023', 'Murphy vs Liu Hongyu 2023']}
+2026-04-15 04:07:50.840 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:07:50.840 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 27
+2026-04-15 04:07:55.905 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://cuetracker.net/head-to-head/shaun-murphy/liu-hongyu']}
+2026-04-15 04:08:03.585 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:08:03.585 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 28
+2026-04-15 04:08:11.161 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Stuart Bingham 4-3 decider 2023', 'Bingham decider win 2023']}
+2026-04-15 04:08:13.170 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:08:13.171 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 29
+2026-04-15 04:08:22.429 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['4-3 4-0 wins 2023 snooker bracket Murphy', '4-3 4-0 wins 2023 snooker bracket Bingham']}
+2026-04-15 04:08:24.268 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:08:24.268 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 30
+2026-04-15 04:08:29.835 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['"won the decider game in 2023" snooker', '"decider game in 2023 against a player who has less than 250 centuries" snooker']}
+2026-04-15 04:08:31.703 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:08:31.703 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 31
+2026-04-15 04:08:40.973 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy 2023 tournament round of 32 round of 16 quarterfinal', 'Murphy 2023 tournament results last 32 last 16 quarterfinal']}
+2026-04-15 04:08:43.019 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:08:43.019 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 32
+2026-04-15 04:08:48.203 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://cuetracker.net/players/shaun-murphy/season/2022-2023?status=professional']}
+2026-04-15 04:09:00.714 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:09:00.714 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 33
+2026-04-15 04:09:05.301 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['2023 Welsh Open Shaun Murphy results', 'Welsh Open 2023 Murphy 4-3 4-0']}
+2026-04-15 04:09:07.228 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:09:07.229 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 34
+2026-04-15 04:09:15.920 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Scottish Open 2023 Shaun Murphy decider', 'Murphy Scottish Open 2023 4-3']}
+2026-04-15 04:09:17.866 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:09:17.866 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 35
+2026-04-15 04:09:24.321 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://cuetracker.net/tournaments/scottish-open/2023/5848']}
+2026-04-15 04:10:10.212 | WARNING  | tools.search_tools:_crawl_url:242 - Jina API failed, falling back to html2text: 503 Server Error: Service Unavailable for url: https://r.jina.ai/https://cuetracker.net/tournaments/scottish-open/2023/5848
+2026-04-15 04:10:22.182 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:10:22.182 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 36
+2026-04-15 04:10:27.574 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Shaun Murphy Scottish Open 2023 round of 64', 'Murphy Scottish Open 2023 last 64']}
+2026-04-15 04:10:29.368 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:10:29.368 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 37
+2026-04-15 04:10:44.560 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: execute_code with args: {'code': '# Based on my research:\n# 1. Shaun Murphy has 776 centuries (over 300)\n# 2. Shaun Murphy has 10 maximum 147 breaks (over 3)\n# 3. Shaun Murphy turned professional in 1998 (between 1995 and 2006)\n# 4. There are Instagram reels about "Shaun Murphy 2023 Won Decider Then 4 3 Then 4 0 Then Lost"\n# 5. He could have lost to players with over 400 centuries (many opponents)\n\nprint("The player is Shaun Murphy")'}
+2026-04-15 04:10:44.573 | WARNING  | tools.subprocess_interpreter:run_file:85 - Failed to parse Python code: No module named 'astor'
+2026-04-15 04:10:44.736 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool execute_code completed successfully
+2026-04-15 04:10:44.736 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 38
+2026-04-15 04:10:47.268 | INFO     | trajectory_agent:run_with_trajectory:404 - Task completed in 38 turns (found <answer> tag)
+2026-04-15 04:10:47.275 | INFO     | trajectory_agent:_save_trajectory:567 - Saved trajectory to: D:\research\search_data_systhesis\baseline_logs\pos4\deepseek-chat\task_000004.json
+2026-04-15 04:10:47.447 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-15 04:10:47.447 | INFO     | __main__:run_single_baseline_task:108 - [Baseline Task 4] correct=False | answer='Shaun Murphy' | status=completed | 414.0s
+2026-04-15 04:10:47.450 | INFO     | __main__:run_fixed_baseline:239 - Baseline results saved to: D:\research\search_data_systhesis\baseline_results\seed123_position4_baseline.json

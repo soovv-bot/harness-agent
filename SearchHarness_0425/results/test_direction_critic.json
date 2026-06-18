@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-04-10T22:15:26.223848",
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 1776.8,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 30
+  },
+  "results": [
+    {
+      "task_index": 0,
+      "question_preview": "A band recorded a song about a famous athlete, known by a colloquialized nickname for a specific type of administrative leader. The song was released ",
+      "correct_answer": "Valasia",
+      "extracted_answer": "Dana Air Flight 0992 (June 3, 2012)",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Dana Air Flight 0992 (June 3, 2012)\",\n  \"confidence\": \"medium\",\n  \"reason\": \"Stopped due to max_iterations_reached: {\\\"max_iterations\\\": 6}\",\n  \"remaining_uncertainty\": \"Which well-known idioms appear as song titles in 2010, and which of those feature mononym vocalists\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"MoternMedia Wiki - Discography\",\n      \"observation\": \"Comprehensive discography shows The Athletic Sports Band released 'Play B",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "Dana Air Flight 0992",
+      "grader_reasoning": "The response provides information about an aviation accident but does not answer the question, which asks for the mononym of a vocalist. The correct answer is 'Valasia,' not details about the flight.",
+      "elapsed_seconds": 1776.8
+    }
+  ]
+}

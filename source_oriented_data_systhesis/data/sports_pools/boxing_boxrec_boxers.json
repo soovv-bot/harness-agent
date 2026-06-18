@@ -1,0 +1,4930 @@
+[
+  {
+    "name": "Oleksandr Usyk",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "oleksandr-usyk",
+    "url": "https://boxingscene.com/oleksandr-usyk/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Derek Chisora",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "derek-chisora",
+    "url": "https://boxingscene.com/derek-chisora/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Frank Sanchez",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "frank-sanchez",
+    "url": "https://boxingscene.com/frank-sanchez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Richard Torrez Jr.",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "richard-torrez-jr",
+    "url": "https://boxingscene.com/richard-torrez-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Martin Bakole",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "martin-bakole",
+    "url": "https://boxingscene.com/martin-bakole/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bakhodir Jalolov",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "bakhodir-jalolov",
+    "url": "https://boxingscene.com/bakhodir-jalolov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lawrence Okolie",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "lawrence-okolie",
+    "url": "https://boxingscene.com/lawrence-okolie/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Guido Vianello",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "guido-vianello",
+    "url": "https://boxingscene.com/guido-vianello/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Richard Riakporhe",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "richard-riakporhe",
+    "url": "https://boxingscene.com/richard-riakporhe/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jared Anderson",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "jared-anderson",
+    "url": "https://boxingscene.com/jared-anderson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Daniel Dubois",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "daniel-dubois",
+    "url": "https://boxingscene.com/daniel-dubois/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Filip Hrgovic",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "filip-hrgovic",
+    "url": "https://boxingscene.com/filip-hrgovic/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Moses Itauma",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "moses-itauma",
+    "url": "https://boxingscene.com/moses-itauma/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Efe Ajagba",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "efe-ajagba",
+    "url": "https://boxingscene.com/efe-ajagba/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Umar Salamov",
+    "weight_class": "Heavyweight",
+    "organization": "IBF",
+    "slug": "umar-salamov",
+    "url": "https://boxingscene.com/umar-salamov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oleksandr UsykMurat Gassiev",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "oleksandr-usykmurat-gassiev",
+    "url": "https://boxingscene.com/oleksandr-usykmurat-gassiev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lenier Pero",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "lenier-pero",
+    "url": "https://boxingscene.com/lenier-pero/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nelson Hysa",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "nelson-hysa",
+    "url": "https://boxingscene.com/nelson-hysa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arslanbek Makhmudov",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "arslanbek-makhmudov",
+    "url": "https://boxingscene.com/arslanbek-makhmudov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dainier Pero",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "dainier-pero",
+    "url": "https://boxingscene.com/dainier-pero/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gurgen Hovhannisyan",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "gurgen-hovhannisyan",
+    "url": "https://boxingscene.com/gurgen-hovhannisyan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kem Ljungquist",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "kem-ljungquist",
+    "url": "https://boxingscene.com/kem-ljungquist/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kubrat Pulev",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "kubrat-pulev",
+    "url": "https://boxingscene.com/kubrat-pulev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michael Hunter",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "michael-hunter",
+    "url": "https://boxingscene.com/michael-hunter/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Artem Suslenkov",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "artem-suslenkov",
+    "url": "https://boxingscene.com/artem-suslenkov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Justis Huni",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "justis-huni",
+    "url": "https://boxingscene.com/justis-huni/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joseph Goodall",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "joseph-goodall",
+    "url": "https://boxingscene.com/joseph-goodall/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Temur Mamoyan",
+    "weight_class": "Heavyweight",
+    "organization": "WBA",
+    "slug": "temur-mamoyan",
+    "url": "https://boxingscene.com/temur-mamoyan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oleksandr UsykAgit Kabayel",
+    "weight_class": "Heavyweight",
+    "organization": "WBC",
+    "slug": "oleksandr-usykagit-kabayel",
+    "url": "https://boxingscene.com/oleksandr-usykagit-kabayel/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Anthony Joshua",
+    "weight_class": "Heavyweight",
+    "organization": "WBC",
+    "slug": "anthony-joshua",
+    "url": "https://boxingscene.com/anthony-joshua/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Zhilei Zhang",
+    "weight_class": "Heavyweight",
+    "organization": "WBC",
+    "slug": "zhilei-zhang",
+    "url": "https://boxingscene.com/zhilei-zhang/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Deontay Wilder",
+    "weight_class": "Heavyweight",
+    "organization": "WBC",
+    "slug": "deontay-wilder",
+    "url": "https://boxingscene.com/deontay-wilder/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Fabio Wardley",
+    "weight_class": "Heavyweight",
+    "organization": "WBO",
+    "slug": "fabio-wardley",
+    "url": "https://boxingscene.com/fabio-wardley/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jermaine Franklin",
+    "weight_class": "Heavyweight",
+    "organization": "WBO",
+    "slug": "jermaine-franklin",
+    "url": "https://boxingscene.com/jermaine-franklin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Viktor Vykhryst",
+    "weight_class": "Heavyweight",
+    "organization": "WBO",
+    "slug": "viktor-vykhryst",
+    "url": "https://boxingscene.com/viktor-vykhryst/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Solomon Dacres",
+    "weight_class": "Heavyweight",
+    "organization": "WBO",
+    "slug": "solomon-dacres",
+    "url": "https://boxingscene.com/solomon-dacres/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gustavo Trujillo",
+    "weight_class": "Heavyweight",
+    "organization": "WBO",
+    "slug": "gustavo-trujillo",
+    "url": "https://boxingscene.com/gustavo-trujillo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jai Opetaia",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "jai-opetaia",
+    "url": "https://boxingscene.com/jai-opetaia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Chris Billam-Smith",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "chris-billam-smith",
+    "url": "https://boxingscene.com/chris-billam-smith/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mateusz Masternak",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "mateusz-masternak",
+    "url": "https://boxingscene.com/mateusz-masternak/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Leonardo Mosquea",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "leonardo-mosquea",
+    "url": "https://boxingscene.com/leonardo-mosquea/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "David Nyika",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "david-nyika",
+    "url": "https://boxingscene.com/david-nyika/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Floyd Masson",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "floyd-masson",
+    "url": "https://boxingscene.com/floyd-masson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Viddal Riley",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "viddal-riley",
+    "url": "https://boxingscene.com/viddal-riley/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Juergen Uldedaj",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "juergen-uldedaj",
+    "url": "https://boxingscene.com/juergen-uldedaj/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mike Perez",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "mike-perez",
+    "url": "https://boxingscene.com/mike-perez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Robin Sirwan Safar",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "robin-sirwan-safar",
+    "url": "https://boxingscene.com/robin-sirwan-safar/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lenar Perez",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "lenar-perez",
+    "url": "https://boxingscene.com/lenar-perez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tristan Kalkreuth",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "tristan-kalkreuth",
+    "url": "https://boxingscene.com/tristan-kalkreuth/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Pat Brown",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "pat-brown",
+    "url": "https://boxingscene.com/pat-brown/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon Glanton",
+    "weight_class": "Cruiserweight",
+    "organization": "IBF",
+    "slug": "brandon-glanton",
+    "url": "https://boxingscene.com/brandon-glanton/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gilberto Ramirez",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "gilberto-ramirez",
+    "url": "https://boxingscene.com/gilberto-ramirez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aloys Youmbi",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "aloys-youmbi",
+    "url": "https://boxingscene.com/aloys-youmbi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yuniel Dorticos",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "yuniel-dorticos",
+    "url": "https://boxingscene.com/yuniel-dorticos/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aleksei Egorov",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "aleksei-egorov",
+    "url": "https://boxingscene.com/aleksei-egorov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aleksei Papin",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "aleksei-papin",
+    "url": "https://boxingscene.com/aleksei-papin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Giovanni Scuderi",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "giovanni-scuderi",
+    "url": "https://boxingscene.com/giovanni-scuderi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Liam Callanan",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "liam-callanan",
+    "url": "https://boxingscene.com/liam-callanan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Edin Puhalo",
+    "weight_class": "Cruiserweight",
+    "organization": "WBA",
+    "slug": "edin-puhalo",
+    "url": "https://boxingscene.com/edin-puhalo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Noel MikaelyanMichael Cieslak",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "noel-mikaelyanmichael-cieslak",
+    "url": "https://boxingscene.com/noel-mikaelyanmichael-cieslak/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryan Rozicki",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "ryan-rozicki",
+    "url": "https://boxingscene.com/ryan-rozicki/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yamil Peralta",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "yamil-peralta",
+    "url": "https://boxingscene.com/yamil-peralta/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Badou Jack",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "badou-jack",
+    "url": "https://boxingscene.com/badou-jack/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ilunga Makabu",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "ilunga-makabu",
+    "url": "https://boxingscene.com/ilunga-makabu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kevin Ramirez",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "kevin-ramirez",
+    "url": "https://boxingscene.com/kevin-ramirez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Efetobor Apochi",
+    "weight_class": "Cruiserweight",
+    "organization": "WBC",
+    "slug": "efetobor-apochi",
+    "url": "https://boxingscene.com/efetobor-apochi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Roman Fress",
+    "weight_class": "Cruiserweight",
+    "organization": "WBO",
+    "slug": "roman-fress",
+    "url": "https://boxingscene.com/roman-fress/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tahir Kahrovic",
+    "weight_class": "Cruiserweight",
+    "organization": "WBO",
+    "slug": "tahir-kahrovic",
+    "url": "https://boxingscene.com/tahir-kahrovic/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Armend Xhoxhaj",
+    "weight_class": "Cruiserweight",
+    "organization": "WBO",
+    "slug": "armend-xhoxhaj",
+    "url": "https://boxingscene.com/armend-xhoxhaj/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dmitry Bivol",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "dmitry-bivol",
+    "url": "https://boxingscene.com/dmitry-bivol/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michael Eifert",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "michael-eifert",
+    "url": "https://boxingscene.com/michael-eifert/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Conor Wallace",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "conor-wallace",
+    "url": "https://boxingscene.com/conor-wallace/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "David Morrell",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "david-morrell",
+    "url": "https://boxingscene.com/david-morrell/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Malik Zinad",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "malik-zinad",
+    "url": "https://boxingscene.com/malik-zinad/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Artur Beterbiev",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "artur-beterbiev",
+    "url": "https://boxingscene.com/artur-beterbiev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Imam Khataev",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "imam-khataev",
+    "url": "https://boxingscene.com/imam-khataev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vasyli Voytsekhovsky",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "vasyli-voytsekhovsky",
+    "url": "https://boxingscene.com/vasyli-voytsekhovsky/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ali Ismailov",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "ali-ismailov",
+    "url": "https://boxingscene.com/ali-ismailov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ben Whittaker",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "ben-whittaker",
+    "url": "https://boxingscene.com/ben-whittaker/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sharabutdin Ataev",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "sharabutdin-ataev",
+    "url": "https://boxingscene.com/sharabutdin-ataev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Juan Carrillo",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "juan-carrillo",
+    "url": "https://boxingscene.com/juan-carrillo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Daniel Lapin",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "daniel-lapin",
+    "url": "https://boxingscene.com/daniel-lapin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Najee Lopez",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "najee-lopez",
+    "url": "https://boxingscene.com/najee-lopez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joshua Buatsi",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "joshua-buatsi",
+    "url": "https://boxingscene.com/joshua-buatsi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Atif Oberlton",
+    "weight_class": "Light Heavyweight",
+    "organization": "IBF",
+    "slug": "atif-oberlton",
+    "url": "https://boxingscene.com/atif-oberlton/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dmitry BivolDavid Benavidez Albert Ramirez",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "dmitry-bivoldavid-benavidez-albert-ramirez",
+    "url": "https://boxingscene.com/dmitry-bivoldavid-benavidez-albert-ramirez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arlen Lopez",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "arlen-lopez",
+    "url": "https://boxingscene.com/arlen-lopez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Deon Nicholson",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "deon-nicholson",
+    "url": "https://boxingscene.com/deon-nicholson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Anthony Yarde",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "anthony-yarde",
+    "url": "https://boxingscene.com/anthony-yarde/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ezra Taylor",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "ezra-taylor",
+    "url": "https://boxingscene.com/ezra-taylor/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lerrone Richards",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "lerrone-richards",
+    "url": "https://boxingscene.com/lerrone-richards/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Liam Cameron",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "liam-cameron",
+    "url": "https://boxingscene.com/liam-cameron/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luis Antonio Tejeda",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "luis-antonio-tejeda",
+    "url": "https://boxingscene.com/luis-antonio-tejeda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alban Bermeta",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBA",
+    "slug": "alban-bermeta",
+    "url": "https://boxingscene.com/alban-bermeta/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "David Benavidez",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "david-benavidez",
+    "url": "https://boxingscene.com/david-benavidez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Radivoje Kalajdzic",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "radivoje-kalajdzic",
+    "url": "https://boxingscene.com/radivoje-kalajdzic/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Willy Hutchinson",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "willy-hutchinson",
+    "url": "https://boxingscene.com/willy-hutchinson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Zach Parker",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "zach-parker",
+    "url": "https://boxingscene.com/zach-parker/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mehmet Nadir Unal",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "mehmet-nadir-unal",
+    "url": "https://boxingscene.com/mehmet-nadir-unal/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Craig Richards",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "craig-richards",
+    "url": "https://boxingscene.com/craig-richards/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ronald Gavril",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBC",
+    "slug": "ronald-gavril",
+    "url": "https://boxingscene.com/ronald-gavril/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dmitry BivolCallum Smith",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBO",
+    "slug": "dmitry-bivolcallum-smith",
+    "url": "https://boxingscene.com/dmitry-bivolcallum-smith/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oleksandr Gvozdyk",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBO",
+    "slug": "oleksandr-gvozdyk",
+    "url": "https://boxingscene.com/oleksandr-gvozdyk/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ardian Krasniqi",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBO",
+    "slug": "ardian-krasniqi",
+    "url": "https://boxingscene.com/ardian-krasniqi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Artur Reis",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBO",
+    "slug": "artur-reis",
+    "url": "https://boxingscene.com/artur-reis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Maxim Xu",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBO",
+    "slug": "maxim-xu",
+    "url": "https://boxingscene.com/maxim-xu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Diyab Dabschah",
+    "weight_class": "Light Heavyweight",
+    "organization": "WBO",
+    "slug": "diyab-dabschah",
+    "url": "https://boxingscene.com/diyab-dabschah/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Osleys Iglesias",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "osleys-iglesias",
+    "url": "https://boxingscene.com/osleys-iglesias/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Saul \"Canelo\" Alvarez",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "saul-\"canelo\"-alvarez",
+    "url": "https://boxingscene.com/saul-\"canelo\"-alvarez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jaime Munguia",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "jaime-munguia",
+    "url": "https://boxingscene.com/jaime-munguia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hamzah Sheeraz",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "hamzah-sheeraz",
+    "url": "https://boxingscene.com/hamzah-sheeraz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Troy Williamson",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "troy-williamson",
+    "url": "https://boxingscene.com/troy-williamson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Pavel Silyagin",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "pavel-silyagin",
+    "url": "https://boxingscene.com/pavel-silyagin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Diego Pacheco",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "diego-pacheco",
+    "url": "https://boxingscene.com/diego-pacheco/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Simon Zachenhuber",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "simon-zachenhuber",
+    "url": "https://boxingscene.com/simon-zachenhuber/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "William Scull",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "william-scull",
+    "url": "https://boxingscene.com/william-scull/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aslambek Idigov",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "aslambek-idigov",
+    "url": "https://boxingscene.com/aslambek-idigov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kevin Lele Sadjo",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "kevin-lele-sadjo",
+    "url": "https://boxingscene.com/kevin-lele-sadjo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Callum Simpson",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "callum-simpson",
+    "url": "https://boxingscene.com/callum-simpson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bektemir Melikuziev",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "bektemir-melikuziev",
+    "url": "https://boxingscene.com/bektemir-melikuziev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oliver Zaren",
+    "weight_class": "Super Middleweight",
+    "organization": "IBF",
+    "slug": "oliver-zaren",
+    "url": "https://boxingscene.com/oliver-zaren/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jose Armando Resendiz",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "jose-armando-resendiz",
+    "url": "https://boxingscene.com/jose-armando-resendiz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jermall Charlo",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "jermall-charlo",
+    "url": "https://boxingscene.com/jermall-charlo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Darius Fulghum",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "darius-fulghum",
+    "url": "https://boxingscene.com/darius-fulghum/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Caleb Plant",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "caleb-plant",
+    "url": "https://boxingscene.com/caleb-plant/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Junior Younan",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "junior-younan",
+    "url": "https://boxingscene.com/junior-younan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bek Nurmaganbet",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "bek-nurmaganbet",
+    "url": "https://boxingscene.com/bek-nurmaganbet/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Edin Avdic",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "edin-avdic",
+    "url": "https://boxingscene.com/edin-avdic/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Edgar Berlanga",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "edgar-berlanga",
+    "url": "https://boxingscene.com/edgar-berlanga/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nikita Zon",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "nikita-zon",
+    "url": "https://boxingscene.com/nikita-zon/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jose Luis Navarro",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "jose-luis-navarro",
+    "url": "https://boxingscene.com/jose-luis-navarro/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Juergen Doberstein",
+    "weight_class": "Super Middleweight",
+    "organization": "WBA",
+    "slug": "juergen-doberstein",
+    "url": "https://boxingscene.com/juergen-doberstein/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Christian Mbilli",
+    "weight_class": "Super Middleweight",
+    "organization": "WBC",
+    "slug": "christian-mbilli",
+    "url": "https://boxingscene.com/christian-mbilli/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lester Martinez",
+    "weight_class": "Super Middleweight",
+    "organization": "WBC",
+    "slug": "lester-martinez",
+    "url": "https://boxingscene.com/lester-martinez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jacob Bank",
+    "weight_class": "Super Middleweight",
+    "organization": "WBC",
+    "slug": "jacob-bank",
+    "url": "https://boxingscene.com/jacob-bank/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luka Plantic",
+    "weight_class": "Super Middleweight",
+    "organization": "WBC",
+    "slug": "luka-plantic",
+    "url": "https://boxingscene.com/luka-plantic/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sergiy Derevyanchenko",
+    "weight_class": "Super Middleweight",
+    "organization": "WBC",
+    "slug": "sergiy-derevyanchenko",
+    "url": "https://boxingscene.com/sergiy-derevyanchenko/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Immanuwel Aleem",
+    "weight_class": "Super Middleweight",
+    "organization": "WBC",
+    "slug": "immanuwel-aleem",
+    "url": "https://boxingscene.com/immanuwel-aleem/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alem Begic",
+    "weight_class": "Super Middleweight",
+    "organization": "WBO",
+    "slug": "alem-begic",
+    "url": "https://boxingscene.com/alem-begic/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Simon Zhachenhuber",
+    "weight_class": "Super Middleweight",
+    "organization": "WBO",
+    "slug": "simon-zhachenhuber",
+    "url": "https://boxingscene.com/simon-zhachenhuber/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Paulinus Ndjolonimu",
+    "weight_class": "Super Middleweight",
+    "organization": "WBO",
+    "slug": "paulinus-ndjolonimu",
+    "url": "https://boxingscene.com/paulinus-ndjolonimu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bruno Surace",
+    "weight_class": "Super Middleweight",
+    "organization": "WBO",
+    "slug": "bruno-surace",
+    "url": "https://boxingscene.com/bruno-surace/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ali Akhmedov",
+    "weight_class": "Super Middleweight",
+    "organization": "WBO",
+    "slug": "ali-akhmedov",
+    "url": "https://boxingscene.com/ali-akhmedov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Janibek Alimkhanuly",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "janibek-alimkhanuly",
+    "url": "https://boxingscene.com/janibek-alimkhanuly/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Etinosa Oliha",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "etinosa-oliha",
+    "url": "https://boxingscene.com/etinosa-oliha/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shakiel Thompson",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "shakiel-thompson",
+    "url": "https://boxingscene.com/shakiel-thompson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aaron McKenna",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "aaron-mckenna",
+    "url": "https://boxingscene.com/aaron-mckenna/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Endry Saavedra",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "endry-saavedra",
+    "url": "https://boxingscene.com/endry-saavedra/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Amari Jones",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "amari-jones",
+    "url": "https://boxingscene.com/amari-jones/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vincenzo Gualtieri",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "vincenzo-gualtieri",
+    "url": "https://boxingscene.com/vincenzo-gualtieri/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vadim Tukov",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "vadim-tukov",
+    "url": "https://boxingscene.com/vadim-tukov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vito Mielnicki Jr.",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "vito-mielnicki-jr",
+    "url": "https://boxingscene.com/vito-mielnicki-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Cesar Mateo Tapia",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "cesar-mateo-tapia",
+    "url": "https://boxingscene.com/cesar-mateo-tapia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Fiodor Czerkaszyn",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "fiodor-czerkaszyn",
+    "url": "https://boxingscene.com/fiodor-czerkaszyn/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Riku Kunimoto",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "riku-kunimoto",
+    "url": "https://boxingscene.com/riku-kunimoto/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michael Zerafa",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "michael-zerafa",
+    "url": "https://boxingscene.com/michael-zerafa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yoenli Hernandez",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "yoenli-hernandez",
+    "url": "https://boxingscene.com/yoenli-hernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jevgenijs Aleksejevs",
+    "weight_class": "Middleweight",
+    "organization": "IBF",
+    "slug": "jevgenijs-aleksejevs",
+    "url": "https://boxingscene.com/jevgenijs-aleksejevs/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Erislandy Lara",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "erislandy-lara",
+    "url": "https://boxingscene.com/erislandy-lara/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yoelvis Gomez",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "yoelvis-gomez",
+    "url": "https://boxingscene.com/yoelvis-gomez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Euri Cedeno",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "euri-cedeno",
+    "url": "https://boxingscene.com/euri-cedeno/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gleb Bakshi",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "gleb-bakshi",
+    "url": "https://boxingscene.com/gleb-bakshi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Chris Eubank Jr.",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "chris-eubank-jr",
+    "url": "https://boxingscene.com/chris-eubank-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Chordale Booker",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "chordale-booker",
+    "url": "https://boxingscene.com/chordale-booker/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Eric Priest",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "eric-priest",
+    "url": "https://boxingscene.com/eric-priest/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "George Liddard",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "george-liddard",
+    "url": "https://boxingscene.com/george-liddard/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joel Camilleri",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "joel-camilleri",
+    "url": "https://boxingscene.com/joel-camilleri/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kieron Conway",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "kieron-conway",
+    "url": "https://boxingscene.com/kieron-conway/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jaime Enrique Osuna Diaz",
+    "weight_class": "Middleweight",
+    "organization": "WBA",
+    "slug": "jaime-enrique-osuna-diaz",
+    "url": "https://boxingscene.com/jaime-enrique-osuna-diaz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Carlos AdamesJesus Ramos",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "carlos-adamesjesus-ramos",
+    "url": "https://boxingscene.com/carlos-adamesjesus-ramos/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Meiirim Nursultanov",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "meiirim-nursultanov",
+    "url": "https://boxingscene.com/meiirim-nursultanov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bilal Jkitou",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "bilal-jkitou",
+    "url": "https://boxingscene.com/bilal-jkitou/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Austin Williams",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "austin-williams",
+    "url": "https://boxingscene.com/austin-williams/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Serhii Bohachuk",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "serhii-bohachuk",
+    "url": "https://boxingscene.com/serhii-bohachuk/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Troy Isley",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "troy-isley",
+    "url": "https://boxingscene.com/troy-isley/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Callum Walsh",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "callum-walsh",
+    "url": "https://boxingscene.com/callum-walsh/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dylan Biggs",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "dylan-biggs",
+    "url": "https://boxingscene.com/dylan-biggs/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shane Mosley Jr.",
+    "weight_class": "Middleweight",
+    "organization": "WBC",
+    "slug": "shane-mosley-jr",
+    "url": "https://boxingscene.com/shane-mosley-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Denzel Bentley",
+    "weight_class": "Middleweight",
+    "organization": "WBO",
+    "slug": "denzel-bentley",
+    "url": "https://boxingscene.com/denzel-bentley/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nikita Tszyu",
+    "weight_class": "Middleweight",
+    "organization": "WBO",
+    "slug": "nikita-tszyu",
+    "url": "https://boxingscene.com/nikita-tszyu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brad Pauls",
+    "weight_class": "Middleweight",
+    "organization": "WBO",
+    "slug": "brad-pauls",
+    "url": "https://boxingscene.com/brad-pauls/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Conor Benn",
+    "weight_class": "Middleweight",
+    "organization": "WBO",
+    "slug": "conor-benn",
+    "url": "https://boxingscene.com/conor-benn/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lazaro Lorenzana",
+    "weight_class": "Middleweight",
+    "organization": "WBO",
+    "slug": "lazaro-lorenzana",
+    "url": "https://boxingscene.com/lazaro-lorenzana/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Josh Kelly",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "josh-kelly",
+    "url": "https://boxingscene.com/josh-kelly/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon Adams",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "brandon-adams",
+    "url": "https://boxingscene.com/brandon-adams/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Caoimhin Agyarko",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "caoimhin-agyarko",
+    "url": "https://boxingscene.com/caoimhin-agyarko/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bakary Samake",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "bakary-samake",
+    "url": "https://boxingscene.com/bakary-samake/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tim Tszyu",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "tim-tszyu",
+    "url": "https://boxingscene.com/tim-tszyu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ardreal Holmes",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "ardreal-holmes",
+    "url": "https://boxingscene.com/ardreal-holmes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Freudis Rojas",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "freudis-rojas",
+    "url": "https://boxingscene.com/freudis-rojas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Giovani Santillan",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "giovani-santillan",
+    "url": "https://boxingscene.com/giovani-santillan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ben Mahoney",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "ben-mahoney",
+    "url": "https://boxingscene.com/ben-mahoney/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Wendy Toussaint",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "wendy-toussaint",
+    "url": "https://boxingscene.com/wendy-toussaint/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Milan Prat",
+    "weight_class": "Junior Middleweight",
+    "organization": "IBF",
+    "slug": "milan-prat",
+    "url": "https://boxingscene.com/milan-prat/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Xander ZayasJaron Ennis",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "xander-zayasjaron-ennis",
+    "url": "https://boxingscene.com/xander-zayasjaron-ennis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Pavel Sosulin",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "pavel-sosulin",
+    "url": "https://boxingscene.com/pavel-sosulin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Isaac Lucero",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "isaac-lucero",
+    "url": "https://boxingscene.com/isaac-lucero/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Abass Baraou",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "abass-baraou",
+    "url": "https://boxingscene.com/abass-baraou/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yoenis Tellez",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "yoenis-tellez",
+    "url": "https://boxingscene.com/yoenis-tellez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Israil Madrimov",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "israil-madrimov",
+    "url": "https://boxingscene.com/israil-madrimov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andreas Katzourakis",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "andreas-katzourakis",
+    "url": "https://boxingscene.com/andreas-katzourakis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Piergiulio Ruhe",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "piergiulio-ruhe",
+    "url": "https://boxingscene.com/piergiulio-ruhe/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ismael Flores",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "ismael-flores",
+    "url": "https://boxingscene.com/ismael-flores/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Emeka Nwokolo",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "emeka-nwokolo",
+    "url": "https://boxingscene.com/emeka-nwokolo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jocksan Blanco",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "jocksan-blanco",
+    "url": "https://boxingscene.com/jocksan-blanco/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Denis Nurja",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "denis-nurja",
+    "url": "https://boxingscene.com/denis-nurja/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ruslan Selimyan",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "ruslan-selimyan",
+    "url": "https://boxingscene.com/ruslan-selimyan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alex Bray",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "alex-bray",
+    "url": "https://boxingscene.com/alex-bray/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yan Marcos",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBA",
+    "slug": "yan-marcos",
+    "url": "https://boxingscene.com/yan-marcos/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sebastian FundoraVergil Ortiz Jr.",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "sebastian-fundoravergil-ortiz-jr",
+    "url": "https://boxingscene.com/sebastian-fundoravergil-ortiz-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Keith Thurman",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "keith-thurman",
+    "url": "https://boxingscene.com/keith-thurman/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ermal Hadribeaj",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "ermal-hadribeaj",
+    "url": "https://boxingscene.com/ermal-hadribeaj/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bakhram Murtazaliev",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "bakhram-murtazaliev",
+    "url": "https://boxingscene.com/bakhram-murtazaliev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Francisco Veron",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "francisco-veron",
+    "url": "https://boxingscene.com/francisco-veron/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jorge Garcia Perez",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "jorge-garcia-perez",
+    "url": "https://boxingscene.com/jorge-garcia-perez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Charles Conwell",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "charles-conwell",
+    "url": "https://boxingscene.com/charles-conwell/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alejandro Silva",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "alejandro-silva",
+    "url": "https://boxingscene.com/alejandro-silva/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rashidi Ellis",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBC",
+    "slug": "rashidi-ellis",
+    "url": "https://boxingscene.com/rashidi-ellis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Xander Zayas",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBO",
+    "slug": "xander-zayas",
+    "url": "https://boxingscene.com/xander-zayas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Adrian Marcelo Sasso",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBO",
+    "slug": "adrian-marcelo-sasso",
+    "url": "https://boxingscene.com/adrian-marcelo-sasso/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Freddy Kiwitt",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBO",
+    "slug": "freddy-kiwitt",
+    "url": "https://boxingscene.com/freddy-kiwitt/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Julian Vogel",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBO",
+    "slug": "julian-vogel",
+    "url": "https://boxingscene.com/julian-vogel/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryota Toyoshima",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBO",
+    "slug": "ryota-toyoshima",
+    "url": "https://boxingscene.com/ryota-toyoshima/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Marco Ezequiel Garcia Ovejero",
+    "weight_class": "Junior Middleweight",
+    "organization": "WBO",
+    "slug": "marco-ezequiel-garcia-ovejero",
+    "url": "https://boxingscene.com/marco-ezequiel-garcia-ovejero/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lewis Crocker",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "lewis-crocker",
+    "url": "https://boxingscene.com/lewis-crocker/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Liam Paro",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "liam-paro",
+    "url": "https://boxingscene.com/liam-paro/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Paddy Donovan",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "paddy-donovan",
+    "url": "https://boxingscene.com/paddy-donovan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ricardo Salas Rodriguez",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "ricardo-salas-rodriguez",
+    "url": "https://boxingscene.com/ricardo-salas-rodriguez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Karen Chukhadzhian",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "karen-chukhadzhian",
+    "url": "https://boxingscene.com/karen-chukhadzhian/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Raul Curiel",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "raul-curiel",
+    "url": "https://boxingscene.com/raul-curiel/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jack Catterall",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "jack-catterall",
+    "url": "https://boxingscene.com/jack-catterall/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vadim Musaev",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "vadim-musaev",
+    "url": "https://boxingscene.com/vadim-musaev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rohan Polanco",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "rohan-polanco",
+    "url": "https://boxingscene.com/rohan-polanco/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Delante Johnson",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "delante-johnson",
+    "url": "https://boxingscene.com/delante-johnson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Conah Walker",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "conah-walker",
+    "url": "https://boxingscene.com/conah-walker/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Elvis Rodriguez",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "elvis-rodriguez",
+    "url": "https://boxingscene.com/elvis-rodriguez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "David Papot",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "david-papot",
+    "url": "https://boxingscene.com/david-papot/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Harlem Eubank",
+    "weight_class": "Welterweight",
+    "organization": "IBF",
+    "slug": "harlem-eubank",
+    "url": "https://boxingscene.com/harlem-eubank/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rolando Romero",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "rolando-romero",
+    "url": "https://boxingscene.com/rolando-romero/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shakhram Giyasov",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "shakhram-giyasov",
+    "url": "https://boxingscene.com/shakhram-giyasov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Eimantas Stanionis",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "eimantas-stanionis",
+    "url": "https://boxingscene.com/eimantas-stanionis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ezequiel Victor Fernandez",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "ezequiel-victor-fernandez",
+    "url": "https://boxingscene.com/ezequiel-victor-fernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Julian Rodriguez",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "julian-rodriguez",
+    "url": "https://boxingscene.com/julian-rodriguez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tahmir Smalls",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "tahmir-smalls",
+    "url": "https://boxingscene.com/tahmir-smalls/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ruslan Madiyev",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "ruslan-madiyev",
+    "url": "https://boxingscene.com/ruslan-madiyev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Greg Outlaw",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "greg-outlaw",
+    "url": "https://boxingscene.com/greg-outlaw/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ekow Essuman",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "ekow-essuman",
+    "url": "https://boxingscene.com/ekow-essuman/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ilyas Can Kali",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "ilyas-can-kali",
+    "url": "https://boxingscene.com/ilyas-can-kali/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Leonardo Sanchez",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "leonardo-sanchez",
+    "url": "https://boxingscene.com/leonardo-sanchez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tresean Wiggins",
+    "weight_class": "Welterweight",
+    "organization": "WBA",
+    "slug": "tresean-wiggins",
+    "url": "https://boxingscene.com/tresean-wiggins/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mario Barrios",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "mario-barrios",
+    "url": "https://boxingscene.com/mario-barrios/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Souleymane Cissokho",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "souleymane-cissokho",
+    "url": "https://boxingscene.com/souleymane-cissokho/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Manny Pacquiao",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "manny-pacquiao",
+    "url": "https://boxingscene.com/manny-pacquiao/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryan Garcia",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "ryan-garcia",
+    "url": "https://boxingscene.com/ryan-garcia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Egis Kavaliauskas",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "egis-kavaliauskas",
+    "url": "https://boxingscene.com/egis-kavaliauskas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brian Norman Jr.",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "brian-norman-jr",
+    "url": "https://boxingscene.com/brian-norman-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arnold Barboza",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "arnold-barboza",
+    "url": "https://boxingscene.com/arnold-barboza/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Samuel Molina",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "samuel-molina",
+    "url": "https://boxingscene.com/samuel-molina/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Akrem Aouina",
+    "weight_class": "Welterweight",
+    "organization": "WBC",
+    "slug": "akrem-aouina",
+    "url": "https://boxingscene.com/akrem-aouina/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Devin Haney",
+    "weight_class": "Welterweight",
+    "organization": "WBO",
+    "slug": "devin-haney",
+    "url": "https://boxingscene.com/devin-haney/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Constantin Ursu",
+    "weight_class": "Welterweight",
+    "organization": "WBO",
+    "slug": "constantin-ursu",
+    "url": "https://boxingscene.com/constantin-ursu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dubiel Sanchez",
+    "weight_class": "Welterweight",
+    "organization": "WBO",
+    "slug": "dubiel-sanchez",
+    "url": "https://boxingscene.com/dubiel-sanchez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Richardson Hitchins",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "richardson-hitchins",
+    "url": "https://boxingscene.com/richardson-hitchins/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lindolfo Delgado",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "lindolfo-delgado",
+    "url": "https://boxingscene.com/lindolfo-delgado/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oscar Duarte",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "oscar-duarte",
+    "url": "https://boxingscene.com/oscar-duarte/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arthur Biyarslanov",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "arthur-biyarslanov",
+    "url": "https://boxingscene.com/arthur-biyarslanov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Adam Azim",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "adam-azim",
+    "url": "https://boxingscene.com/adam-azim/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ernesto Mercado",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "ernesto-mercado",
+    "url": "https://boxingscene.com/ernesto-mercado/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gabriel Valenzuela",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "gabriel-valenzuela",
+    "url": "https://boxingscene.com/gabriel-valenzuela/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kenneth Sims",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "kenneth-sims",
+    "url": "https://boxingscene.com/kenneth-sims/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gustavo Lemos",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "gustavo-lemos",
+    "url": "https://boxingscene.com/gustavo-lemos/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "John Mannu",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "john-mannu",
+    "url": "https://boxingscene.com/john-mannu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jamaine Ortiz",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "jamaine-ortiz",
+    "url": "https://boxingscene.com/jamaine-ortiz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sean McComb",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "sean-mccomb",
+    "url": "https://boxingscene.com/sean-mccomb/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michel Rivera",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "michel-rivera",
+    "url": "https://boxingscene.com/michel-rivera/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Pierce O'Leary",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "pierce-oleary",
+    "url": "https://boxingscene.com/pierce-oleary/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Antoine Vanackere",
+    "weight_class": "Junior Welterweight",
+    "organization": "IBF",
+    "slug": "antoine-vanackere",
+    "url": "https://boxingscene.com/antoine-vanackere/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gary Antuanne Russell",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "gary-antuanne-russell",
+    "url": "https://boxingscene.com/gary-antuanne-russell/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andy Hiraoka",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "andy-hiraoka",
+    "url": "https://boxingscene.com/andy-hiraoka/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Khariton Agrba",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "khariton-agrba",
+    "url": "https://boxingscene.com/khariton-agrba/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kevin Brown",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "kevin-brown",
+    "url": "https://boxingscene.com/kevin-brown/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alberto Puello",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "alberto-puello",
+    "url": "https://boxingscene.com/alberto-puello/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Cletus Seldin",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "cletus-seldin",
+    "url": "https://boxingscene.com/cletus-seldin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Frank Martin",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "frank-martin",
+    "url": "https://boxingscene.com/frank-martin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Israel Mercado",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "israel-mercado",
+    "url": "https://boxingscene.com/israel-mercado/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Emiliano Vargas",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "emiliano-vargas",
+    "url": "https://boxingscene.com/emiliano-vargas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Erislandy Alvarez",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "erislandy-alvarez",
+    "url": "https://boxingscene.com/erislandy-alvarez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Keyshawn Davis",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "keyshawn-davis",
+    "url": "https://boxingscene.com/keyshawn-davis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ruben Nestor Neri Munoz",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "ruben-nestor-neri-munoz",
+    "url": "https://boxingscene.com/ruben-nestor-neri-munoz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sandor Martin",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "sandor-martin",
+    "url": "https://boxingscene.com/sandor-martin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Batyrzhan Jukembayev",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "batyrzhan-jukembayev",
+    "url": "https://boxingscene.com/batyrzhan-jukembayev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jack Rafferty",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBA",
+    "slug": "jack-rafferty",
+    "url": "https://boxingscene.com/jack-rafferty/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dalton SmithIsaac Cruz",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBC",
+    "slug": "dalton-smithisaac-cruz",
+    "url": "https://boxingscene.com/dalton-smithisaac-cruz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Subriel Matias",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBC",
+    "slug": "subriel-matias",
+    "url": "https://boxingscene.com/subriel-matias/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Teofimo Lopez",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBC",
+    "slug": "teofimo-lopez",
+    "url": "https://boxingscene.com/teofimo-lopez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jon Fernandez",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBC",
+    "slug": "jon-fernandez",
+    "url": "https://boxingscene.com/jon-fernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jose Angel Rosa",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBC",
+    "slug": "jose-angel-rosa",
+    "url": "https://boxingscene.com/jose-angel-rosa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mark Chamberlain",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBC",
+    "slug": "mark-chamberlain",
+    "url": "https://boxingscene.com/mark-chamberlain/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shakur Stevenson",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBO",
+    "slug": "shakur-stevenson",
+    "url": "https://boxingscene.com/shakur-stevenson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alfredo Santiago",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBO",
+    "slug": "alfredo-santiago",
+    "url": "https://boxingscene.com/alfredo-santiago/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hendri Cedeno",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBO",
+    "slug": "hendri-cedeno",
+    "url": "https://boxingscene.com/hendri-cedeno/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yaser Al Ghena",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBO",
+    "slug": "yaser-al-ghena",
+    "url": "https://boxingscene.com/yaser-al-ghena/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kuntae Lee",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBO",
+    "slug": "kuntae-lee",
+    "url": "https://boxingscene.com/kuntae-lee/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Faisal Abubakari",
+    "weight_class": "Junior Welterweight",
+    "organization": "WBO",
+    "slug": "faisal-abubakari",
+    "url": "https://boxingscene.com/faisal-abubakari/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Raymond Muratalla",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "raymond-muratalla",
+    "url": "https://boxingscene.com/raymond-muratalla/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andy Cruz",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "andy-cruz",
+    "url": "https://boxingscene.com/andy-cruz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Floyd Schofield",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "floyd-schofield",
+    "url": "https://boxingscene.com/floyd-schofield/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mark Magsayo",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "mark-magsayo",
+    "url": "https://boxingscene.com/mark-magsayo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lucas Bahdi",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "lucas-bahdi",
+    "url": "https://boxingscene.com/lucas-bahdi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Albert Bell",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "albert-bell",
+    "url": "https://boxingscene.com/albert-bell/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alan Abel Chaves",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "alan-abel-chaves",
+    "url": "https://boxingscene.com/alan-abel-chaves/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joe Cordina",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "joe-cordina",
+    "url": "https://boxingscene.com/joe-cordina/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Zaur Abdullaev",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "zaur-abdullaev",
+    "url": "https://boxingscene.com/zaur-abdullaev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Artur Subkhankulov",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "artur-subkhankulov",
+    "url": "https://boxingscene.com/artur-subkhankulov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dzmitry Asanau",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "dzmitry-asanau",
+    "url": "https://boxingscene.com/dzmitry-asanau/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Josh Padley",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "josh-padley",
+    "url": "https://boxingscene.com/josh-padley/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Diego Torres",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "diego-torres",
+    "url": "https://boxingscene.com/diego-torres/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bakhodur Usmonov",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "bakhodur-usmonov",
+    "url": "https://boxingscene.com/bakhodur-usmonov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Justin Pauldo",
+    "weight_class": "Lightweight",
+    "organization": "IBF",
+    "slug": "justin-pauldo",
+    "url": "https://boxingscene.com/justin-pauldo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gervonta Davis",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "gervonta-davis",
+    "url": "https://boxingscene.com/gervonta-davis/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lamont Roach Jr.",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "lamont-roach-jr",
+    "url": "https://boxingscene.com/lamont-roach-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Armando Rabi",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "armando-rabi",
+    "url": "https://boxingscene.com/armando-rabi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shu Utsuki",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "shu-utsuki",
+    "url": "https://boxingscene.com/shu-utsuki/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lazaro Alvarez",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "lazaro-alvarez",
+    "url": "https://boxingscene.com/lazaro-alvarez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jose Valenzuela",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "jose-valenzuela",
+    "url": "https://boxingscene.com/jose-valenzuela/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sam Noakes",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "sam-noakes",
+    "url": "https://boxingscene.com/sam-noakes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Roger Gutierrez",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "roger-gutierrez",
+    "url": "https://boxingscene.com/roger-gutierrez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luis Torres",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "luis-torres",
+    "url": "https://boxingscene.com/luis-torres/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tigran Uzlyan",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "tigran-uzlyan",
+    "url": "https://boxingscene.com/tigran-uzlyan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Siro Choi",
+    "weight_class": "Lightweight",
+    "organization": "WBA",
+    "slug": "siro-choi",
+    "url": "https://boxingscene.com/siro-choi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jadier Herrera",
+    "weight_class": "Lightweight",
+    "organization": "WBC",
+    "slug": "jadier-herrera",
+    "url": "https://boxingscene.com/jadier-herrera/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "William Zepeda",
+    "weight_class": "Lightweight",
+    "organization": "WBC",
+    "slug": "william-zepeda",
+    "url": "https://boxingscene.com/william-zepeda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ricardo Nunez",
+    "weight_class": "Lightweight",
+    "organization": "WBC",
+    "slug": "ricardo-nunez",
+    "url": "https://boxingscene.com/ricardo-nunez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jordan White",
+    "weight_class": "Lightweight",
+    "organization": "WBC",
+    "slug": "jordan-white",
+    "url": "https://boxingscene.com/jordan-white/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Abdullah Mason",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "abdullah-mason",
+    "url": "https://boxingscene.com/abdullah-mason/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gabriel Flores Jr.",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "gabriel-flores-jr",
+    "url": "https://boxingscene.com/gabriel-flores-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rene Tellez Giron",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "rene-tellez-giron",
+    "url": "https://boxingscene.com/rene-tellez-giron/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joshua Pagan",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "joshua-pagan",
+    "url": "https://boxingscene.com/joshua-pagan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Christopher Mouafo",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "christopher-mouafo",
+    "url": "https://boxingscene.com/christopher-mouafo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mitchell Smith",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "mitchell-smith",
+    "url": "https://boxingscene.com/mitchell-smith/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Cameron Vuong",
+    "weight_class": "Lightweight",
+    "organization": "WBO",
+    "slug": "cameron-vuong",
+    "url": "https://boxingscene.com/cameron-vuong/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Eduardo Nunez",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "eduardo-nunez",
+    "url": "https://boxingscene.com/eduardo-nunez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sultan Zaurbek",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "sultan-zaurbek",
+    "url": "https://boxingscene.com/sultan-zaurbek/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Raymond Ford",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "raymond-ford",
+    "url": "https://boxingscene.com/raymond-ford/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jackson Jon England",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "jackson-jon-england",
+    "url": "https://boxingscene.com/jackson-jon-england/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luis Alberto Lopez",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "luis-alberto-lopez",
+    "url": "https://boxingscene.com/luis-alberto-lopez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Masanori Rikiishi",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "masanori-rikiishi",
+    "url": "https://boxingscene.com/masanori-rikiishi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mauricio Lara",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "mauricio-lara",
+    "url": "https://boxingscene.com/mauricio-lara/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Royston Barney-Smith",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "royston-barney-smith",
+    "url": "https://boxingscene.com/royston-barney-smith/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Robson Conceicao",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "robson-conceicao",
+    "url": "https://boxingscene.com/robson-conceicao/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andres Cortes",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "andres-cortes",
+    "url": "https://boxingscene.com/andres-cortes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Liam Wilson",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "liam-wilson",
+    "url": "https://boxingscene.com/liam-wilson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michael Magnesi",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "michael-magnesi",
+    "url": "https://boxingscene.com/michael-magnesi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryan Garner",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "ryan-garner",
+    "url": "https://boxingscene.com/ryan-garner/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dayan Gonzalez",
+    "weight_class": "Junior Lightweight",
+    "organization": "IBF",
+    "slug": "dayan-gonzalez",
+    "url": "https://boxingscene.com/dayan-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jazza Dickens",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "jazza-dickens",
+    "url": "https://boxingscene.com/jazza-dickens/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Elnur Samedov",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "elnur-samedov",
+    "url": "https://boxingscene.com/elnur-samedov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hayato Tsutsumi",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "hayato-tsutsumi",
+    "url": "https://boxingscene.com/hayato-tsutsumi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Moussa Gholam",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "moussa-gholam",
+    "url": "https://boxingscene.com/moussa-gholam/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Anthony Cacace",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "anthony-cacace",
+    "url": "https://boxingscene.com/anthony-cacace/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Austin Brooks",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "austin-brooks",
+    "url": "https://boxingscene.com/austin-brooks/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Henry Lebron",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "henry-lebron",
+    "url": "https://boxingscene.com/henry-lebron/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kaipo Gallegos",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "kaipo-gallegos",
+    "url": "https://boxingscene.com/kaipo-gallegos/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yamato Hata",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "yamato-hata",
+    "url": "https://boxingscene.com/yamato-hata/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Josue Francisco Aguero",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "josue-francisco-aguero",
+    "url": "https://boxingscene.com/josue-francisco-aguero/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "John Lenon Gutierrez",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "john-lenon-gutierrez",
+    "url": "https://boxingscene.com/john-lenon-gutierrez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Eridson Garcia",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "eridson-garcia",
+    "url": "https://boxingscene.com/eridson-garcia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Melving Lopez",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBA",
+    "slug": "melving-lopez",
+    "url": "https://boxingscene.com/melving-lopez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "O'Shaquie Foster",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "oshaquie-foster",
+    "url": "https://boxingscene.com/oshaquie-foster/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Khalil El Hadri",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "khalil-el-hadri",
+    "url": "https://boxingscene.com/khalil-el-hadri/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Muhammadkhuja Yaqubov",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "muhammadkhuja-yaqubov",
+    "url": "https://boxingscene.com/muhammadkhuja-yaqubov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gary Russell Jr.",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "gary-russell-jr",
+    "url": "https://boxingscene.com/gary-russell-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Charly Suarez",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "charly-suarez",
+    "url": "https://boxingscene.com/charly-suarez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oscar Valdez",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "oscar-valdez",
+    "url": "https://boxingscene.com/oscar-valdez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kenichi Ogawa",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBC",
+    "slug": "kenichi-ogawa",
+    "url": "https://boxingscene.com/kenichi-ogawa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Emanuel Navarrete",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBO",
+    "slug": "emanuel-navarrete",
+    "url": "https://boxingscene.com/emanuel-navarrete/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angelo Pena",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBO",
+    "slug": "angelo-pena",
+    "url": "https://boxingscene.com/angelo-pena/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Eduardo Hernandez",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBO",
+    "slug": "eduardo-hernandez",
+    "url": "https://boxingscene.com/eduardo-hernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Reo Saito",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBO",
+    "slug": "reo-saito",
+    "url": "https://boxingscene.com/reo-saito/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ayrton Osmar Gimenez",
+    "weight_class": "Junior Lightweight",
+    "organization": "WBO",
+    "slug": "ayrton-osmar-gimenez",
+    "url": "https://boxingscene.com/ayrton-osmar-gimenez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angelo Leo",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "angelo-leo",
+    "url": "https://boxingscene.com/angelo-leo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Raeese Aleem",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "raeese-aleem",
+    "url": "https://boxingscene.com/raeese-aleem/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Omar Trinidad",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "omar-trinidad",
+    "url": "https://boxingscene.com/omar-trinidad/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luis Reynaldo Nunez",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "luis-reynaldo-nunez",
+    "url": "https://boxingscene.com/luis-reynaldo-nunez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tomoki Kameda",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "tomoki-kameda",
+    "url": "https://boxingscene.com/tomoki-kameda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lerato Dlamini",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "lerato-dlamini",
+    "url": "https://boxingscene.com/lerato-dlamini/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Toshiki Shimomachi",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "toshiki-shimomachi",
+    "url": "https://boxingscene.com/toshiki-shimomachi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Reiya Abe",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "reiya-abe",
+    "url": "https://boxingscene.com/reiya-abe/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nathaniel Collins",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "nathaniel-collins",
+    "url": "https://boxingscene.com/nathaniel-collins/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Liam Davies",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "liam-davies",
+    "url": "https://boxingscene.com/liam-davies/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luis Nery",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "luis-nery",
+    "url": "https://boxingscene.com/luis-nery/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hector Andres Sosa",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "hector-andres-sosa",
+    "url": "https://boxingscene.com/hector-andres-sosa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mikito Nakano",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "mikito-nakano",
+    "url": "https://boxingscene.com/mikito-nakano/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lienard Sarcon",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "lienard-sarcon",
+    "url": "https://boxingscene.com/lienard-sarcon/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jack Turner",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "jack-turner",
+    "url": "https://boxingscene.com/jack-turner/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kyonosuke Kameda",
+    "weight_class": "Featherweight",
+    "organization": "IBF",
+    "slug": "kyonosuke-kameda",
+    "url": "https://boxingscene.com/kyonosuke-kameda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon FigueroaMirco Cuello",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "brandon-figueroamirco-cuello",
+    "url": "https://boxingscene.com/brandon-figueroamirco-cuello/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Elijah Pierce",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "elijah-pierce",
+    "url": "https://boxingscene.com/elijah-pierce/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Otabek Kholmatov",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "otabek-kholmatov",
+    "url": "https://boxingscene.com/otabek-kholmatov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ivan Chirkov",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "ivan-chirkov",
+    "url": "https://boxingscene.com/ivan-chirkov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jan Paul Rivera-Pizarro",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "jan-paul-rivera-pizarro",
+    "url": "https://boxingscene.com/jan-paul-rivera-pizarro/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Reito Tsutsumi",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "reito-tsutsumi",
+    "url": "https://boxingscene.com/reito-tsutsumi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Victor Hernandez",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "victor-hernandez",
+    "url": "https://boxingscene.com/victor-hernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Christian Olivo Barrera",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "christian-olivo-barrera",
+    "url": "https://boxingscene.com/christian-olivo-barrera/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jonathan Cabrera Sanchez",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "jonathan-cabrera-sanchez",
+    "url": "https://boxingscene.com/jonathan-cabrera-sanchez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryuto Owan",
+    "weight_class": "Featherweight",
+    "organization": "WBA",
+    "slug": "ryuto-owan",
+    "url": "https://boxingscene.com/ryuto-owan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bruce CarringtonRey Vargas",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "bruce-carringtonrey-vargas",
+    "url": "https://boxingscene.com/bruce-carringtonrey-vargas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Cristobal Lorente",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "cristobal-lorente",
+    "url": "https://boxingscene.com/cristobal-lorente/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alan David Picasso",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "alan-david-picasso",
+    "url": "https://boxingscene.com/alan-david-picasso/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joet Gonzalez",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "joet-gonzalez",
+    "url": "https://boxingscene.com/joet-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michael Conlan",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "michael-conlan",
+    "url": "https://boxingscene.com/michael-conlan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon Mejia",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "brandon-mejia",
+    "url": "https://boxingscene.com/brandon-mejia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Carlos Castro",
+    "weight_class": "Featherweight",
+    "organization": "WBC",
+    "slug": "carlos-castro",
+    "url": "https://boxingscene.com/carlos-castro/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rafael Espinoza",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "rafael-espinoza",
+    "url": "https://boxingscene.com/rafael-espinoza/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon Figueroa",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "brandon-figueroa",
+    "url": "https://boxingscene.com/brandon-figueroa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kenji Fujita",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "kenji-fujita",
+    "url": "https://boxingscene.com/kenji-fujita/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yan Carlos Santana",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "yan-carlos-santana",
+    "url": "https://boxingscene.com/yan-carlos-santana/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mateus Heita",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "mateus-heita",
+    "url": "https://boxingscene.com/mateus-heita/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Francesco Grandelli",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "francesco-grandelli",
+    "url": "https://boxingscene.com/francesco-grandelli/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Zak Miller",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "zak-miller",
+    "url": "https://boxingscene.com/zak-miller/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Albert Gonzalez",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "albert-gonzalez",
+    "url": "https://boxingscene.com/albert-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Lorenzo Parra",
+    "weight_class": "Featherweight",
+    "organization": "WBO",
+    "slug": "lorenzo-parra",
+    "url": "https://boxingscene.com/lorenzo-parra/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Naoya Inoue",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "naoya-inoue",
+    "url": "https://boxingscene.com/naoya-inoue/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Junto Nakatani",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "junto-nakatani",
+    "url": "https://boxingscene.com/junto-nakatani/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bryan Mercado Vazquez",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "bryan-mercado-vazquez",
+    "url": "https://boxingscene.com/bryan-mercado-vazquez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Marlon Tapales",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "marlon-tapales",
+    "url": "https://boxingscene.com/marlon-tapales/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sam Goodman",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "sam-goodman",
+    "url": "https://boxingscene.com/sam-goodman/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shabaz Masoud",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "shabaz-masoud",
+    "url": "https://boxingscene.com/shabaz-masoud/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryosuke Nishida",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "ryosuke-nishida",
+    "url": "https://boxingscene.com/ryosuke-nishida/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Carl Jammes Martin",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "carl-jammes-martin",
+    "url": "https://boxingscene.com/carl-jammes-martin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Mukhammad Shekhov",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "mukhammad-shekhov",
+    "url": "https://boxingscene.com/mukhammad-shekhov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Murodjon Akhmadaliev",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "murodjon-akhmadaliev",
+    "url": "https://boxingscene.com/murodjon-akhmadaliev/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jerwin Ancajas",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "jerwin-ancajas",
+    "url": "https://boxingscene.com/jerwin-ancajas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sebastian Hernandez Reyes",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "sebastian-hernandez-reyes",
+    "url": "https://boxingscene.com/sebastian-hernandez-reyes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Subaru Murata",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "subaru-murata",
+    "url": "https://boxingscene.com/subaru-murata/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rodrigo Fabian Ruiz",
+    "weight_class": "Junior Featherweight",
+    "organization": "IBF",
+    "slug": "rodrigo-fabian-ruiz",
+    "url": "https://boxingscene.com/rodrigo-fabian-ruiz/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ramon Cardenas",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "ramon-cardenas",
+    "url": "https://boxingscene.com/ramon-cardenas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gary Antonio Russell",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "gary-antonio-russell",
+    "url": "https://boxingscene.com/gary-antonio-russell/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Noel Reyes Cepeda",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "noel-reyes-cepeda",
+    "url": "https://boxingscene.com/noel-reyes-cepeda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Victor Santillan",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "victor-santillan",
+    "url": "https://boxingscene.com/victor-santillan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angel Barrientes",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "angel-barrientes",
+    "url": "https://boxingscene.com/angel-barrientes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kevin Gonzalez",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "kevin-gonzalez",
+    "url": "https://boxingscene.com/kevin-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Leonardo Carrillo",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "leonardo-carrillo",
+    "url": "https://boxingscene.com/leonardo-carrillo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alex Vallecillo",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBA",
+    "slug": "alex-vallecillo",
+    "url": "https://boxingscene.com/alex-vallecillo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bryan Mercado",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBC",
+    "slug": "bryan-mercado",
+    "url": "https://boxingscene.com/bryan-mercado/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kazuki Nakajima",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBC",
+    "slug": "kazuki-nakajima",
+    "url": "https://boxingscene.com/kazuki-nakajima/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yerny Betancourt",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBC",
+    "slug": "yerny-betancourt",
+    "url": "https://boxingscene.com/yerny-betancourt/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jose Israel Ramirez",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBC",
+    "slug": "jose-israel-ramirez",
+    "url": "https://boxingscene.com/jose-israel-ramirez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arturo Cardenas",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBC",
+    "slug": "arturo-cardenas",
+    "url": "https://boxingscene.com/arturo-cardenas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Fillipus Nghitumbwa",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBC",
+    "slug": "fillipus-nghitumbwa",
+    "url": "https://boxingscene.com/fillipus-nghitumbwa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jorge Ascanio Martinez",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBO",
+    "slug": "jorge-ascanio-martinez",
+    "url": "https://boxingscene.com/jorge-ascanio-martinez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Zhong Liu",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBO",
+    "slug": "zhong-liu",
+    "url": "https://boxingscene.com/zhong-liu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tyrone Buttigieg",
+    "weight_class": "Junior Featherweight",
+    "organization": "WBO",
+    "slug": "tyrone-buttigieg",
+    "url": "https://boxingscene.com/tyrone-buttigieg/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jose Salas Reyes",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "jose-salas-reyes",
+    "url": "https://boxingscene.com/jose-salas-reyes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kenneth Llover",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "kenneth-llover",
+    "url": "https://boxingscene.com/kenneth-llover/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Riku Masuda",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "riku-masuda",
+    "url": "https://boxingscene.com/riku-masuda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andrew Cain",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "andrew-cain",
+    "url": "https://boxingscene.com/andrew-cain/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Katsuma Akitsugi",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "katsuma-akitsugi",
+    "url": "https://boxingscene.com/katsuma-akitsugi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Michael Angeletti",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "michael-angeletti",
+    "url": "https://boxingscene.com/michael-angeletti/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kazuto Ioka",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "kazuto-ioka",
+    "url": "https://boxingscene.com/kazuto-ioka/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Reymart Gaballo",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "reymart-gaballo",
+    "url": "https://boxingscene.com/reymart-gaballo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Daigo Higa",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "daigo-higa",
+    "url": "https://boxingscene.com/daigo-higa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jason Moloney",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "jason-moloney",
+    "url": "https://boxingscene.com/jason-moloney/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Landi Ngxeke",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "landi-ngxeke",
+    "url": "https://boxingscene.com/landi-ngxeke/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dominique Crowder",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "dominique-crowder",
+    "url": "https://boxingscene.com/dominique-crowder/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Charlton Malajika",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "charlton-malajika",
+    "url": "https://boxingscene.com/charlton-malajika/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "David Cuellar",
+    "weight_class": "Bantamweight",
+    "organization": "IBF",
+    "slug": "david-cuellar",
+    "url": "https://boxingscene.com/david-cuellar/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Seiya TsutsumiAntonio Vargas",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "seiya-tsutsumiantonio-vargas",
+    "url": "https://boxingscene.com/seiya-tsutsumiantonio-vargas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nonito Donaire",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "nonito-donaire",
+    "url": "https://boxingscene.com/nonito-donaire/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tenshin Nasukawa",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "tenshin-nasukawa",
+    "url": "https://boxingscene.com/tenshin-nasukawa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andrey Bonilla",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "andrey-bonilla",
+    "url": "https://boxingscene.com/andrey-bonilla/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yoshiki Takei",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "yoshiki-takei",
+    "url": "https://boxingscene.com/yoshiki-takei/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yelshat Nikhemttolla",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "yelshat-nikhemttolla",
+    "url": "https://boxingscene.com/yelshat-nikhemttolla/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Muhammad Waseem",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "muhammad-waseem",
+    "url": "https://boxingscene.com/muhammad-waseem/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jordan Orozco Hernandez",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "jordan-orozco-hernandez",
+    "url": "https://boxingscene.com/jordan-orozco-hernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Emanuel Moreno",
+    "weight_class": "Bantamweight",
+    "organization": "WBA",
+    "slug": "emanuel-moreno",
+    "url": "https://boxingscene.com/emanuel-moreno/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Takuma Inoue",
+    "weight_class": "Bantamweight",
+    "organization": "WBC",
+    "slug": "takuma-inoue",
+    "url": "https://boxingscene.com/takuma-inoue/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Juan Francisco Estrada",
+    "weight_class": "Bantamweight",
+    "organization": "WBC",
+    "slug": "juan-francisco-estrada",
+    "url": "https://boxingscene.com/juan-francisco-estrada/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alejandro Gonzalez",
+    "weight_class": "Bantamweight",
+    "organization": "WBC",
+    "slug": "alejandro-gonzalez",
+    "url": "https://boxingscene.com/alejandro-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Petch Sor Chitpattana",
+    "weight_class": "Bantamweight",
+    "organization": "WBC",
+    "slug": "petch-sor-chitpattana",
+    "url": "https://boxingscene.com/petch-sor-chitpattana/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Christian Medina",
+    "weight_class": "Bantamweight",
+    "organization": "WBO",
+    "slug": "christian-medina",
+    "url": "https://boxingscene.com/christian-medina/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Adrian Curiel",
+    "weight_class": "Bantamweight",
+    "organization": "WBO",
+    "slug": "adrian-curiel",
+    "url": "https://boxingscene.com/adrian-curiel/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Emmanuel Rodriguez",
+    "weight_class": "Bantamweight",
+    "organization": "WBO",
+    "slug": "emmanuel-rodriguez",
+    "url": "https://boxingscene.com/emmanuel-rodriguez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ephraim Bui",
+    "weight_class": "Bantamweight",
+    "organization": "WBO",
+    "slug": "ephraim-bui",
+    "url": "https://boxingscene.com/ephraim-bui/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rubens Diego Dos Santos",
+    "weight_class": "Bantamweight",
+    "organization": "WBO",
+    "slug": "rubens-diego-dos-santos",
+    "url": "https://boxingscene.com/rubens-diego-dos-santos/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Willibaldo Garcia",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "willibaldo-garcia",
+    "url": "https://boxingscene.com/willibaldo-garcia/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andrew Moloney",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "andrew-moloney",
+    "url": "https://boxingscene.com/andrew-moloney/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ricardo Malajika",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "ricardo-malajika",
+    "url": "https://boxingscene.com/ricardo-malajika/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kenshiro Teraji",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "kenshiro-teraji",
+    "url": "https://boxingscene.com/kenshiro-teraji/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryusei Kawaura",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "ryusei-kawaura",
+    "url": "https://boxingscene.com/ryusei-kawaura/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryang Ho Han",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "ryang-ho-han",
+    "url": "https://boxingscene.com/ryang-ho-han/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sikho Nqothole",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "sikho-nqothole",
+    "url": "https://boxingscene.com/sikho-nqothole/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Charlie Edwards",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "charlie-edwards",
+    "url": "https://boxingscene.com/charlie-edwards/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ayumu Sano",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "ayumu-sano",
+    "url": "https://boxingscene.com/ayumu-sano/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vince Paras",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "vince-paras",
+    "url": "https://boxingscene.com/vince-paras/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kenta Nakagawa",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "kenta-nakagawa",
+    "url": "https://boxingscene.com/kenta-nakagawa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Theophilous Kpakpo Allotey",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "theophilous-kpakpo-allotey",
+    "url": "https://boxingscene.com/theophilous-kpakpo-allotey/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aoi Yokoyama",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "aoi-yokoyama",
+    "url": "https://boxingscene.com/aoi-yokoyama/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hayate Hanada",
+    "weight_class": "Junior Bantamweight",
+    "organization": "IBF",
+    "slug": "hayate-hanada",
+    "url": "https://boxingscene.com/hayate-hanada/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jesse RodriguezDavid Jimenez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "jesse-rodriguezdavid-jimenez",
+    "url": "https://boxingscene.com/jesse-rodriguezdavid-jimenez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "John Ramirez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "john-ramirez",
+    "url": "https://boxingscene.com/john-ramirez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Roman Gonzalez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "roman-gonzalez",
+    "url": "https://boxingscene.com/roman-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tomoya Tsuboi",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "tomoya-tsuboi",
+    "url": "https://boxingscene.com/tomoya-tsuboi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ari Bonilla",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "ari-bonilla",
+    "url": "https://boxingscene.com/ari-bonilla/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Elton Dharry",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "elton-dharry",
+    "url": "https://boxingscene.com/elton-dharry/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andres Gregorio",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "andres-gregorio",
+    "url": "https://boxingscene.com/andres-gregorio/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Fernando Martinez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "fernando-martinez",
+    "url": "https://boxingscene.com/fernando-martinez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Olajuwon Acosta",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "olajuwon-acosta",
+    "url": "https://boxingscene.com/olajuwon-acosta/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Israel Gonzalez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "israel-gonzalez",
+    "url": "https://boxingscene.com/israel-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jassiel Ramon Amador Gamez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBA",
+    "slug": "jassiel-ramon-amador-gamez",
+    "url": "https://boxingscene.com/jassiel-ramon-amador-gamez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jesse Rodriguez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBC",
+    "slug": "jesse-rodriguez",
+    "url": "https://boxingscene.com/jesse-rodriguez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Seigo Yuri Akui",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBC",
+    "slug": "seigo-yuri-akui",
+    "url": "https://boxingscene.com/seigo-yuri-akui/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yahir Frank",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBC",
+    "slug": "yahir-frank",
+    "url": "https://boxingscene.com/yahir-frank/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Phumelele Cafu",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBC",
+    "slug": "phumelele-cafu",
+    "url": "https://boxingscene.com/phumelele-cafu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Pedro Guevara",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBC",
+    "slug": "pedro-guevara",
+    "url": "https://boxingscene.com/pedro-guevara/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joselito Velazquez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBO",
+    "slug": "joselito-velazquez",
+    "url": "https://boxingscene.com/joselito-velazquez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sergio Mendoza Cordova",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBO",
+    "slug": "sergio-mendoza-cordova",
+    "url": "https://boxingscene.com/sergio-mendoza-cordova/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon Gael Rodriguez Hernandez",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBO",
+    "slug": "brandon-gael-rodriguez-hernandez",
+    "url": "https://boxingscene.com/brandon-gael-rodriguez-hernandez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Bryan Largaespada Blandon",
+    "weight_class": "Junior Bantamweight",
+    "organization": "WBO",
+    "slug": "bryan-largaespada-blandon",
+    "url": "https://boxingscene.com/bryan-largaespada-blandon/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Masamichi Yabuki",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "masamichi-yabuki",
+    "url": "https://boxingscene.com/masamichi-yabuki/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tobias Reyes",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "tobias-reyes",
+    "url": "https://boxingscene.com/tobias-reyes/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jukiya Iimura",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "jukiya-iimura",
+    "url": "https://boxingscene.com/jukiya-iimura/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Miel Fajardo",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "miel-fajardo",
+    "url": "https://boxingscene.com/miel-fajardo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rene Calixto Bibiano",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "rene-calixto-bibiano",
+    "url": "https://boxingscene.com/rene-calixto-bibiano/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Roderick Bautista",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "roderick-bautista",
+    "url": "https://boxingscene.com/roderick-bautista/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kosuke Tomioka",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "kosuke-tomioka",
+    "url": "https://boxingscene.com/kosuke-tomioka/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Felix Alvarado",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "felix-alvarado",
+    "url": "https://boxingscene.com/felix-alvarado/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Abraham Perez",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "abraham-perez",
+    "url": "https://boxingscene.com/abraham-perez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hasanboy Dusmatov",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "hasanboy-dusmatov",
+    "url": "https://boxingscene.com/hasanboy-dusmatov/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nkosingiphile Sibisi",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "nkosingiphile-sibisi",
+    "url": "https://boxingscene.com/nkosingiphile-sibisi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryoma Morimoto",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "ryoma-morimoto",
+    "url": "https://boxingscene.com/ryoma-morimoto/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arvin Jhon Paciones",
+    "weight_class": "Flyweight",
+    "organization": "IBF",
+    "slug": "arvin-jhon-paciones",
+    "url": "https://boxingscene.com/arvin-jhon-paciones/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ricardo SandovalJonathan Gonzalez",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "ricardo-sandovaljonathan-gonzalez",
+    "url": "https://boxingscene.com/ricardo-sandovaljonathan-gonzalez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Kyosuke Takami",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "kyosuke-takami",
+    "url": "https://boxingscene.com/kyosuke-takami/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angelino Cordova",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "angelino-cordova",
+    "url": "https://boxingscene.com/angelino-cordova/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yankiel Rivera",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "yankiel-rivera",
+    "url": "https://boxingscene.com/yankiel-rivera/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Thananchai Charunphak",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "thananchai-charunphak",
+    "url": "https://boxingscene.com/thananchai-charunphak/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joel Agustin Contreras",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "joel-agustin-contreras",
+    "url": "https://boxingscene.com/joel-agustin-contreras/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Samuel Carmona",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "samuel-carmona",
+    "url": "https://boxingscene.com/samuel-carmona/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Enkhmandakh Kharkhuu",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "enkhmandakh-kharkhuu",
+    "url": "https://boxingscene.com/enkhmandakh-kharkhuu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Hamza Uddin",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "hamza-uddin",
+    "url": "https://boxingscene.com/hamza-uddin/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Andy Dominguez",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "andy-dominguez",
+    "url": "https://boxingscene.com/andy-dominguez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yoali Mejia Mosqueda",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "yoali-mejia-mosqueda",
+    "url": "https://boxingscene.com/yoali-mejia-mosqueda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angel Alvarado Soto",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "angel-alvarado-soto",
+    "url": "https://boxingscene.com/angel-alvarado-soto/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Julio Cabrera",
+    "weight_class": "Flyweight",
+    "organization": "WBA",
+    "slug": "julio-cabrera",
+    "url": "https://boxingscene.com/julio-cabrera/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ricardo SandovalGalal Yafai",
+    "weight_class": "Flyweight",
+    "organization": "WBC",
+    "slug": "ricardo-sandovalgalal-yafai",
+    "url": "https://boxingscene.com/ricardo-sandovalgalal-yafai/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Francisco Rodriguez Jr.",
+    "weight_class": "Flyweight",
+    "organization": "WBC",
+    "slug": "francisco-rodriguez-jr",
+    "url": "https://boxingscene.com/francisco-rodriguez-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shokichi Iwata",
+    "weight_class": "Flyweight",
+    "organization": "WBC",
+    "slug": "shokichi-iwata",
+    "url": "https://boxingscene.com/shokichi-iwata/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angel Ayala",
+    "weight_class": "Flyweight",
+    "organization": "WBC",
+    "slug": "angel-ayala",
+    "url": "https://boxingscene.com/angel-ayala/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jesse Espinas",
+    "weight_class": "Flyweight",
+    "organization": "WBC",
+    "slug": "jesse-espinas",
+    "url": "https://boxingscene.com/jesse-espinas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ndabezinhle Phiri",
+    "weight_class": "Flyweight",
+    "organization": "WBC",
+    "slug": "ndabezinhle-phiri",
+    "url": "https://boxingscene.com/ndabezinhle-phiri/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Anthony Olascuaga",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "anthony-olascuaga",
+    "url": "https://boxingscene.com/anthony-olascuaga/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tomonori Nagao",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "tomonori-nagao",
+    "url": "https://boxingscene.com/tomonori-nagao/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Juan Carlos Camacho Jr.",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "juan-carlos-camacho-jr",
+    "url": "https://boxingscene.com/juan-carlos-camacho-jr/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yuberjen Martinez",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "yuberjen-martinez",
+    "url": "https://boxingscene.com/yuberjen-martinez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Atsuki Sano",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "atsuki-sano",
+    "url": "https://boxingscene.com/atsuki-sano/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Fillemon Nghutenanye",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "fillemon-nghutenanye",
+    "url": "https://boxingscene.com/fillemon-nghutenanye/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gerardo Zapata",
+    "weight_class": "Flyweight",
+    "organization": "WBO",
+    "slug": "gerardo-zapata",
+    "url": "https://boxingscene.com/gerardo-zapata/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Thanongsak Simsri",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "thanongsak-simsri",
+    "url": "https://boxingscene.com/thanongsak-simsri/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Cristian Araneta",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "cristian-araneta",
+    "url": "https://boxingscene.com/cristian-araneta/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Erik Badillo",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "erik-badillo",
+    "url": "https://boxingscene.com/erik-badillo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Regie Suganob",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "regie-suganob",
+    "url": "https://boxingscene.com/regie-suganob/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Sivenathi Nontshinga",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "sivenathi-nontshinga",
+    "url": "https://boxingscene.com/sivenathi-nontshinga/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Siseko Teyisi",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "siseko-teyisi",
+    "url": "https://boxingscene.com/siseko-teyisi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "ArAr Andales",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "arar-andales",
+    "url": "https://boxingscene.com/arar-andales/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Arvin Magramo",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "arvin-magramo",
+    "url": "https://boxingscene.com/arvin-magramo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Masataka Taniguchi",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "masataka-taniguchi",
+    "url": "https://boxingscene.com/masataka-taniguchi/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Toshiki Kawamitsu",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "toshiki-kawamitsu",
+    "url": "https://boxingscene.com/toshiki-kawamitsu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jairo Noriega",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "jairo-noriega",
+    "url": "https://boxingscene.com/jairo-noriega/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jean Carlos Vargas",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "jean-carlos-vargas",
+    "url": "https://boxingscene.com/jean-carlos-vargas/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Shane Gentallan",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "shane-gentallan",
+    "url": "https://boxingscene.com/shane-gentallan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Terry Washington",
+    "weight_class": "Junior Flyweight",
+    "organization": "IBF",
+    "slug": "terry-washington",
+    "url": "https://boxingscene.com/terry-washington/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rene Santiago",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "rene-santiago",
+    "url": "https://boxingscene.com/rene-santiago/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Daiya Kira",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "daiya-kira",
+    "url": "https://boxingscene.com/daiya-kira/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Aaron de la Cruz Escobedo",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "aaron-de-la-cruz-escobedo",
+    "url": "https://boxingscene.com/aaron-de-la-cruz-escobedo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Erick Rosa",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "erick-rosa",
+    "url": "https://boxingscene.com/erick-rosa/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ronald Chacon",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "ronald-chacon",
+    "url": "https://boxingscene.com/ronald-chacon/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Rodrigo Ramirez",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "rodrigo-ramirez",
+    "url": "https://boxingscene.com/rodrigo-ramirez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Gustavo Perez Alvarez",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "gustavo-perez-alvarez",
+    "url": "https://boxingscene.com/gustavo-perez-alvarez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Azael Villar",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "azael-villar",
+    "url": "https://boxingscene.com/azael-villar/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Geremy Vera",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "geremy-vera",
+    "url": "https://boxingscene.com/geremy-vera/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yuga Ozaki",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "yuga-ozaki",
+    "url": "https://boxingscene.com/yuga-ozaki/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Alex Winwood",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBA",
+    "slug": "alex-winwood",
+    "url": "https://boxingscene.com/alex-winwood/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Knockout CP FreshmartCarlos Canizales",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBC",
+    "slug": "knockout-cp-freshmartcarlos-canizales",
+    "url": "https://boxingscene.com/knockout-cp-freshmartcarlos-canizales/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Daniel Valladares",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBC",
+    "slug": "daniel-valladares",
+    "url": "https://boxingscene.com/daniel-valladares/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jayson Vayson",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBC",
+    "slug": "jayson-vayson",
+    "url": "https://boxingscene.com/jayson-vayson/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Angel Acosta",
+    "weight_class": "Junior Flyweight",
+    "organization": "WBO",
+    "slug": "angel-acosta",
+    "url": "https://boxingscene.com/angel-acosta/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Pedro Taduran",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "pedro-taduran",
+    "url": "https://boxingscene.com/pedro-taduran/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Dianxing Zhu",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "dianxing-zhu",
+    "url": "https://boxingscene.com/dianxing-zhu/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ian Abne",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "ian-abne",
+    "url": "https://boxingscene.com/ian-abne/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Takeshi Ishii",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "takeshi-ishii",
+    "url": "https://boxingscene.com/takeshi-ishii/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Christian Balunan",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "christian-balunan",
+    "url": "https://boxingscene.com/christian-balunan/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Beaven Sibanda",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "beaven-sibanda",
+    "url": "https://boxingscene.com/beaven-sibanda/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joey Canoy",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "joey-canoy",
+    "url": "https://boxingscene.com/joey-canoy/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Katsuki Mori",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "katsuki-mori",
+    "url": "https://boxingscene.com/katsuki-mori/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Nhlanhla Tyirha",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "nhlanhla-tyirha",
+    "url": "https://boxingscene.com/nhlanhla-tyirha/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Victorio Saludar",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "victorio-saludar",
+    "url": "https://boxingscene.com/victorio-saludar/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Brandon Moreno",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "brandon-moreno",
+    "url": "https://boxingscene.com/brandon-moreno/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Wilfredo Mendez",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "wilfredo-mendez",
+    "url": "https://boxingscene.com/wilfredo-mendez/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Joseph Sumabong",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "joseph-sumabong",
+    "url": "https://boxingscene.com/joseph-sumabong/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Russell Acosta Silveira",
+    "weight_class": "Strawweight",
+    "organization": "IBF",
+    "slug": "russell-acosta-silveira",
+    "url": "https://boxingscene.com/russell-acosta-silveira/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oscar CollazoRyusei Matsumoto",
+    "weight_class": "Strawweight",
+    "organization": "WBA",
+    "slug": "oscar-collazoryusei-matsumoto",
+    "url": "https://boxingscene.com/oscar-collazoryusei-matsumoto/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Yuni Takada",
+    "weight_class": "Strawweight",
+    "organization": "WBA",
+    "slug": "yuni-takada",
+    "url": "https://boxingscene.com/yuni-takada/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jesus Haro",
+    "weight_class": "Strawweight",
+    "organization": "WBA",
+    "slug": "jesus-haro",
+    "url": "https://boxingscene.com/jesus-haro/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Issa Sakata",
+    "weight_class": "Strawweight",
+    "organization": "WBA",
+    "slug": "issa-sakata",
+    "url": "https://boxingscene.com/issa-sakata/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Tatsuro Nakashima",
+    "weight_class": "Strawweight",
+    "organization": "WBA",
+    "slug": "tatsuro-nakashima",
+    "url": "https://boxingscene.com/tatsuro-nakashima/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Melvin Jerusalem",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "melvin-jerusalem",
+    "url": "https://boxingscene.com/melvin-jerusalem/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Siyakholwa Kuse",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "siyakholwa-kuse",
+    "url": "https://boxingscene.com/siyakholwa-kuse/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Ryusei Matsumoto",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "ryusei-matsumoto",
+    "url": "https://boxingscene.com/ryusei-matsumoto/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Luis Castillo",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "luis-castillo",
+    "url": "https://boxingscene.com/luis-castillo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Vic Saludar",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "vic-saludar",
+    "url": "https://boxingscene.com/vic-saludar/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Junior Zarate",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "junior-zarate",
+    "url": "https://boxingscene.com/junior-zarate/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Takero Kitano",
+    "weight_class": "Strawweight",
+    "organization": "WBC",
+    "slug": "takero-kitano",
+    "url": "https://boxingscene.com/takero-kitano/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Oscar Collazo",
+    "weight_class": "Strawweight",
+    "organization": "WBO",
+    "slug": "oscar-collazo",
+    "url": "https://boxingscene.com/oscar-collazo/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "Jayson VaysonAll ArticlesScheduleTalk ShowsInterviewsResultsRankingsMailbagPromoter NewsForumSearchLog InLog InAll ArticlesScheduleTalk ShowsInterviewsResultsRankingsRankings Pound for PoundMailbagPromoter NewsForumSearchLog InSitemap Results Rankings Mailbag Promoter News Boxing News Feed Live Blogs Forum Legal Privacy Policy Terms of Use Cookie Policy Editorial Policy Get in Touch Contact Us Submit News Who We Are Team Follow UsThis website may contain adult language.TM & ©",
+    "weight_class": "Strawweight",
+    "organization": "WBO",
+    "slug": "jayson-vaysonall-articlesscheduletalk-showsinterviewsresultsrankingsmailbagpromoter-newsforumsearchlog-inlog-inall-articlesscheduletalk-showsinterviewsresultsrankingsrankings-pound-for-poundmailbagpromoter-newsforumsearchlog-insitemap-results-rankings-mailbag-promoter-news-boxing-news-feed-live-blogs-forum-legal-privacy-policy-terms-of-use-cookie-policy-editorial-policy-get-in-touch-contact-us-submit-news-who-we-are-team-follow-usthis-website-may-contain-adult-languagetm-&-©",
+    "url": "https://boxingscene.com/jayson-vaysonall-articlesscheduletalk-showsinterviewsresultsrankingsmailbagpromoter-newsforumsearchlog-inlog-inall-articlesscheduletalk-showsinterviewsresultsrankingsrankings-pound-for-poundmailbagpromoter-newsforumsearchlog-insitemap-results-rankings-mailbag-promoter-news-boxing-news-feed-live-blogs-forum-legal-privacy-policy-terms-of-use-cookie-policy-editorial-policy-get-in-touch-contact-us-submit-news-who-we-are-team-follow-usthis-website-may-contain-adult-languagetm-&-©/",
+    "source": "boxingscene_rankings"
+  },
+  {
+    "name": "BoxingScene.All Rights Reserved.SitemapResultsRankingsMailbagPromoter NewsBoxing News FeedLive BlogsForumLegalPrivacy PolicyTerms of UseCookie PolicyEditorial PolicyReport an ErrorGet in TouchContact UsSubmit NewsWho We AreTeamFollow UsThis website may contain adult language.TM & ©",
+    "weight_class": "Strawweight",
+    "organization": "WBO",
+    "slug": "boxingsceneall-rights-reservedsitemapresultsrankingsmailbagpromoter-newsboxing-news-feedlive-blogsforumlegalprivacy-policyterms-of-usecookie-policyeditorial-policyreport-an-errorget-in-touchcontact-ussubmit-newswho-we-areteamfollow-usthis-website-may-contain-adult-languagetm-&-©",
+    "url": "https://boxingscene.com/boxingsceneall-rights-reservedsitemapresultsrankingsmailbagpromoter-newsboxing-news-feedlive-blogsforumlegalprivacy-policyterms-of-usecookie-policyeditorial-policyreport-an-errorget-in-touchcontact-ussubmit-newswho-we-areteamfollow-usthis-website-may-contain-adult-languagetm-&-©/",
+    "source": "boxingscene_rankings"
+  }
+]

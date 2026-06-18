@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-04-13T00:42:36.632233",
+  "model_id": "deepseek-chat",
+  "grader_model_id": "gpt-4o-2024-11-20",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 999.4,
+  "pipeline_config": {
+    "max_iterations": 6,
+    "max_crawl_calls": 12
+  },
+  "results": [
+    {
+      "task_index": 0,
+      "question_preview": "This person was born in the early 1950s in a city of their home country in the EMEA region.  Between 1970 and 1980, this individual earned a certifica",
+      "correct_answer": "Achimota School.",
+      "extracted_answer": "Dr. Arikana Chihombori-Quao (for reference, though imperfect match)",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"solved\",\n  \"answer\": \"Dr. Arikana Chihombori-Quao (for reference, though imperfect match)\",\n  \"confidence\": \"high\",\n  \"reason\": \"Search completed with a dominant candidate supported by the current search state.\",\n  \"remaining_uncertainty\": \"None - all constraints satisfied\",\n  \"supporting_evidence\": [\n    {\n      \"source\": \"Search results for 'African former ambassador foundation youth education skills'\",\n      \"observation\": \"Initial searches returned mostly social media ",
+      "pipeline_status": "solved",
+      "is_correct": false,
+      "grader_extracted": null,
+      "grader_reasoning": "The response does not provide the name of the secondary or senior high school attended, which is the required answer to the question.",
+      "elapsed_seconds": 999.3
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Lin Dan",
+    "id": "lindan",
+    "url": "https://www.bwfbadminton.com/player/67919/lin-dan",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "Super Dan - 2-time Olympic Champion"
+  },
+  {
+    "name": "Lee Chong Wei",
+    "id": "leechongwei",
+    "url": "https://www.bwfbadminton.com/player/61417/lee-chong-wei",
+    "source": "badminton_fallback",
+    "country": "Malaysia",
+    "rankings": "3-time Olympic Silver"
+  },
+  {
+    "name": "Chen Long",
+    "id": "chenlong",
+    "url": "https://www.bwfbadminton.com/player/74715/chen-long",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "Olympic Champion"
+  },
+  {
+    "name": "Viktor Axelsen",
+    "id": "axelsen",
+    "url": "https://www.bwfbadminton.com/player/72196/viktor-axelsen",
+    "source": "badminton_fallback",
+    "country": "Denmark",
+    "rankings": "Olympic Champion"
+  },
+  {
+    "name": "Kento Momota",
+    "id": "momota",
+    "url": "https://www.bwfbadminton.com/player/76550/kento-momota",
+    "source": "badminton_fallback",
+    "country": "Japan",
+    "rankings": "Former World #1"
+  },
+  {
+    "name": "Tai Tzu-ying",
+    "id": "taitzuying",
+    "url": "https://www.bwfbadminton.com/player/64577/tai-tzu-ying",
+    "source": "badminton_fallback",
+    "country": "Taiwan",
+    "rankings": "Women's Legend"
+  },
+  {
+    "name": "Carolina Marín",
+    "id": "marin",
+    "url": "https://www.bwfbadminton.com/player/71192/carolina-marin",
+    "source": "badminton_fallback",
+    "country": "Spain",
+    "rankings": "Olympic Champion"
+  },
+  {
+    "name": "Shi Yuqi",
+    "id": "shiyuqi",
+    "url": "https://www.bwfbadminton.com/player/105674/shi-yu-qi",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "Top 10"
+  },
+  {
+    "name": "Anthony Ginting",
+    "id": "ginting",
+    "url": "https://www.bwfbadminton.com/player/99173/anthony-sinisuka-ginting",
+    "source": "badminton_fallback",
+    "country": "Indonesia",
+    "rankings": "Top 10"
+  },
+  {
+    "name": "Anders Antonsen",
+    "id": "antonsen",
+    "url": "https://www.bwfbadminton.com/player/80272/anders-antonsen",
+    "source": "badminton_fallback",
+    "country": "Denmark",
+    "rankings": "Top 10"
+  },
+  {
+    "name": "Lee Zii Jia",
+    "id": "leeziiia",
+    "url": "https://www.bwfbadminton.com/player/113932/lee-zii-jia",
+    "source": "badminton_fallback",
+    "country": "Malaysia",
+    "rankings": "Top 10"
+  },
+  {
+    "name": "Chen Yufei",
+    "id": "chenyufei",
+    "url": "https://www.bwfbadminton.com/player/107980/chen-yu-fei",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "World #1"
+  },
+  {
+    "name": "Akane Yamaguchi",
+    "id": "yamaguchi",
+    "url": "https://www.bwfbadminton.com/player/77979/akane-yamaguchi",
+    "source": "badminton_fallback",
+    "country": "Japan",
+    "rankings": "Former World #1"
+  },
+  {
+    "name": "Ratchanok Intanon",
+    "id": "intanon",
+    "url": "https://www.bwfbadminton.com/player/68956/ratchanok-intanon",
+    "source": "badminton_fallback",
+    "country": "Thailand",
+    "rankings": "World Champion"
+  },
+  {
+    "name": "Pusarla V. Sindhu",
+    "id": "sindhu",
+    "url": "https://www.bwfbadminton.com/player/70222/pusarla-v-sindhu",
+    "source": "badminton_fallback",
+    "country": "India",
+    "rankings": "Olympic Medalist"
+  },
+  {
+    "name": "He Bingjiao",
+    "id": "hebingjiao",
+    "url": "https://www.bwfbadminton.com/player/107981/he-bing-jiao",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "Top 10"
+  },
+  {
+    "name": "Mohammad Ahsan",
+    "id": "ahsan",
+    "url": "https://www.bwfbadminton.com/player/66044/mohammad-ahsan",
+    "source": "badminton_fallback",
+    "country": "Indonesia",
+    "rankings": "World Champion (Doubles)"
+  },
+  {
+    "name": "Hendra Setiawan",
+    "id": "setiawan",
+    "url": "https://www.bwfbadminton.com/player/66043/hendra-setiawan",
+    "source": "badminton_fallback",
+    "country": "Indonesia",
+    "rankings": "World Champion (Doubles)"
+  },
+  {
+    "name": "Marcus Ellis",
+    "id": "ellis",
+    "url": "https://www.bwfbadminton.com/player/63642/marcus-ellis",
+    "source": "badminton_fallback",
+    "country": "England",
+    "rankings": "Olympic Champion (Doubles)"
+  },
+  {
+    "name": "Chris Adcock",
+    "id": "adcock",
+    "url": "https://www.bwfbadminton.com/player/63256/chris-adcock",
+    "source": "badminton_fallback",
+    "country": "England",
+    "rankings": "European Champion"
+  },
+  {
+    "name": "Zheng Siwei",
+    "id": "zhengsiwei",
+    "url": "https://www.bwfbadminton.com/player/107050/zheng-si-wei",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "World #1 (Mixed)"
+  },
+  {
+    "name": "Huang Yaqiong",
+    "id": "huangyaqiong",
+    "url": "https://www.bwfbadminton.com/player/92627/huang-ya-qiong",
+    "source": "badminton_fallback",
+    "country": "China",
+    "rankings": "World #1 (Mixed)"
+  }
+]

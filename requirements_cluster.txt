@@ -1,0 +1,28 @@
+# SearchHarness_0425 cluster runtime dependencies
+# Tested target: Python 3.10+
+#
+# This file covers the SearchHarness_0425 BrowseComp runners plus the
+# OffSeeker-main/inference/src/tools package used by search_agent_v3.py.
+# It intentionally does not install heavy full-agent stacks such as
+# transformers, torch, or vllm because this harness only imports OffSeeker's
+# lightweight tool_processor/search_tools modules.
+
+# OpenAI-compatible LLM clients, including DeepSeek-compatible endpoints.
+openai>=1.30.0,<2.0.0
+httpx>=0.27.0,<1.0.0
+
+# HTTP/search/crawling utilities.
+requests>=2.31.0,<3.0.0
+beautifulsoup4>=4.12.0,<5.0.0
+html2text>=2024.2.26
+wikipedia-api>=0.6.0,<1.0.0
+PyPDF2>=3.0.0,<4.0.0
+
+# Local evaluation and fixed-sample runners.
+python-dotenv>=1.0.0,<2.0.0
+loguru>=0.7.0,<1.0.0
+pandas>=2.0.0,<3.0.0
+tqdm>=4.66.0,<5.0.0
+
+# Pandas may need one of these when reading/writing richer tabular artifacts.
+numpy>=1.24.0
