@@ -27,7 +27,7 @@ def build_openai_client(api_base: str, api_key: str, *, timeout_s: Optional[floa
     Defaults to `trust_env=False` so broken proxy env vars won't break LLM calls.
     Set `LLM_TRUST_ENV=1` to opt back in to environment proxy settings.
     """
-    from openai import OpenAI
+    from openai import OpenAI  # type: ignore
 
     try:
         import httpx  # type: ignore
