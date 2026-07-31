@@ -9,10 +9,25 @@ import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Optional
 from loguru import logger
-from PyPDF2 import PdfReader
+
+# PDF: pypdf is the maintained successor of PyPDF2 (renamed in 2022).
+try:
+    from pypdf import PdfReader
+except ImportError:  # fallback to deprecated PyPDF2 if pypdf not installed yet
+    from PyPDF2 import PdfReader  # type: ignore
+
 import io
 import html2text
 import time
+
+# Trafilatura: optional middle-layer for boilerplate-free main-content extraction.
+# Falls back to html2text if not installed. Install via `pip install trafilatura`.
+try:
+    import trafilatura
+    _TRAFILATURA_AVAILABLE = True
+except ImportError:
+    trafilatura = None  # type: ignore
+    _TRAFILATURA_AVAILABLE = False
 from openai import OpenAI
 import wikipediaapi
 from .subprocess_interpreter import SubprocessInterpreter
@@ -282,6 +297,44 @@ def _call_html2text(url: str) -> str:
         return f"Error crawling url: {url}: {str(e)}"
 
 
+def _call_trafilatura(url: str) -> str:
+    """
+    Middle-layer extractor: fetch raw HTML then use Trafilatura to extract
+    main content (boilerplate-stripped, navigation/ads removed).
+
+    Better than html2text for article-style pages (news, blogs, wikis) because
+    it strips chrome/nav/footer and returns only the main text. Pure-Python,
+    no API limits. Falls back to html2text if Trafilatura is unavailable or
+    returns nothing (e.g. JS-heavy page with no HTML content).
+    """
+    if not _TRAFILATURA_AVAILABLE:
+        return _call_html2text(url)
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        session = _get_requests_session()
+        crawl_timeout = float(os.getenv("CRAWL_TIMEOUT_S", "15"))
+        response = session.get(url, headers=headers, timeout=crawl_timeout)
+        response.raise_for_status()
+        # extract: main content text. include_tables keeps tabular data.
+        # include_links keeps hyperlink context (important for research).
+        extracted = trafilatura.extract(
+            response.text,
+            include_tables=True,
+            include_links=True,
+            include_images=False,
+            favor_recall=True,  # err on the side of more content for research
+        )
+        if not extracted or len(extracted.strip()) < 50:
+            # empty / useless extraction -> fall back to html2text
+            return _call_html2text(url)
+        return extracted
+    except Exception:
+        # any error -> fall back to html2text (never throw)
+        return _call_html2text(url)
+
+
 def _crawl_url(url: str) -> str:
     """
     Crawl the webpage content of the given URL.
@@ -298,7 +351,7 @@ def _crawl_url(url: str) -> str:
     
     global _JINA_FAILURE_COUNT, _JINA_DISABLED
 
-    crawler_engine = os.getenv("CRAWLER_ENGINE", "html2text")
+    crawler_engine = os.getenv("CRAWLER_ENGINE", "trafilatura")
     if crawler_engine == "jina" and not _JINA_DISABLED:
         try:
             return _call_jina_api(url)
@@ -309,11 +362,11 @@ def _crawl_url(url: str) -> str:
                 _JINA_DISABLED = True
                 logger.warning(
                     f"Jina API failed {_JINA_FAILURE_COUNT}x (>= {max_failures}); "
-                    f"disabling Jina for this run, using html2text. Last error: {e}"
+                    f"disabling Jina for this run, using trafilatura/html2text. Last error: {e}"
                 )
             else:
-                logger.warning(f"Jina API failed, falling back to html2text: {e}")
-            return _call_html2text(url)
+                logger.warning(f"Jina API failed, falling back to trafilatura: {e}")
+            return _call_trafilatura(url)
     else:
         # Handle PDF files
         if url.endswith(".pdf"):
@@ -335,7 +388,7 @@ def _crawl_url(url: str) -> str:
                 return f"Error crawling PDF URL: {url}: {str(e)}"
         
         else:
-            return _call_html2text(url)
+            return _call_trafilatura(url)
 
 
 def _visit_url(url: str, query: str) -> str:

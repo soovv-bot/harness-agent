@@ -9,8 +9,9 @@ requests
 httpx
 beautifulsoup4
 html2text
+trafilatura          # middle-layer extractor: Jina -> Trafilatura -> html2text
 wikipedia-api
-PyPDF2
+pypdf                # maintained successor of deprecated PyPDF2
 
 # Environment
 python-dotenv>=1.0.0
