@@ -111,6 +111,35 @@ class TestQueryCriticRules:
         assert "nearest_query_overlap_jaccard" in checks
         assert 0 < checks["nearest_query_overlap_jaccard"] <= 1.0
 
+    def test_p1_early_reject_high_jaccard(self):
+        """P1: jaccard >= 0.75 should reject without LLM."""
+        mem = QueryHistoryMemory()
+        self._record(mem, "george armstrong custer death site", "medium")
+        critic = self._make_critic(mem)
+        checks: dict = {}
+        # 5 words, 4 overlap → jaccard = 4/6 = 0.667 (below threshold)
+        verdict_low = critic._rule_based_check("george armstrong custer death monument", checks)
+        assert verdict_low is None  # defer to LLM
+        # 5 words, 5 overlap → jaccard = 5/5 = 1.0 (exact, but not literal dup due to word order?)
+        # Actually exact same words → literal duplicate. Use near-dup instead:
+        # "custer death site dakota" vs "custer death site montana" = 4 words, 3 overlap, jaccard=0.6
+        # Need higher: use 4 shared + 1 different
+        mem2 = QueryHistoryMemory()
+        self._record(mem2, "custer death site battle", "medium")
+        critic2 = self._make_critic(mem2)
+        checks2: dict = {}
+        # {custer, death, site, battle} vs {custer, death, site, monument} = 3/5 = 0.6
+        # Try: {a, b, c, d} vs {a, b, c, d, e} = 4/5 = 0.8 >= 0.75
+        mem3 = QueryHistoryMemory()
+        self._record(mem3, "alpha beta gamma delta", "medium")
+        critic3 = self._make_critic(mem3)
+        checks3: dict = {}
+        verdict = critic3._rule_based_check("alpha beta gamma delta epsilon", checks3)
+        assert verdict is not None
+        assert verdict.decision == "reject_as_redundant"
+        assert checks3.get("early_reject_jaccard") is not None
+        assert checks3["early_reject_jaccard"] >= 0.75
+
 
 # ---------------------------------------------------------------------------
 # QueryCritic semantic cache (P0 optimization)
@@ -143,6 +172,52 @@ class TestQueryCriticCache:
         mem = QueryHistoryMemory()
         critic = QueryCritic(mem, "", "", "test-model")
         assert critic._lookup_cache("nonexistent", "discover") is None
+
+
+# ---------------------------------------------------------------------------
+# QueryCritic fuzzy cache (P0 fix)
+# ---------------------------------------------------------------------------
+
+class TestQueryCriticFuzzyCache:
+    def _make_critic(self, memory: QueryHistoryMemory = None) -> QueryCritic:
+        return QueryCritic(memory=memory or QueryHistoryMemory(), api_base="", api_key="", model_id="test-model")
+
+    def test_fuzzy_hit_rejective_verdict(self):
+        """Fuzzy cache returns rejective verdict when jaccard >= threshold."""
+        critic = self._make_critic()
+        v = QueryVerdict(decision="reject_as_redundant", reason="dup", checks={})
+        # 6 shared words, 7 union → jaccard = 6/7 = 0.857 >= 0.85
+        critic._store_cache("alpha beta gamma delta epsilon zeta", "discover", v)
+        hit = critic._lookup_cache_fuzzy("alpha beta gamma delta epsilon zeta theta", "discover")
+        assert hit is not None
+        assert hit.decision == "reject_as_redundant"
+        assert "cached-fuzzy" in hit.reason
+
+    def test_fuzzy_miss_low_jaccard(self):
+        """Fuzzy cache returns None when jaccard < threshold."""
+        critic = self._make_critic()
+        v = QueryVerdict(decision="reject_as_redundant", reason="dup", checks={})
+        critic._store_cache("alpha beta gamma", "discover", v)
+        # jaccard = 1/5 = 0.2
+        hit = critic._lookup_cache_fuzzy("alpha delta epsilon zeta", "discover")
+        assert hit is None
+
+    def test_fuzzy_ignores_allow_verdicts(self):
+        """Fuzzy cache does NOT return 'allow' verdicts (would bypass early-reject)."""
+        critic = self._make_critic()
+        v = QueryVerdict(decision="allow", reason="ok", checks={})
+        critic._store_cache("alpha beta gamma delta epsilon zeta", "discover", v)
+        # Near-duplicate of an 'allow' verdict should NOT be fuzzy-matched
+        hit = critic._lookup_cache_fuzzy("alpha beta gamma delta epsilon eta", "discover")
+        assert hit is None
+
+    def test_fuzzy_respects_phase_boundary(self):
+        """Fuzzy cache only matches within the same phase."""
+        critic = self._make_critic()
+        v = QueryVerdict(decision="reject_as_redundant", reason="dup", checks={})
+        critic._store_cache("alpha beta gamma delta epsilon zeta", "discover", v)
+        hit = critic._lookup_cache_fuzzy("alpha beta gamma delta epsilon eta", "verify")
+        assert hit is None
 
 
 # ---------------------------------------------------------------------------

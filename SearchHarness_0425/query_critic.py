@@ -156,6 +156,10 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         # P0: semantic cache — key is normalized query+phase, value is (verdict_dict, use_count)
         self._verdict_cache: Dict[str, dict] = {}
         self._cache_max_size = 200
+        # P0: fuzzy cache threshold (Jaccard) — only rejective verdicts reused
+        self.FUZZY_CACHE_JACCARD = 0.85
+        # P1: early-reject threshold (Jaccard) — skip LLM for near-duplicates
+        self.EARLY_REJECT_JACCARD = 0.75
 
     def _cache_key(self, query: str, phase: str) -> str:
         """Build a cache key from normalized query + phase."""
@@ -176,6 +180,51 @@ Evaluate and output JSON only (no markdown, no extra text)."""
             alternative_queries=data.get("alternative_queries", []),
             checks={},
         )
+
+    def _lookup_cache_fuzzy(self, query: str, phase: str) -> Optional["QueryVerdict"]:
+        """P0: Fuzzy lookup — return a cached REJECTIVE verdict if Jaccard >= threshold.
+
+        Only rejective verdicts (reject_as_redundant, suggest_pivot) are reused.
+        Reusing an 'allow' verdict for a near-duplicate would incorrectly bypass
+        the early-reject rule (P1) which may need to reject it.
+        """
+        query_words = set(_normalize_query(query).split())
+        if not query_words:
+            return None
+
+        phase_prefix = f"{phase}::"
+        best_entry = None
+        best_jaccard = 0.0
+
+        for key, entry in self._verdict_cache.items():
+            if not key.startswith(phase_prefix):
+                continue
+            cached_decision = entry["verdict"]["decision"]
+            if cached_decision not in (REJECT_AS_REDUNDANT, SUGGEST_PIVOT):
+                continue
+            cached_query_text = key[len(phase_prefix):]
+            cached_words = set(cached_query_text.split())
+            if not cached_words:
+                continue
+            jaccard = len(query_words & cached_words) / len(query_words | cached_words)
+            if jaccard > best_jaccard:
+                best_jaccard = jaccard
+                best_entry = entry
+
+        if best_entry is not None and best_jaccard >= self.FUZZY_CACHE_JACCARD:
+            best_entry["uses"] = best_entry.get("uses", 0) + 1
+            data = best_entry["verdict"]
+            logger.info(
+                f"[QueryCritic] Fuzzy cache HIT (jaccard={best_jaccard:.3f}, "
+                f"uses={best_entry['uses']}): {data['decision']}"
+            )
+            return QueryVerdict(
+                decision=data["decision"],
+                reason=f"[cached-fuzzy jaccard={best_jaccard:.3f}] {data['reason']}",
+                alternative_queries=data.get("alternative_queries", []),
+                checks={},
+            )
+        return None
 
     def _store_cache(self, query: str, phase: str, verdict: "QueryVerdict") -> None:
         """Store a verdict in the cache (if allowed-ish). Evict if too large."""
@@ -218,10 +267,15 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         self._current_question = question
         checks = {}
 
-        # P0: semantic cache lookup (before rules + LLM)
+        # P0: exact cache lookup (before rules + LLM)
         cached = self._lookup_cache(query, phase)
         if cached is not None:
             return cached
+
+        # P0: fuzzy cache lookup (only returns rejective verdicts)
+        cached_fuzzy = self._lookup_cache_fuzzy(query, phase)
+        if cached_fuzzy is not None:
+            return cached_fuzzy
 
         # Stage 1: Fast rule-based checks
         rule_verdict = self._rule_based_check(query, checks)
@@ -301,6 +355,20 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         if best_match is not None:
             checks["nearest_query_overlap_of"] = best_match
             checks["nearest_query_overlap_jaccard"] = round(best_jaccard, 3)
+
+        # P1: early-reject — if very similar to a prior query, skip LLM
+        if best_jaccard >= self.EARLY_REJECT_JACCARD:
+            checks["early_reject_jaccard"] = round(best_jaccard, 3)
+            reason = (
+                f"Query is {round(best_jaccard * 100)}% similar to a previous query "
+                f"(\"{checks.get('nearest_query_overlap_of', '?')}\"). "
+                f"Repeating a near-duplicate search is unlikely to yield new information."
+            )
+            return QueryVerdict(
+                decision=REJECT_AS_REDUNDANT,
+                reason=reason,
+                checks=checks,
+            )
 
         # 3. No history yet — always allow
         if len(self.memory) == 0:
