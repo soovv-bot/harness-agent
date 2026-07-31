@@ -31,6 +31,7 @@ from tqdm import tqdm
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from deepseek_thinking_compat import build_chat_completion_kwargs
+from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
 
 # ── BrowseComp decrypt ──────────────────────────────────────────────────
@@ -66,6 +67,44 @@ Output JSON only (no markdown):
 {{"extracted": "the answer extracted from response, or null if none", "correct": true/false, "reason": "brief explanation"}}"""
 
 
+DEFAULT_MODEL_ID = "GLM-5.2"
+
+
+def resolve_primary_model() -> str:
+    return (
+        os.getenv("MODEL_NAME")
+        or os.getenv("ENTRY_POINT_MODEL")
+        or os.getenv("MODEL")
+        or DEFAULT_MODEL_ID
+    ).strip()
+
+
+def resolve_grader_config(model_api_base: str, model_api_key: str, model_id: str) -> Dict[str, str]:
+    grader_api_base = (
+        os.getenv("GRADER_API_BASE")
+        or os.getenv("GRADER_OPENAI_BASE_URL")
+        or model_api_base
+        or ""
+    )
+    grader_api_key = (
+        os.getenv("GRADER_API_KEY")
+        or os.getenv("GRADER_OPENAI_API_KEY")
+        or model_api_key
+        or ""
+    )
+    grader_model_id = (
+        os.getenv("GRADER_MODEL")
+        or os.getenv("GRADER_MODEL_NAME")
+        or model_id
+        or DEFAULT_MODEL_ID
+    ).strip()
+    return {
+        "api_base": grader_api_base,
+        "api_key": grader_api_key,
+        "model_id": grader_model_id,
+    }
+
+
 class LLMGrader:
     def __init__(self, api_base: str, api_key: str, model_id: str):
         self.client = build_openai_client(api_base, api_key)
@@ -97,8 +136,15 @@ class LLMGrader:
                 "extracted_answer": result.get("extracted", ""),
             }
         except Exception as e:
+            infra_type = classify_infra_error(e)
             logger.error(f"Grading error: {e}")
-            return {"correct": False, "reasoning": str(e), "extracted_answer": ""}
+            return {
+                "correct": False,
+                "reasoning": str(e),
+                "extracted_answer": "",
+                "status": "infra_error" if infra_type else "error",
+                "error_type": infra_type or "",
+            }
 
 
 # ── Answer extraction from pipeline output ─────────────────────────────
@@ -156,6 +202,7 @@ def run_single_task(
     try:
         pipeline_result = pipeline.run(question=question, **pipeline_kwargs)
     except Exception as e:
+        infra_type = classify_infra_error(e)
         logger.error(f"[Task {task_index}] Pipeline error: {e}")
         return {
             "task_index": task_index,
@@ -163,15 +210,18 @@ def run_single_task(
             "correct_answer": correct_answer,
             "extracted_answer": "",
             "pipeline_answer_raw": "",
-            "pipeline_status": "unfinished",
+            "pipeline_status": "infra_error" if infra_type else "unfinished",
             "is_correct": False,
             "error": str(e),
+            "failure_category": infra_type or "pipeline_error",
             "elapsed_seconds": time.time() - start,
         }
 
     extracted_answer = extract_answer_from_pipeline(pipeline_result)
     raw_answer = pipeline_result.get("answer", "")
     status = pipeline_result.get("status", "unknown")
+    answer_payload = pipeline_result.get("answer_payload") or {}
+    failure_category = pipeline_result.get("failure_category") or answer_payload.get("error_type") or ""
 
     grade = grader.grade(question, extracted_answer or raw_answer, correct_answer)
 
@@ -196,9 +246,12 @@ def run_single_task(
         "extracted_answer": extracted_answer,
         "pipeline_answer_raw": raw_answer[:500] if raw_answer else "",
         "pipeline_status": status,
+        "failure_category": failure_category,
         "is_correct": grade["correct"],
         "grader_extracted": grade["extracted_answer"],
         "grader_reasoning": grade["reasoning"],
+        "grader_status": grade.get("status", "ok"),
+        "grader_error_type": grade.get("error_type", ""),
         "elapsed_seconds": round(elapsed, 1),
     }
 
@@ -383,11 +436,12 @@ def main():
 
     api_base = os.getenv("OPENAI_BASE_URL")
     api_key = os.getenv("OPENAI_API_KEY")
-    model_id = os.getenv("MODEL_NAME", "deepseek-chat")
+    model_id = resolve_primary_model()
 
-    grader_api_base = os.getenv("GRADER_API_BASE", api_base)
-    grader_api_key = os.getenv("GRADER_API_KEY", api_key)
-    grader_model_id = os.getenv("GRADER_MODEL", "gpt-4o-2024-11-20")
+    grader_cfg = resolve_grader_config(api_base or "", api_key or "", model_id)
+    grader_api_base = grader_cfg["api_base"]
+    grader_api_key = grader_cfg["api_key"]
+    grader_model_id = grader_cfg["model_id"]
 
     if not api_base or not api_key:
         logger.error("Set OPENAI_BASE_URL and OPENAI_API_KEY in .env")

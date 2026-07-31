@@ -1,0 +1,17 @@
+python: 3.12.7
+platform: Darwin 25.5.0
+requests: 2.32.3
+base_url: https://preview.llm.tenyunc.com/v1
+model: GLM-5.2
+openai_api_key: sk-7f8...1d2c
+proxy_env_before: {}
+proxy_env_after: {}
+
+==> GET https://preview.llm.tenyunc.com/v1/models
+status: 200
+body_prefix: {"data":[{"id":"GLM-5.2","object":"model","created":1677610602,"owned_by":"Tenyunw"}],"object":"list"}
+
+==> POST https://preview.llm.tenyunc.com/v1/chat/completions
+status: 200
+body_prefix: {"id":"0bac33dbb12c4868979af4a292da0f01","created":1785395066,"model":"GLM-5.2","object":"chat.completion","choices":[{"finish_reason":"length","index":0,"message":{"content":"","role":"assistant","reasoning_content":"1.  **Analyze the Input","provider_specific_fields":{"refusal":null}},"provider_specific_fields":{"matched_stop":null}}],"usage":{"completion_tokens":8,"prompt_tokens":13,"total_tokens":21,"completion_tokens_details":{"reasoning_tokens":8,"text_tokens":0}},"metadata":{"weight_version":"default"}}
+__SMOKE_EXIT=0

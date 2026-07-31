@@ -27,21 +27,22 @@ from agents.vllm_agent import VLLMSearchAgent
 
 file_lock = Lock()
 
-# Initialize DeepSeek API client for answer judging
+# Initialize answer judge client
 judger_client = None
 judger_model_name = "deepseek-chat"
 
-deepseek_api_key = os.environ.get("DEEPSEEK_API_KEY")
-if deepseek_api_key:
+judger_api_key = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("OPENAI_API_KEY")
+judger_base_url = os.environ.get("DEEPSEEK_BASE_URL") or os.environ.get("OPENAI_BASE_URL") or "https://preview.llm.tenyunc.com/v1"
+if judger_api_key:
     try:
         judger_client = OpenAI(
-            api_key=deepseek_api_key,
-            base_url="https://api.deepseek.com/v1",
+            api_key=judger_api_key,
+            base_url=judger_base_url,
         )
     except Exception as e:
-        logger.warning(f"Failed to initialize DeepSeek judger client: {e}")
+        logger.warning(f"Failed to initialize answer judger client: {e}")
 else:
-    logger.warning("DEEPSEEK_API_KEY not set, answer judging will be skipped")
+    logger.warning("Neither DEEPSEEK_API_KEY nor OPENAI_API_KEY is set, answer judging will be skipped")
 
 
 def get_processed_data_id(save_path: str) -> set:

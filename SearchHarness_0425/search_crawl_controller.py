@@ -151,7 +151,7 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         memory: QueryHistoryMemory,
         api_base: str,
         api_key: str,
-        model_id: str = "deepseek-chat",
+        model_id: str = "GLM-5.2",
         lookback: int = 10,
     ):
         """
@@ -436,7 +436,7 @@ def create_search_crawl_controller(
 
     _api_base = api_base or os.getenv("OPENAI_BASE_URL")
     _api_key = api_key or os.getenv("OPENAI_API_KEY")
-    _model_id = model_id or os.getenv("MODEL_NAME", "deepseek-chat")
+    _model_id = model_id or os.getenv("MODEL_NAME", "GLM-5.2")
 
     return SearchCrawlController(
         memory=memory,

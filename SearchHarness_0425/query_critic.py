@@ -139,12 +139,13 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         memory: QueryHistoryMemory,
         api_base: str,
         api_key: str,
-        model_id: str = "deepseek-chat",
+        model_id: str = "GLM-5.2",
     ):
         self.memory = memory
         self.api_base = api_base
         self.api_key = api_key
         self.model_id = model_id
+        self.max_output_tokens = 1024
 
         self.client = build_openai_client(api_base, api_key)
 
@@ -299,7 +300,7 @@ Evaluate and output JSON only (no markdown, no extra text)."""
                     model_id=self.model_id,
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0,
-                    max_tokens=4096,
+                    max_tokens=self.max_output_tokens,
                 )
             )
             content = response.choices[0].message.content.strip()
@@ -350,7 +351,7 @@ def create_query_critic(
 
     _api_base = api_base or os.getenv("OPENAI_BASE_URL")
     _api_key = api_key or os.getenv("OPENAI_API_KEY")
-    _model_id = model_id or os.getenv("MODEL_NAME", "deepseek-chat")
+    _model_id = model_id or os.getenv("MODEL_NAME", "GLM-5.2")
 
     return QueryCritic(
         memory=memory,

@@ -24,6 +24,22 @@ from deepseek_thinking_compat import assistant_message_to_dict, build_chat_compl
 from openai_client_factory import build_openai_client
 
 
+def _env_int(name: str, default: int) -> int:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
+def _env_flag(name: str, default: str = "1") -> bool:
+    raw = (os.getenv(name, default) or "").strip().lower()
+    return raw in {"1", "true", "yes", "y", "on"}
+
+
 class PlanningAgentV3:
     SYSTEM_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt_v3.md')
 
@@ -41,12 +57,21 @@ class PlanningAgentV3:
         self.api_key = api_key
         self.model_id = model_id
         self.temperature = temperature
-        self.max_turns = max_turns
+        self.max_turns = _env_int("PLANNER_MAX_TURNS", max_turns)
         self.search_budget = search_budget
         self._search_count = 0
+        self.max_output_tokens = _env_int("PLANNER_MAX_TOKENS", 1200)
+        self.fail_fast_on_malformed_plan = _env_flag("PLANNER_FAIL_FAST_ON_MALFORMED_PLAN", "1")
 
         if system_prompt:
             base_prompt = system_prompt
+        elif os.getenv("PLANNER_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}:
+            # GLM-5.2 and other pure-reasoning models get stuck in reasoning when the
+            # system prompt is too long. Use a compact prompt that lets the model
+            # emit a parseable <planning> block instead of endless reasoning.
+            simple_path = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt_glm.md')
+            with open(simple_path, 'r', encoding='utf-8') as f:
+                base_prompt = f.read()
         else:
             with open(self.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
                 base_prompt = f.read()
@@ -59,10 +84,18 @@ Keep every plan compact: at most 6 steps, no large candidate dumps, and no long 
 
 If the task is not solved, output exactly one <planning>...</planning> block with valid JSON only.
 If the task is solved, output exactly one <answer>...</answer> block.
+
+Strict output contract:
+- Your assistant content must start with <planning> or <answer>.
+- Your assistant content must end with the matching closing tag.
+- Do not put analysis prose outside those tags.
+- If the model supports hidden reasoning, keep it in hidden reasoning fields, not in the visible content field.
 """
 
         self.client = build_openai_client(api_base, api_key)
         self.messages: List[Dict[str, Any]] = []
+        self._workflow_stage: Optional[str] = None
+        self._stage_context: Dict[str, Any] = {}
 
     def _get_tool_schemas(self) -> List[Dict[str, Any]]:
         return []
@@ -112,6 +145,10 @@ If the task is solved, output exactly one <answer>...</answer> block.
 
     def _extract_planning(self, content: str) -> Optional[Dict[str, Any]]:
         matches = re.findall(r"<planning>(.*?)</planning>", content or "", re.DOTALL)
+        if not matches:
+            partial = self._extract_partial_planning_candidate(content)
+            if partial:
+                matches = [partial]
         # Try from last match first — planner may echo the example <planning>...</planning>
         # before outputting real JSON
         candidates = list(reversed(matches)) if matches else [content or ""]
@@ -129,13 +166,47 @@ If the task is solved, output exactly one <answer>...</answer> block.
             logger.warning("No <planning> block found and raw planning JSON recovery failed")
         return None
 
+    def _extract_partial_planning_candidate(self, content: Optional[str]) -> Optional[str]:
+        text = (content or "").strip()
+        if not text:
+            return None
+        open_tag = text.rfind("<planning>")
+        if open_tag == -1:
+            return None
+        partial = text[open_tag + len("<planning>"):].strip()
+        return partial or None
+
+    def _response_requires_fallback(self, content: str, response_dict: Dict[str, Any], parse_failures: int) -> bool:
+        if not self.fail_fast_on_malformed_plan:
+            return False
+        if parse_failures < 1:
+            return False
+        text = (content or "").strip()
+        reasoning = str(response_dict.get("reasoning_content") or "").strip()
+        has_open = "<planning>" in text
+        has_close = "</planning>" in text
+        if not text and reasoning:
+            return True
+        if has_open and not has_close:
+            return True
+        return False
+
     def build_initial_prompt(self, question: str) -> str:
+        use_simple = os.getenv("PLANNER_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}
+        if use_simple:
+            return (
+                f"Question: {question}\n\n"
+                f"Output <planning>...</planning> with a search plan NOW. Do not reason."
+            )
         return f"""Please analyze the following search question and create or update a search plan.
 
 ## Search Question
 {question}
 
-Output your plan inside <planning>...</planning> tags as valid JSON."""
+Output your plan inside <planning>...</planning> tags as valid JSON.
+
+Your visible assistant content must begin with <planning> and end with </planning>.
+Do not include analysis prose before or after the planning block."""
 
     def _build_compact_state_message(self, compact_state: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:
         if not compact_state:
@@ -225,6 +296,8 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
         workflow_stage: Optional[str] = None,
         stage_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        self._workflow_stage = workflow_stage
+        self._stage_context = dict(stage_context or {})
         self._current_question = question
         self.messages = [
             {"role": "system", "content": self.system_prompt},
@@ -247,6 +320,8 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
         workflow_stage: Optional[str] = None,
         stage_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        self._workflow_stage = workflow_stage
+        self._stage_context = dict(stage_context or {})
         compact_state_msg = self._build_compact_state_message(compact_state)
         if compact_state_msg:
             self.messages.append({"role": "user", "content": compact_state_msg["content"].replace("Current compact state", "Updated compact state", 1)})
@@ -266,6 +341,7 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
         latest_plan = self._latest_plan_from_messages()
         self._budget_exhausted = False
         force_planning_attempts = 0
+        parse_failures = 0
 
         for turn in range(self.max_turns):
             metadata["turns"] = turn + 1
@@ -276,6 +352,7 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
                         messages=self.messages,
                         tools=None,
                         temperature=self.temperature,
+                        max_tokens=self.max_output_tokens,
                     )
                 )
                 response = completion.choices[0].message
@@ -323,6 +400,26 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
                 plan = self._extract_planning(content)
                 if plan:
                     latest_plan = plan
+                    parse_failures = 0
+                elif (content or "").strip():
+                    parse_failures += 1
+                elif response_dict.get("reasoning_content"):
+                    parse_failures += 1
+
+                if not latest_plan and self._response_requires_fallback(content, response_dict, parse_failures):
+                    fallback_plan = self._fallback_plan(question=question)
+                    metadata.update({
+                        "finished_at": datetime.now().isoformat(),
+                        "status": "fallback_plan",
+                        "fallback_reason": "malformed_or_reasoning_only_planner_output",
+                    })
+                    return {
+                        "answer": None,
+                        "plan": fallback_plan,
+                        "trajectory": self.messages,
+                        "metadata": metadata,
+                        "candidate_updates": {},
+                    }
 
                 if not plan and not answer and not tool_calls and force_planning_attempts < 2:
                     force_planning_attempts += 1
@@ -332,10 +429,22 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
                             "Your previous response was free-form analysis and did not contain an executable plan. "
                             "Stop analyzing in prose. Output exactly one <planning>...</planning> block with valid JSON only. "
                             "The plan must contain at least one concrete pending executor subtask for the current workflow stage. "
+                            "Your visible content must start with <planning> and end with </planning>. "
                             "Do not call tools in this retry."
                         ),
                     })
                     continue
+
+                if not latest_plan and (parse_failures >= 2 or force_planning_attempts >= 2):
+                    fallback_plan = self._fallback_plan(question=question)
+                    metadata.update({"finished_at": datetime.now().isoformat(), "status": "fallback_plan"})
+                    return {
+                        "answer": None,
+                        "plan": fallback_plan,
+                        "trajectory": self.messages,
+                        "metadata": metadata,
+                        "candidate_updates": {},
+                    }
 
                 metadata.update({"finished_at": datetime.now().isoformat(), "status": "plan_updated" if latest_plan else "no_output"})
                 return {
@@ -347,6 +456,16 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
                 }
             except Exception as e:
                 logger.error(f"[Planner] Error in conversation loop: {e}")
+                if latest_plan is None:
+                    fallback_plan = self._fallback_plan(question=question)
+                    metadata.update({"finished_at": datetime.now().isoformat(), "status": "fallback_plan", "error": str(e)})
+                    return {
+                        "answer": None,
+                        "plan": fallback_plan,
+                        "trajectory": self.messages,
+                        "metadata": metadata,
+                        "candidate_updates": {},
+                    }
                 metadata.update({"finished_at": datetime.now().isoformat(), "status": "error", "error": str(e)})
                 return {
                     "answer": None,
@@ -372,6 +491,7 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
                     model_id=self.model_id,
                     messages=self.messages,
                     temperature=self.temperature,
+                    max_tokens=self.max_output_tokens,
                 )
             )
             response = completion.choices[0].message
@@ -397,6 +517,103 @@ Output your plan inside <planning>...</planning> tags as valid JSON."""
             "metadata": metadata,
             "candidate_updates": {},
         }
+
+    def _fallback_plan(self, question: Optional[str]) -> Dict[str, Any]:
+        workflow_stage = self._workflow_stage or "candidate_generation"
+        stage_context = self._stage_context or {}
+        objective = self._fallback_objective(question)
+
+        if workflow_stage == "candidate_verification":
+            active_candidate = stage_context.get("active_candidate") or "the strongest current candidate"
+            return {
+                "phase": "verification",
+                "workflow_stage": workflow_stage,
+                "stage_status": "continue",
+                "objective": objective,
+                "active_candidate": active_candidate,
+                "steps": [
+                    {
+                        "id": 1,
+                        "subtask": f"Verify {active_candidate} against the hardest unresolved constraints from the original question using direct evidence, and record supporting constraints, unresolved constraints, and hard conflicts.",
+                        "subtask_type": "candidate_verification",
+                        "status": "pending",
+                        "progress": 0,
+                        "result": "",
+                        "guidance": [
+                            "Use direct evidence only.",
+                            "Resolve contradictions before broadening the search.",
+                            "Update the candidate record even if the result is negative.",
+                        ],
+                    }
+                ],
+            }
+
+        if workflow_stage == "final_check":
+            return {
+                "phase": "final_check",
+                "workflow_stage": workflow_stage,
+                "stage_status": "continue",
+                "objective": objective,
+                "steps": [
+                    {
+                        "id": 1,
+                        "subtask": "Perform one final evidence check on the strongest surviving answer path and confirm whether the original question can be answered directly. If a required constraint is still unresolved, identify that exact gap.",
+                        "subtask_type": "final_check",
+                        "status": "pending",
+                        "progress": 0,
+                        "result": "",
+                        "guidance": [
+                            "Do not restart broad exploration unless the current answer path collapses.",
+                            "Prefer direct answer-path confirmation over gathering more weak leads.",
+                        ],
+                    }
+                ],
+            }
+
+        return {
+            "phase": "candidate_generation",
+            "workflow_stage": workflow_stage,
+            "stage_status": "continue",
+            "objective": objective,
+            "pool_assessment": {
+                "coverage_status": "partial",
+                "gaps": ["Need a broader but still relevant candidate pool before verification."],
+            },
+            "steps": [
+                {
+                    "id": 1,
+                    "subtask": "Search for candidate entities that satisfy the most distinctive one or two constraints in the original question, then add every plausible candidate without fully verifying all later constraints.",
+                    "subtask_type": "candidate_expansion",
+                    "status": "pending",
+                    "progress": 0,
+                    "result": "",
+                    "guidance": [
+                        "Favor recall over early elimination.",
+                        "Use source families that are likely to contain entity lists, biographies, or catalog-style records.",
+                        "Store unresolved constraints instead of guessing.",
+                    ],
+                },
+                {
+                    "id": 2,
+                    "subtask": "Search for a distinctive phrase or acknowledgement pattern from the question that can directly identify a document, work, or entity tied to the answer path.",
+                    "subtask_type": "candidate_expansion",
+                    "status": "pending",
+                    "progress": 0,
+                    "result": "",
+                    "guidance": [
+                        "Prefer highly discriminative phrases over broad topic searches.",
+                        "If a document is identified, capture its author and related named entities as candidates.",
+                    ],
+                },
+            ],
+        }
+
+    def _fallback_objective(self, question: Optional[str]) -> str:
+        text = (question or getattr(self, "_current_question", "") or "").strip()
+        if not text:
+            return "Create an executable search plan that advances the current workflow stage."
+        snippet = text[:180].rstrip()
+        return f"Advance the current workflow stage for the question: {snippet}"
 
     def _planner_candidate_updates(self, assessments: List[Dict[str, Any]]) -> Dict[str, Any]:
         return {}

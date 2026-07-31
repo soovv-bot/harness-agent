@@ -345,6 +345,8 @@ class SearchHarnessPipelineV4:
         if isinstance(payload, dict):
             answer_text = str(payload.get("answer", "")).strip()
             answer_status = str(payload.get("status", "")).strip().lower()
+            if answer_status == "infra_error":
+                return "infra_error"
             if answer_status and answer_status != "solved":
                 return "unfinished"
             text = answer_text or text
@@ -780,7 +782,15 @@ class SearchHarnessPipelineV4:
         compact_state = self.state_store.export_compact_state()
         mode = "solved" if self._looks_solved(compact_state) else "best_effort"
         final = self.finalizer.finalize(question=question, compact_state=compact_state, budget_status=stop, mode=mode)
-        pipeline_status = "finished" if final.status == "solved" and final.answer.strip().lower() != "unknown" else "unfinished"
+        if final.status == "infra_error":
+            pipeline_status = "infra_error"
+        elif final.error_type == "protocol_error":
+            # Explicit protocol_error: finalizer LLM output was unparseable.
+            # Still emit the local fallback answer, but mark the pipeline so it is
+            # distinguishable from a genuine best_effort "Unknown".
+            pipeline_status = "protocol_error"
+        else:
+            pipeline_status = "finished" if final.status == "solved" and final.answer.strip().lower() != "unknown" else "unfinished"
         if self.trajectory_recorder:
             self.trajectory_recorder.record_pipeline_state(
                 query_history=self.query_memory.to_dict(),
@@ -795,6 +805,7 @@ class SearchHarnessPipelineV4:
             "state": compact_state,
             "iterations": iteration,
             "status": pipeline_status,
+            "failure_category": final.error_type,
             "stop": stop,
         }
 
@@ -1041,7 +1052,7 @@ if __name__ == "__main__":
     load_dotenv()
     api_base = os.getenv("OPENAI_BASE_URL")
     api_key = os.getenv("OPENAI_API_KEY")
-    model_id = os.getenv("MODEL_NAME", "deepseek-chat")
+    model_id = os.getenv("MODEL_NAME", "GLM-5.2")
     recorder = TrajectoryRecorder(model_id=model_id, output_dir="logs/trajectories")
     pipeline = SearchHarnessPipelineV4(api_base=api_base, api_key=api_key, model_id=model_id, trajectory_recorder=recorder,
                                        max_planner_searches=5, max_executor_searches=15, max_total_searches=30)

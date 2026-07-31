@@ -112,11 +112,12 @@ Plan phase: {phase}
 
 Evaluate and output JSON only (no markdown, no extra text)."""
 
-    def __init__(self, api_base: str, api_key: str, model_id: str = "deepseek-chat"):
+    def __init__(self, api_base: str, api_key: str, model_id: str = "GLM-5.2"):
         self.api_base = api_base
         self.api_key = api_key
         self.model_id = model_id
         self.records: List[SubtaskRecord] = []
+        self.max_output_tokens = 1024
 
         self.client = build_openai_client(api_base, api_key)
 

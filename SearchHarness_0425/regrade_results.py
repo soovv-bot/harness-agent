@@ -12,10 +12,10 @@ Usage:
         --output results/cluster_run_seed123_k100_regraded.json \
         --max-workers 4
 
-Grader endpoint/model come from .env (corrected variable names):
+Grader endpoint/model come from .env (canonical variable names):
     GRADER_API_BASE      -> grader base url
-    GRADER_API_KEY        -> grader api key
-    GRADER_MODEL          -> grader model id (default gpt-4o-2024-11-20)
+    GRADER_API_KEY       -> grader api key
+    GRADER_MODEL         -> grader model id
 Falls back to GRADER_OPENAI_BASE_URL / GRADER_OPENAI_API_KEY / GRADER_MODEL_NAME
 and then to the main OPENAI_BASE_URL / OPENAI_API_KEY / MODEL_NAME.
 """
@@ -43,28 +43,14 @@ from deepseek_thinking_compat import build_chat_completion_kwargs  # noqa: E402
 from openai_client_factory import build_openai_client  # noqa: E402
 
 # Import the grader prompt + LLMGrader from the main eval module to stay in sync.
-from run_browsecomp import GRADER_PROMPT, LLMGrader  # noqa: E402
+from run_browsecomp import GRADER_PROMPT, LLMGrader, resolve_grader_config, resolve_primary_model  # noqa: E402
 
 
 def _resolve_grader_config() -> Dict[str, str]:
-    api_base = (
-        os.getenv("GRADER_API_BASE")
-        or os.getenv("GRADER_OPENAI_BASE_URL")
-        or os.getenv("OPENAI_BASE_URL")
-        or ""
-    )
-    api_key = (
-        os.getenv("GRADER_API_KEY")
-        or os.getenv("GRADER_OPENAI_API_KEY")
-        or os.getenv("OPENAI_API_KEY")
-        or ""
-    )
-    model_id = (
-        os.getenv("GRADER_MODEL")
-        or os.getenv("GRADER_MODEL_NAME")
-        or "gpt-4o-2024-11-20"
-    )
-    return {"api_base": api_base, "api_key": api_key, "model_id": model_id}
+    model_api_base = os.getenv("OPENAI_BASE_URL") or ""
+    model_api_key = os.getenv("OPENAI_API_KEY") or ""
+    model_id = resolve_primary_model()
+    return resolve_grader_config(model_api_base, model_api_key, model_id)
 
 
 def regrade_one(

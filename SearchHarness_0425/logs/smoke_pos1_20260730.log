@@ -1,0 +1,46 @@
+[run] starting fixed-sample evaluation
+2026-07-30 16:44:23.396 | INFO     | __main__:_load_fixed_sample:70 - Loading BrowseComp dataset...
+2026-07-30 16:44:23.396 | INFO     | __main__:_load_fixed_sample:72 - Using local fixed subset: /Users/soovv/search_data_systhesis/SearchHarness_0425/docs/seed123_k10_full.json
+2026-07-30 16:44:23.396 | INFO     | __main__:run_fixed_evaluation:148 - Manifest saved to /Users/soovv/search_data_systhesis/SearchHarness_0425/docs/seed123_k10_manifest.json
+2026-07-30 16:44:23.425 | INFO     | __main__:run_fixed_evaluation:164 - Running fixed-sample evaluation for positions=[1] with max_workers=1
+Evaluating:   0%|          | 0/1 [00:00<?, ?it/s][run] starting position=1
+2026-07-30 16:44:23.452 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-07-30 16:44:28.946 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:44:34.345 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:44:39.450 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:44:39.454 | INFO     | subtask_critic:evaluate:154 - [SubtaskCritic] Rule-based verdict: allow
+2026-07-30 16:44:39.455 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-07-30 16:45:37.656 | INFO     | search_crawl_controller:evaluate:204 - [SearchCrawlController] Rule-based verdict: crawl_now
+2026-07-30 16:45:45.241 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:45:51.302 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:46:06.428 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:46:11.648 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:46:17.768 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:46:24.039 | WARNING  | planning_agent_v3:_extract_planning:143 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 16:52:25.439 | INFO     | trajectory_recorder:finalize:138 - [TrajectoryRecorder] Saved trajectory to logs/trajectories_smoke_pos1_20260730/GLM-5.2/task_000001.json
+2026-07-30 16:52:26.734 | INFO     | run_browsecomp:run_single_task:236 - [Task 1] grade['correct']=False | answer='{
+  "status": "infra_error",
+  "answer": "Unknown",
+  "confi' | status=infra_error | 483.3s
+[run] finished position=1 status=infra_error
+Evaluating: 100%|██████████| 1/1 [08:03<00:00, 483.30s/it]Evaluating: 100%|██████████| 1/1 [08:03<00:00, 483.30s/it]
+
+============================================================
+BrowseComp Fixed-Sample Evaluation Results
+============================================================
+Seed:           123
+Sample size:    10
+Positions:      [1]
+Model:          GLM-5.2
+Grader:         GLM-5.2
+Examples:       1
+Correct:        0
+Accuracy:       0.00%
+Total time:     483.3s
+Max workers:    1
+============================================================
+  [X ] pos= 1 {
+  "status": "infra_error",
+  "answer": "Unknown",
+  "confi | infra_error
+2026-07-30 16:52:26.739 | INFO     | __main__:run_fixed_evaluation:283 - Results saved to: results/smoke_pos1_20260730.json

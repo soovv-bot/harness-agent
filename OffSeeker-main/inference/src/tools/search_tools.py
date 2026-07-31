@@ -156,7 +156,7 @@ def call_llm(
         Model response text
     """
     api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("OPENAI_API_KEY")
-    base_url = os.getenv("DEEPSEEK_BASE_URL") or os.getenv("OPENAI_BASE_URL", "https://api.deepseek.com/v1")
+    base_url = os.getenv("DEEPSEEK_BASE_URL") or os.getenv("OPENAI_BASE_URL", "https://preview.llm.tenyunc.com/v1")
     if not api_key:
         raise ValueError("Neither DEEPSEEK_API_KEY nor OPENAI_API_KEY is set in environment variables")
 

@@ -1,0 +1,68 @@
+[run] starting fixed-sample evaluation
+2026-07-30 15:04:28.273 | INFO     | __main__:_load_fixed_sample:70 - Loading BrowseComp dataset...
+2026-07-30 15:04:28.273 | INFO     | __main__:_load_fixed_sample:72 - Using local fixed subset: /Users/soovv/search_data_systhesis/SearchHarness_0425/docs/seed123_k10_full.json
+2026-07-30 15:04:28.275 | INFO     | __main__:run_fixed_evaluation:148 - Manifest saved to /Users/soovv/search_data_systhesis/SearchHarness_0425/docs/seed123_k10_manifest.json
+2026-07-30 15:04:28.318 | INFO     | __main__:run_fixed_evaluation:164 - Running fixed-sample evaluation for positions=[1, 3, 4] with max_workers=1
+Evaluating:   0%|          | 0/3 [00:00<?, ?it/s][run] starting position=1
+2026-07-30 15:04:28.354 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-07-30 15:05:45.494 | INFO     | subtask_critic:evaluate:153 - [SubtaskCritic] Rule-based verdict: allow
+2026-07-30 15:05:45.494 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-07-30 15:06:02.425 | INFO     | query_critic:evaluate:179 - [QueryCritic] Rule-based verdict: allow
+2026-07-30 15:06:02.426 | INFO     | query_critic:evaluate:179 - [QueryCritic] Rule-based verdict: allow
+2026-07-30 15:06:02.426 | INFO     | query_critic:evaluate:179 - [QueryCritic] Rule-based verdict: allow
+2026-07-30 15:06:23.685 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:06:28.153 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:06:38.595 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow
+2026-07-30 15:06:45.338 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow
+2026-07-30 15:06:50.171 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow_with_warning
+2026-07-30 15:07:06.401 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:07:16.020 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:07:21.016 | INFO     | search_crawl_controller:evaluate:204 - [SearchCrawlController] Rule-based verdict: crawl_now
+2026-07-30 15:08:21.034 | WARNING  | tools.search_tools:_crawl_url:285 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://gamma.discovercreation.org/book-search/M6uOri/5TW209/city-historian_and__grand__nieces_acknowledgements.pdf (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x13d3ef440>, 'Connection to r.jina.ai timed out. (connect timeout=60)'))
+2026-07-30 15:08:21.035 | WARNING  | tools.search_tools:_crawl_url:285 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://www.instagram.com/popular/thanks-a-city-historian-and-the-grand-nieces/ (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x13d3cf830>, 'Connection to r.jina.ai timed out. (connect timeout=60)'))
+2026-07-30 15:09:07.632 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:09:15.500 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:09:22.899 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:09:37.237 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow_with_warning
+2026-07-30 15:09:49.541 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:10:08.310 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow
+2026-07-30 15:10:13.865 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow
+2026-07-30 15:10:17.791 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow
+2026-07-30 15:13:21.267 | ERROR    | search_agent_v3:run:688 - [Executor] Error in conversation loop: Request timed out.
+2026-07-30 15:13:21.273 | INFO     | search_crawl_controller:evaluate:204 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-07-30 15:16:22.661 | ERROR    | planning_agent_v3:_conversation_loop:349 - [Planner] Error in conversation loop: Request timed out.
+2026-07-30 15:16:22.677 | INFO     | subtask_critic:evaluate:153 - [SubtaskCritic] Rule-based verdict: allow_with_warning
+2026-07-30 15:16:22.677 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=allow_with_warning | reason=Subtask 'Search for writers or historians from North Dakota or South Dakota who wrote a biography of a well-known histor
+2026-07-30 15:16:39.570 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:16:46.416 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:16:52.061 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:17:01.399 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:17:07.432 | ERROR    | query_critic:_llm_based_check:333 - [QueryCritic] LLM call failed: Unterminated string starting at: line 1 column 41 (char 40)
+2026-07-30 15:17:12.986 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:17:57.598 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-07-30 15:18:06.659 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:18:09.854 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-07-30 15:18:19.272 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:21:06.756 | INFO     | search_crawl_controller:evaluate:204 - [SearchCrawlController] Rule-based verdict: hybrid
+2026-07-30 15:22:06.772 | WARNING  | tools.search_tools:_crawl_url:285 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://ltamerica.org/the-life-and-times-of-sitting-bull/ (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x13d404680>, 'Connection to r.jina.ai timed out. (connect timeout=60)'))
+2026-07-30 15:22:06.776 | WARNING  | tools.search_tools:_crawl_url:285 - Jina API failed, falling back to html2text: HTTPSConnectionPool(host='r.jina.ai', port=443): Max retries exceeded with url: /https://voyagerofhistory.wordpress.com/2021/02/03/book-review-of-sitting-bull-his-life-and-legacy/ (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x13d4087a0>, 'Connection to r.jina.ai timed out. (connect timeout=60)'))
+2026-07-30 15:22:17.991 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-07-30 15:22:25.654 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:23:28.599 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow_with_warning
+2026-07-30 15:23:51.929 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:24:21.937 | ERROR    | tools.search_tools:_search_single:386 - Error in search for query='South Dakota authors historians 20th century list bibliography biographies written': HTTPSConnectionPool(host='google.serper.dev', port=443): Read timed out. (read timeout=30)
+2026-07-30 15:24:28.787 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow_with_warning
+2026-07-30 15:24:47.418 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow_with_warning
+2026-07-30 15:27:51.739 | ERROR    | search_agent_v3:run:688 - [Executor] Error in conversation loop: Request timed out.
+2026-07-30 15:30:53.289 | ERROR    | planning_agent_v3:_conversation_loop:349 - [Planner] Error in conversation loop: Request timed out.
+2026-07-30 15:30:53.297 | INFO     | subtask_critic:evaluate:153 - [SubtaskCritic] Rule-based verdict: allow_with_warning
+2026-07-30 15:30:53.298 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=allow_with_warning | reason=Subtask 'Search for writers or historians from North Dakota or South Dakota who wrote a biography of a well-known histor
+2026-07-30 15:31:07.949 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:31:22.214 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: allow_with_warning
+2026-07-30 15:31:25.861 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: reject_as_redundant
+2026-07-30 15:31:55.867 | ERROR    | tools.search_tools:_search_single:386 - Error in search for query='Sitting Bull biography acknowledgements grand-nieces city historian': HTTPSConnectionPool(host='google.serper.dev', port=443): Read timed out. (read timeout=30)
+2026-07-30 15:34:15.755 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:34:21.389 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+2026-07-30 15:34:27.473 | INFO     | query_critic:_llm_based_check:323 - [QueryCritic] LLM verdict: suggest_pivot
+/opt/homebrew/anaconda3/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

@@ -1,0 +1,54 @@
+[run] starting fixed-sample evaluation
+2026-07-30 19:10:09.448 | INFO     | __main__:_load_fixed_sample:70 - Loading BrowseComp dataset...
+2026-07-30 19:10:09.448 | INFO     | __main__:_load_fixed_sample:72 - Using local fixed subset: /Users/soovv/search_data_systhesis/SearchHarness_0425/docs/seed123_k10_full.json
+2026-07-30 19:10:09.448 | INFO     | __main__:run_fixed_evaluation:148 - Manifest saved to /Users/soovv/search_data_systhesis/SearchHarness_0425/docs/seed123_k10_manifest.json
+2026-07-30 19:10:09.480 | INFO     | __main__:run_fixed_evaluation:164 - Running fixed-sample evaluation for positions=[3] with max_workers=1
+Evaluating:   0%|          | 0/1 [00:00<?, ?it/s][run] starting position=3
+2026-07-30 19:10:09.505 | INFO     | tools.tool_processor:__init__:32 - Initialized ToolProcessor
+2026-07-30 19:10:14.514 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:10:14.515 | INFO     | subtask_critic:evaluate:154 - [SubtaskCritic] Rule-based verdict: allow
+2026-07-30 19:10:14.515 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=allow | reason=No prior subtask history. First subtask is always allowed.
+2026-07-30 19:10:48.326 | INFO     | search_crawl_controller:evaluate:204 - [SearchCrawlController] Rule-based verdict: continue_search
+2026-07-30 19:10:53.522 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:10:53.523 | INFO     | subtask_critic:evaluate:154 - [SubtaskCritic] Rule-based verdict: reject_as_redundant
+2026-07-30 19:10:53.523 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=reject_as_redundant | reason=Near-duplicate of previous subtask 'Search for candidate entities that satisfy the most distinctive one or two constrain
+2026-07-30 19:10:58.643 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:10:58.654 | INFO     | subtask_critic:evaluate:154 - [SubtaskCritic] Rule-based verdict: reject_as_redundant
+2026-07-30 19:10:58.657 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=reject_as_redundant | reason=Near-duplicate of previous subtask 'Search for candidate entities that satisfy the most distinctive one or two constrain
+2026-07-30 19:11:03.747 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:11:03.749 | INFO     | subtask_critic:evaluate:154 - [SubtaskCritic] Rule-based verdict: reject_as_redundant
+2026-07-30 19:11:03.749 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=reject_as_redundant | reason=Subtask 'Search for candidate entities that satisfy the most distinctive one or two constraints in the original question
+2026-07-30 19:11:14.495 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:11:14.498 | INFO     | subtask_critic:evaluate:154 - [SubtaskCritic] Rule-based verdict: reject_as_redundant
+2026-07-30 19:11:14.498 | INFO     | search_harness_pipeline_v4:_settle_subtask_with_critic:676 - [SubtaskCritic] verdict=reject_as_redundant | reason=Subtask 'Search for candidate entities that satisfy the most distinctive one or two constraints in the original question
+2026-07-30 19:11:14.498 | WARNING  | search_harness_pipeline_v4:_settle_subtask_with_critic:686 - [SubtaskCritic] rewrite limit reached; executing latest proposed subtask with warning
+2026-07-30 19:11:34.484 | INFO     | search_crawl_controller:evaluate:204 - [SearchCrawlController] Rule-based verdict: continue_search
+2026-07-30 19:11:39.945 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:11:45.133 | WARNING  | planning_agent_v3:_extract_planning:159 - No <planning> block found and raw planning JSON recovery failed
+2026-07-30 19:11:49.341 | INFO     | trajectory_recorder:finalize:138 - [TrajectoryRecorder] Saved trajectory to logs/trajectories_position3_glm2_smoke_20260730/GLM-5.2/task_000003.json
+2026-07-30 19:11:50.561 | INFO     | run_browsecomp:run_single_task:236 - [Task 3] grade['correct']=False | answer='{
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi' | status=protocol_error | 101.0s
+[run] finished position=3 status=protocol_error
+Evaluating: 100%|██████████| 1/1 [01:41<00:00, 101.07s/it]Evaluating: 100%|██████████| 1/1 [01:41<00:00, 101.07s/it]
+
+============================================================
+BrowseComp Fixed-Sample Evaluation Results
+============================================================
+Seed:           123
+Sample size:    10
+Positions:      [3]
+Model:          GLM-5.2
+Grader:         GLM-5.2
+Examples:       1
+Correct:        0
+Accuracy:       0.00%
+Total time:     101.1s
+Max workers:    1
+============================================================
+  [X ] pos= 3 {
+  "status": "best_effort",
+  "answer": "Unknown",
+  "confi | protocol_error
+2026-07-30 19:11:50.565 | INFO     | __main__:run_fixed_evaluation:283 - Results saved to: results/position3_glm2_smoke_20260730.json

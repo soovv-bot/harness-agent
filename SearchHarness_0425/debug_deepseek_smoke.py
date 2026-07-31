@@ -102,14 +102,14 @@ def main() -> int:
         default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env")),
         help="Path to a .env file to load if needed.",
     )
-    parser.add_argument("--base-url", default=os.environ.get("OPENAI_BASE_URL", "").strip() or "https://api.deepseek.com/v1")
+    parser.add_argument("--base-url", default=os.environ.get("OPENAI_BASE_URL", "").strip() or "https://preview.llm.tenyunc.com/v1")
     parser.add_argument(
         "--model",
         default=(
             os.environ.get("ENTRY_POINT_MODEL")
             or os.environ.get("MODEL_NAME")
             or os.environ.get("MODEL")
-            or "deepseek-chat"
+            or "GLM-5.2"
         ).strip(),
     )
     parser.add_argument("--timeout", type=int, default=30)

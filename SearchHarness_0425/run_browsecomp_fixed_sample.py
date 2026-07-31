@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from tqdm import tqdm
 
-from run_browsecomp import LLMGrader, _decrypt, run_single_task
+from run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
 
 BROWSECOMP_URL = "https://openaipublic.blob.core.windows.net/simple-evals/browse_comp_test_set.csv"
 _HERE = Path(__file__).resolve().parent
@@ -134,11 +134,12 @@ def run_fixed_evaluation(
     load_dotenv()
     api_base = os.getenv("OPENAI_BASE_URL")
     api_key = os.getenv("OPENAI_API_KEY")
-    model_id = os.getenv("MODEL_NAME", "deepseek-chat")
+    model_id = resolve_primary_model()
     executor_model_id = os.getenv("EXECUTOR_MODEL_NAME") or model_id
-    grader_api_base = os.getenv("GRADER_OPENAI_BASE_URL") or api_base
-    grader_api_key = os.getenv("GRADER_OPENAI_API_KEY") or api_key
-    grader_model_id = os.getenv("GRADER_MODEL_NAME", "gpt-4o-2024-11-20")
+    grader_cfg = resolve_grader_config(api_base or "", api_key or "", model_id)
+    grader_api_base = grader_cfg["api_base"]
+    grader_api_key = grader_cfg["api_key"]
+    grader_model_id = grader_cfg["model_id"]
 
     sample = _load_fixed_sample(seed=seed, sample_size=sample_size)
 

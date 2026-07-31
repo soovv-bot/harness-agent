@@ -29,6 +29,17 @@ from deepseek_thinking_compat import assistant_message_to_dict, build_chat_compl
 from openai_client_factory import build_openai_client
 
 
+def _env_int(name: str, default: int) -> int:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
 class SearchAgentV3:
     SYSTEM_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'search_agent_prompt_v3.md')
 
@@ -56,19 +67,44 @@ class SearchAgentV3:
         self.enable_query_critic = enable_query_critic
         self.crawl_controller = crawl_controller
         self.temperature = temperature
-        self.max_turns = max_turns
+        self.max_turns = _env_int("EXECUTOR_MAX_TURNS", max_turns)
         self.search_budget = search_budget
         self._search_count = 0
+        self.max_output_tokens = _env_int("EXECUTOR_MAX_TOKENS", 1400)
 
         if system_prompt:
             base_prompt = system_prompt
+        elif os.getenv("EXECUTOR_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}:
+            # GLM-5.2 and other pure-reasoning models get stuck in reasoning when the
+            # system prompt is too long. Use a compact prompt that still carries the
+            # core execution contract but lets the model emit tool_calls / content.
+            simple_path = os.path.join(os.path.dirname(__file__), 'search_agent_prompt_glm.md')
+            with open(simple_path, 'r', encoding='utf-8') as f:
+                base_prompt = f.read()
         else:
             with open(self.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
                 base_prompt = f.read()
 
         self.tool_schemas = self._get_tool_schemas()
         self.tool_schemas_str = "\n".join(json.dumps(schema, ensure_ascii=False, indent=2) for schema in self.tool_schemas)
-        self.system_prompt = base_prompt + f"""
+        use_simple = os.getenv("EXECUTOR_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}
+        if use_simple:
+            # The simple prompt already embeds a compact tool description; only append
+            # the minimal findings contract so the model still emits parseable output.
+            self.system_prompt = base_prompt + f"""
+
+You are provided with function signatures within <tools></tools> XML tags:
+<tools>
+{self.tool_schemas_str}
+</tools>
+
+You must never output <answer>.
+You must output exactly one <findings>...</findings> block before finishing.
+Inside <findings>, output valid JSON only with fields:
+subtask, status, summary, evidence, candidate_updates, source_feedback, suggestion_for_planner.
+"""
+        else:
+            self.system_prompt = base_prompt + f"""
 
 You are provided with function signatures within <tools></tools> XML tags:
 <tools>
@@ -630,6 +666,7 @@ Candidate handling is critical:
                         messages=self.messages,
                         tools=None if disable_tools_for_wrapup else self.tool_schemas,
                         temperature=self.temperature,
+                        max_tokens=self.max_output_tokens,
                     )
                 )
                 response = completion.choices[0].message
@@ -712,6 +749,7 @@ Candidate handling is critical:
                     model_id=self.model_id,
                     messages=self.messages,
                     temperature=self.temperature,
+                    max_tokens=self.max_output_tokens,
                 )
             )
             response = completion.choices[0].message
@@ -729,6 +767,7 @@ Candidate handling is critical:
                         model_id=self.model_id,
                         messages=self.messages,
                         temperature=self.temperature,
+                        max_tokens=self.max_output_tokens,
                     )
                 )
                 response = completion.choices[0].message

@@ -7,43 +7,42 @@ import os
 import re
 import sys
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
 from deepseek_thinking_compat import build_chat_completion_kwargs
+from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
 
 
-FINALIZER_SYSTEM_PROMPT = """You are the finalizer for a search harness.
+def _env_int(name: str, default: int) -> int:
+    raw = (os.getenv(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return value if value > 0 else default
 
-You must produce the best possible final answer using only the provided question,
-search state, findings, and stop reason. Do not invent new evidence. Do not call
-tools. Do not continue searching.
 
-Important rules:
-- Answer the original question directly.
-- Do not output an intermediate candidate unless the question itself asks for that candidate.
-- If the state strongly supports a final answer, provide it.
-- If the evidence is insufficient, return answer as \"Unknown\".
-- Prefer concise, specific answers over explanations.
-- Treat candidate_records as the source of truth for candidate quality.
-- Do not finalize from a candidate that has any hard_conflicts unless the conflict is explicitly resolved by stronger evidence already present in the state.
-- Prefer candidates with concrete supporting_constraints over candidates that only appear in summaries.
+FINALIZER_SYSTEM_PROMPT = """You are the finalizer. Output JSON immediately. Do NOT reason. Do NOT think. Just output the JSON object now.
 
-Output JSON only:
-{
-  \"status\": \"solved | best_effort\",
-  \"answer\": \"string\",
-  \"confidence\": \"high | medium | low | none\",
-  \"reason\": \"brief explanation\",
-  \"remaining_uncertainty\": \"brief explanation\",
-  \"supporting_evidence\": [
-    {\"source\": \"string\", \"observation\": \"string\", \"relevance\": \"high | medium | low\"}
-  ]
-}
+Output format (begin with { and end with }):
+{"status": "solved", "answer": "your answer", "confidence": "high", "reason": "brief", "remaining_uncertainty": "brief", "supporting_evidence": []}
+
+If you cannot answer, output:
+{"status": "best_effort", "answer": "Unknown", "confidence": "none", "reason": "insufficient evidence", "remaining_uncertainty": "brief", "supporting_evidence": []}
+
+Rules:
+- Answer the original question directly using the search state.
+- If the state has candidates, pick the strongest one as the answer.
+- If evidence is insufficient, return answer "Unknown".
+- Do not output anything except the JSON object.
+- Your content must begin with { and end with }.
 """
 
 
@@ -55,6 +54,7 @@ class FinalizationResult:
     reason: str
     remaining_uncertainty: str
     supporting_evidence: List[Dict[str, Any]]
+    error_type: str = ""
 
     def to_payload(self) -> Dict[str, Any]:
         return {
@@ -64,6 +64,7 @@ class FinalizationResult:
             "reason": self.reason,
             "remaining_uncertainty": self.remaining_uncertainty,
             "supporting_evidence": self.supporting_evidence,
+            "error_type": self.error_type,
         }
 
     def to_answer_block(self) -> str:
@@ -76,6 +77,7 @@ class SearchFinalizer:
     def __init__(self, api_base: str, api_key: str, model_id: str):
         self.client = build_openai_client(api_base, api_key)
         self.model_id = model_id
+        self.max_output_tokens = _env_int("FINALIZER_MAX_TOKENS", 500)
 
     def finalize(
         self,
@@ -94,29 +96,66 @@ class SearchFinalizer:
                         {"role": "user", "content": prompt},
                     ],
                     temperature=0.0,
+                    max_tokens=self.max_output_tokens,
                 )
             )
-            text = completion.choices[0].message.content or ""
-            payload = self._parse_payload(text)
-            return FinalizationResult(
-                status=payload.get("status", "best_effort"),
-                answer=payload.get("answer", "Unknown") or "Unknown",
-                confidence=payload.get("confidence", "low"),
-                reason=payload.get("reason", self._budget_reason(budget_status)),
-                remaining_uncertainty=payload.get(
-                    "remaining_uncertainty",
-                    self._infer_uncertainty(compact_state),
-                ),
-                supporting_evidence=self._normalize_evidence(payload.get("supporting_evidence")),
-            )
-        except Exception as exc:
+            message = completion.choices[0].message
+            content = (getattr(message, "content", None) or "").strip()
+            reasoning = (getattr(message, "reasoning_content", None) or "").strip()
+
+            payload: Optional[Dict[str, Any]] = None
+            parse_error = ""
+            if content:
+                try:
+                    payload = self._parse_payload(content)
+                except ValueError as exc:
+                    parse_error = f"content parse failed: {exc}"
+            if payload is None and reasoning:
+                # GLM-5.2 puts analysis in reasoning_content; try to recover JSON from there.
+                try:
+                    payload = self._parse_payload(reasoning)
+                except ValueError as exc:
+                    if not parse_error:
+                        parse_error = f"reasoning_content parse failed: {exc}"
+
+            if payload is not None:
+                return FinalizationResult(
+                    status=payload.get("status", "best_effort"),
+                    answer=payload.get("answer", "Unknown") or "Unknown",
+                    confidence=payload.get("confidence", "low"),
+                    reason=payload.get("reason", self._budget_reason(budget_status)),
+                    remaining_uncertainty=payload.get(
+                        "remaining_uncertainty",
+                        self._infer_uncertainty(compact_state),
+                    ),
+                    supporting_evidence=self._normalize_evidence(payload.get("supporting_evidence")),
+                )
+
+            # Both content and reasoning_content failed to yield JSON -> explicit protocol_error
+            # with a local fallback answer derived from compact_state.
+            fallback = self._local_fallback_answer(compact_state)
             return FinalizationResult(
                 status="best_effort",
+                answer=fallback,
+                confidence="none",
+                reason=(
+                    self._budget_reason(budget_status)
+                    + f" Finalizer protocol_error: {parse_error or 'empty content and reasoning_content'}"
+                ),
+                remaining_uncertainty=self._infer_uncertainty(compact_state),
+                supporting_evidence=self._collect_supporting_evidence(compact_state),
+                error_type="protocol_error",
+            )
+        except Exception as exc:
+            infra_type = classify_infra_error(exc)
+            return FinalizationResult(
+                status="infra_error" if infra_type else "best_effort",
                 answer="Unknown",
                 confidence="none",
                 reason=f"{self._budget_reason(budget_status)} Finalizer LLM failed: {exc}",
                 remaining_uncertainty=self._infer_uncertainty(compact_state),
                 supporting_evidence=self._collect_supporting_evidence(compact_state),
+                error_type=infra_type or "protocol_error",
             )
 
     def _build_prompt(
@@ -126,13 +165,42 @@ class SearchFinalizer:
         budget_status: Dict[str, Any],
         mode: str,
     ) -> str:
-        prompt_payload = {
-            "question": question,
-            "requested_mode": mode,
-            "budget_status": budget_status,
-            "compact_state": compact_state,
-        }
-        return json.dumps(prompt_payload, ensure_ascii=False, indent=2)
+        # Keep the prompt compact to avoid inducing long reasoning in GLM-5.2.
+        # Only surface the question and the strongest candidates.
+        candidates = []
+        for record in (compact_state.get("candidate_records") or []):
+            if isinstance(record, dict):
+                name = str(record.get("candidate") or record.get("name") or "").strip()
+                if name and name.lower() not in {"unknown", "none", "null"}:
+                    hard_conflicts = record.get("hard_conflicts") or []
+                    status = "eliminated" if hard_conflicts else "active"
+                    candidates.append({"name": name, "status": status})
+        for cand in (compact_state.get("current_candidates") or []):
+            if isinstance(cand, str):
+                name = cand.strip()
+                if name and name.lower() not in {"unknown", "none", "null"}:
+                    candidates.append({"name": name, "status": "active"})
+            elif isinstance(cand, dict):
+                name = str(cand.get("candidate") or cand.get("name") or "").strip()
+                if name and name.lower() not in {"unknown", "none", "null"}:
+                    candidates.append({"name": name, "status": "active"})
+        # Deduplicate
+        seen = set()
+        unique_candidates = []
+        for c in candidates:
+            key = c["name"].lower()
+            if key not in seen:
+                seen.add(key)
+                unique_candidates.append(c)
+        # Limit to top 3 candidates to avoid inducing long reasoning in GLM-5.2.
+        # When too many candidates are passed, the model analyzes each one in
+        # reasoning_content and never emits content before max_tokens is exhausted.
+        candidates_str = json.dumps(unique_candidates[:3], ensure_ascii=False) if unique_candidates else "[]"
+        return (
+            f"Question: {question}\n\n"
+            f"Candidates: {candidates_str}\n\n"
+            f"Output the JSON answer NOW. Do not reason."
+        )
 
     def _parse_payload(self, text: str) -> Dict[str, Any]:
         match = re.search(r"\{.*\}", text, re.DOTALL)
@@ -142,6 +210,43 @@ class SearchFinalizer:
         if not isinstance(payload, dict):
             raise ValueError("Finalizer response was not a JSON object")
         return payload
+
+    def _local_fallback_answer(self, compact_state: Dict[str, Any]) -> str:
+        """Derive a best-guess answer from compact_state when the LLM output is unparseable.
+
+        Prefers the strongest candidate in candidate_records / current_candidates.
+        Returns \"Unknown\" when no candidate is available.
+        """
+        candidate_records = compact_state.get("candidate_records") or []
+        current_candidates = compact_state.get("current_candidates") or []
+        pool: List[str] = []
+        for record in candidate_records:
+            if isinstance(record, dict):
+                name = str(record.get("candidate") or record.get("name") or "").strip()
+                if name and name.lower() not in {"unknown", "none", "null"}:
+                    hard_conflicts = record.get("hard_conflicts") or []
+                    if not hard_conflicts:
+                        pool.append(name)
+        for cand in current_candidates:
+            if isinstance(cand, str):
+                name = cand.strip()
+                if name and name.lower() not in {"unknown", "none", "null"}:
+                    pool.append(name)
+            elif isinstance(cand, dict):
+                name = str(cand.get("candidate") or cand.get("name") or "").strip()
+                if name and name.lower() not in {"unknown", "none", "null"}:
+                    pool.append(name)
+        if pool:
+            # Deduplicate while preserving order.
+            seen = set()
+            unique = []
+            for name in pool:
+                key = name.lower()
+                if key not in seen:
+                    seen.add(key)
+                    unique.append(name)
+            return unique[0]
+        return "Unknown"
 
     def _normalize_evidence(self, evidence: Any) -> List[Dict[str, Any]]:
         if not isinstance(evidence, list):

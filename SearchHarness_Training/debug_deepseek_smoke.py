@@ -102,7 +102,7 @@ def main() -> int:
         default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env")),
         help="Path to a .env file to load if needed.",
     )
-    parser.add_argument("--base-url", default=os.environ.get("OPENAI_BASE_URL", "").strip() or "https://api.deepseek.com/v1")
+    parser.add_argument("--base-url", default=os.environ.get("OPENAI_BASE_URL", "").strip() or "https://preview.llm.tenyunc.com/v1")
     parser.add_argument(
         "--model",
         default=(
