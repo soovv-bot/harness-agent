@@ -25,6 +25,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 import os
+import time
+from loguru import logger
 
 
 THINKING_MODE_ENV = "DEEPSEEK_THINKING_MODE"
@@ -168,6 +170,129 @@ def _build_structurer_prompt(reasoning_content: str, hint: str) -> str:
     )
 
 
+def _is_streaming_enabled() -> bool:
+    """Check if streaming mode is enabled via environment variable."""
+    raw = (os.getenv("LLM_STREAM_ENABLED") or "1").strip().lower()  # default: enabled
+    return raw in {"1", "true", "yes", "y", "on"}
+
+
+class _StreamedMessage:
+    """Accumulated message from streaming chunks, mimicking the non-streamed response."""
+
+    def __init__(self) -> None:
+        self.role = "assistant"
+        self.content: str = ""
+        self.reasoning_content: str = ""
+        self.tool_calls: list = []
+        self._tool_call_map: dict = {}  # index -> dict with id, name, arguments
+
+    def _merge_delta(self, delta: Any) -> None:
+        """Merge a streaming delta into accumulated state."""
+        # content
+        dc = getattr(delta, "content", None)
+        if dc:
+            self.content += dc
+        # reasoning_content
+        dr = getattr(delta, "reasoning_content", None)
+        if dr:
+            self.reasoning_content += dr
+        # tool_calls
+        dtc = getattr(delta, "tool_calls", None)
+        if dtc:
+            for tc in dtc:
+                idx = getattr(tc, "index", None)
+                if idx is None:
+                    continue
+                slot = self._tool_call_map.setdefault(idx, {"id": "", "name": "", "arguments": ""})
+                if getattr(tc, "id", None):
+                    slot["id"] = tc.id
+                fn = getattr(tc, "function", None)
+                if fn is not None:
+                    if getattr(fn, "name", None):
+                        slot["name"] = fn.name
+                    if getattr(fn, "arguments", None):
+                        slot["arguments"] += fn.arguments
+
+    def _finalize(self) -> None:
+        """Build tool_calls list from accumulated map."""
+        from types import SimpleNamespace
+        for idx in sorted(self._tool_call_map.keys()):
+            slot = self._tool_call_map[idx]
+            self.tool_calls.append(SimpleNamespace(
+                id=slot["id"],
+                type="function",
+                function=SimpleNamespace(name=slot["name"], arguments=slot["arguments"]),
+            ))
+
+    def model_dump(self, **kwargs: Any) -> dict:
+        d = {"role": self.role, "content": self.content or None}
+        if self.reasoning_content:
+            d["reasoning_content"] = self.reasoning_content
+        if self.tool_calls:
+            d["tool_calls"] = [
+                {"id": tc.id, "type": "function", "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+                for tc in self.tool_calls
+            ]
+        return d
+
+
+def _stream_completion(
+    client: Any,
+    kwargs: dict,
+    *,
+    progress_label: str = "LLM",
+) -> Any:
+    """Execute a streaming chat completion and accumulate the result.
+
+    Logs progress every ~10s to eliminate silent periods during long LLM calls.
+    Returns a _StreamedMessage that mimics the non-streamed response object.
+    """
+    stream_kwargs = dict(kwargs)
+    stream_kwargs["stream"] = True
+
+    msg = _StreamedMessage()
+    _t0 = time.time()
+    _last_log = _t0
+    chunk_count = 0
+
+    try:
+        stream = client.chat.completions.create(**stream_kwargs)
+        for chunk in stream:
+            chunk_count += 1
+            if not chunk.choices:
+                continue
+            delta = chunk.choices[0].delta
+            msg._merge_delta(delta)
+
+            # Progress log every 10s
+            now = time.time()
+            if now - _last_log >= 10.0:
+                elapsed = now - _t0
+                c_len = len(msg.content)
+                r_len = len(msg.reasoning_content)
+                tc_n = len(msg._tool_call_map)
+                logger.info(
+                    f"[Stream] {progress_label} streaming... {elapsed:.0f}s elapsed, "
+                    f"{chunk_count} chunks, content={c_len}c reasoning={r_len}c tool_calls={tc_n}"
+                )
+                _last_log = now
+
+        msg._finalize()
+        elapsed = time.time() - _t0
+        c_len = len(msg.content)
+        r_len = len(msg.reasoning_content)
+        tc_n = len(msg.tool_calls)
+        logger.info(
+            f"[Stream] {progress_label} done in {elapsed:.1f}s | "
+            f"content={c_len}c reasoning={r_len}c tool_calls={tc_n}"
+        )
+        return msg
+    except Exception as exc:
+        elapsed = time.time() - _t0
+        logger.error(f"[Stream] {progress_label} failed after {elapsed:.1f}s: {exc}")
+        raise
+
+
 def chat_completion_with_structuring(
     client: Any,
     *,
@@ -205,8 +330,13 @@ def chat_completion_with_structuring(
         max_tokens=max_tokens,
         **extra,
     )
-    completion = client.chat.completions.create(**kwargs)
-    response = completion.choices[0].message
+
+    # Primary call — streaming if enabled
+    if _is_streaming_enabled():
+        response = _stream_completion(client, kwargs, progress_label="primary")
+    else:
+        completion = client.chat.completions.create(**kwargs)
+        response = completion.choices[0].message
 
     content = (getattr(response, "content", None) or "").strip()
     reasoning_content = (getattr(response, "reasoning_content", None) or "").strip()
@@ -236,7 +366,7 @@ def chat_completion_with_structuring(
     hint = structurer_format_hint or "Output the result in the format described in the original task."
     structurer_prompt = _build_structurer_prompt(reasoning_content, hint)
     # Retry with decreasing max_tokens: [3000, 2000, 1500]
-    for attempt_max in (structurer_max, max(1500, structurer_max - 1000), max(1200, structurer_max - 1500)):
+    for attempt_idx, attempt_max in enumerate((structurer_max, max(1500, structurer_max - 1000), max(1200, structurer_max - 1500))):
         structurer_kwargs = build_chat_completion_kwargs(
             model_id=model_id,
             messages=[{"role": "user", "content": structurer_prompt}],
@@ -244,8 +374,11 @@ def chat_completion_with_structuring(
             max_tokens=attempt_max,
         )
         try:
-            structurer_completion = client.chat.completions.create(**structurer_kwargs)
-            structurer_response = structurer_completion.choices[0].message
+            if _is_streaming_enabled():
+                structurer_response = _stream_completion(client, structurer_kwargs, progress_label=f"structurer#{attempt_idx+1}")
+            else:
+                structurer_completion = client.chat.completions.create(**structurer_kwargs)
+                structurer_response = structurer_completion.choices[0].message
             structurer_content = (getattr(structurer_response, "content", None) or "").strip()
             # Also check if structurer put it in reasoning_content
             structurer_reasoning = (getattr(structurer_response, "reasoning_content", None) or "").strip()
