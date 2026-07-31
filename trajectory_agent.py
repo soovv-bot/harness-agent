@@ -12,6 +12,7 @@ import re
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 from loguru import logger
 
 # Add OffSeeker-main to path for imports
@@ -59,6 +60,15 @@ class TrajectoryRecordingAgent:
         max_turns: Optional[int] = None,
         hard_safety_turns: int = 200,
         log_dir: str = "logs/trajectories",
+        # Context compression configuration
+        max_context_tokens: int = 100000,
+        keep_recent_messages: int = 12,
+        max_tool_result_chars: int = 3000,
+        max_assistant_chars: int = 1500,
+        tokenizer_path: Optional[str] = None,
+        # Parallel tool execution configuration
+        max_tool_workers: int = 4,
+        enable_parallel_tools: bool = True,
     ):
         """
         Initialize the trajectory recording agent.
@@ -84,6 +94,24 @@ class TrajectoryRecordingAgent:
         self.max_turns = max_turns
         self.hard_safety_turns = hard_safety_turns
         self.log_dir = log_dir
+
+        # Context compression configuration
+        self.max_context_tokens = max_context_tokens
+        self.keep_recent_messages = keep_recent_messages
+        self.max_tool_result_chars = max_tool_result_chars
+        self.max_assistant_chars = max_assistant_chars
+        self.tokenizer = None
+        if tokenizer_path:
+            try:
+                from transformers import AutoTokenizer
+                self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+                logger.info(f"Loaded tokenizer from {tokenizer_path} for context compression")
+            except Exception as e:
+                logger.warning(f"Failed to load tokenizer from {tokenizer_path}: {e}. Using char-based token estimate.")
+
+        # Parallel tool execution configuration
+        self.max_tool_workers = max_tool_workers
+        self.enable_parallel_tools = enable_parallel_tools
 
         # Build tool schemas string for system prompt
         self.tool_schemas_str = "\n".join([
@@ -227,6 +255,108 @@ A successful search agent is rigorous, skeptical, and adaptive — like an exper
         if not matches:
             return None
         return matches[-1].strip()
+
+    def _count_tokens(self, text: str) -> int:
+        """Estimate token count; uses tokenizer if available, else ~4 chars/token heuristic."""
+        if not isinstance(text, str):
+            text = str(text)
+        if self.tokenizer is not None:
+            try:
+                return len(self.tokenizer.encode(text))
+            except Exception:
+                pass
+        return max(1, len(text) // 4)
+
+    def _count_tokens_messages(self, messages: List[Dict]) -> int:
+        """Estimate total token count for a list of messages."""
+        total = 0
+        for msg in messages:
+            content = msg.get("content")
+            if isinstance(content, str):
+                total += self._count_tokens(content)
+            elif isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict) and isinstance(part.get("text"), str):
+                        total += self._count_tokens(part["text"])
+            tool_calls = msg.get("tool_calls")
+            if isinstance(tool_calls, list):
+                for tc in tool_calls:
+                    fn = tc.get("function", {}) if isinstance(tc, dict) else {}
+                    total += self._count_tokens(fn.get("name", ""))
+                    total += self._count_tokens(fn.get("arguments", ""))
+        return total
+
+    def _build_llm_context(self) -> List[Dict]:
+        """
+        Build the message list sent to the LLM.
+
+        self.messages always stores the FULL trajectory (saved for distillation).
+        When it approaches max_context_tokens, return a compressed VIEW that truncates
+        older tool results / assistant content while keeping the recent window and all
+        tool_call/tool pairings intact (so the API stays valid). The full trajectory
+        is never mutated by compression.
+        """
+        if len(self.messages) <= 2:
+            return self.messages
+
+        total_tokens = self._count_tokens_messages(self.messages)
+        if total_tokens <= self.max_context_tokens:
+            return self.messages
+
+        compressed = list(self.messages[:2])  # system + task, always intact
+        body = self.messages[2:]
+        keep = min(self.keep_recent_messages, len(body))
+        split = len(body) - keep
+        old_body = body[:split]
+        recent_body = body[split:]
+
+        for msg in old_body:
+            role = msg.get("role")
+            content = msg.get("content")
+            limit = self.max_tool_result_chars if role == "tool" else self.max_assistant_chars
+            if isinstance(content, str) and len(content) > limit:
+                new_msg = dict(msg)
+                new_msg["content"] = (
+                    content[:limit]
+                    + f"\n...[truncated {len(content) - limit} chars for context management]..."
+                )
+                compressed.append(new_msg)
+                continue
+            compressed.append(msg)
+
+        compressed.extend(recent_body)
+
+        new_total = self._count_tokens_messages(compressed)
+        logger.info(
+            f"Context compressed: {total_tokens} -> {new_total} tokens "
+            f"(kept last {keep} messages intact)"
+        )
+        self.trajectory_metadata.setdefault("context_compressions", []).append(
+            {"turn_messages": len(self.messages), "before": total_tokens, "after": new_total}
+        )
+        return compressed
+
+    def _execute_tool_call(self, item) -> Dict[str, str]:
+        """
+        Execute a single parsed tool call. Used for both serial and parallel execution.
+
+        Never raises: all exceptions are caught and returned as error strings so one
+        tool failure never collapses the whole batch.
+        """
+        tool_call, func_name, arguments = item
+        logger.info(f"Executing tool: {func_name} with args: {arguments}")
+        try:
+            result = self.tool_processor.tools[func_name](arguments)
+            logger.info(f"Tool {func_name} completed successfully")
+        except Exception as e:
+            result = f"Error executing {func_name}: {str(e)}"
+            logger.error(result)
+        return {
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "name": func_name,
+            "content": str(result),
+        }
 
     def _get_tool_schemas(self) -> List[Dict]:
         """Get tool schemas in OpenAI format (same as OffSeeker)."""
@@ -386,7 +516,7 @@ A successful search agent is rigorous, skeptical, and adaptive — like an exper
                 completion = self.client.chat.completions.create(
                     **build_chat_completion_kwargs(
                         model_id=self.model_id,
-                        messages=self.messages,
+                        messages=self._build_llm_context(),
                         tools=self.tool_schemas,
                         temperature=self.temperature,
                     )
@@ -438,64 +568,39 @@ A successful search agent is rigorous, skeptical, and adaptive — like an exper
                         "metadata": self.trajectory_metadata,
                     }
 
-                # Process tool calls
-                tool_responses = []
+                # Process tool calls: parse all first (fail-fast on bad JSON),
+                # then execute valid calls in parallel for lower latency.
                 tool_parse_error = None
-
+                parsed_calls = []
                 for tool_call in response_message.tool_calls:
                     func_name = tool_call.function.name
                     arguments_str = tool_call.function.arguments
-
-                    # Parse arguments - handle JSON errors gracefully
                     try:
-                        if isinstance(arguments_str, str):
-                            arguments = json.loads(arguments_str)
-                        else:
-                            arguments = arguments_str
+                        arguments = json.loads(arguments_str) if isinstance(arguments_str, str) else arguments_str
+                        parsed_calls.append((tool_call, func_name, arguments))
                     except json.JSONDecodeError as e:
-                        # JSON parsing failed - send error message to agent
                         tool_parse_error = (
                             f"Error: Your tool call for '{func_name}' has invalid JSON format in arguments. "
                             f"Please ensure your arguments are properly formatted JSON. "
                             f"Error details: {str(e)}"
                         )
                         logger.error(f"Tool call JSON parse error: {tool_parse_error}")
-                        # Add the error message and continue to next iteration
-                        self.messages.append({
-                            "role": "user",
-                            "content": tool_parse_error
-                        })
-                        # Update trajectory
-                        self.trajectory_metadata["last_error"] = tool_parse_error
-                        if save_trajectory:
-                            self._save_trajectory(trajectory_path)
-                        # Break out of tool processing loop and continue main loop
                         break
 
-                    logger.info(f"Executing tool: {func_name} with args: {arguments}")
-
-                    # Execute tool using tool_processor (same as OffSeeker)
-                    try:
-                        result = self.tool_processor.tools[func_name](arguments)
-                        logger.info(f"Tool {func_name} completed successfully")
-                    except Exception as e:
-                        result = f"Error executing {func_name}: {str(e)}"
-                        logger.error(result)
-
-                    # Create tool response message
-                    tool_response = {
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "name": func_name,
-                        "content": str(result),
-                    }
-                    tool_responses.append(tool_response)
-
-                # If there was a parse error, continue to next iteration
                 if tool_parse_error:
+                    self.messages.append({"role": "user", "content": tool_parse_error})
+                    self.trajectory_metadata["last_error"] = tool_parse_error
+                    if save_trajectory:
+                        self._save_trajectory(trajectory_path)
                     continue
 
-                # Add tool responses to trajectory
+                if self.enable_parallel_tools and len(parsed_calls) > 1:
+                    workers = min(self.max_tool_workers, len(parsed_calls))
+                    with ThreadPoolExecutor(max_workers=workers) as ex:
+                        tool_responses = list(ex.map(self._execute_tool_call, parsed_calls))
+                else:
+                    tool_responses = [self._execute_tool_call(c) for c in parsed_calls]
+
                 self.messages.extend(tool_responses)
 
             except Exception as e:

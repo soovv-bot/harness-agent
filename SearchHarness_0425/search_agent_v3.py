@@ -25,7 +25,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from query_history import QueryHistoryMemory
 from query_critic import QueryCritic, QueryVerdict
 from search_crawl_controller import SearchCrawlController
-from deepseek_thinking_compat import assistant_message_to_dict, build_chat_completion_kwargs
+from deepseek_thinking_compat import (
+    assistant_message_to_dict,
+    build_chat_completion_kwargs,
+    chat_completion_with_structuring,
+)
 from openai_client_factory import build_openai_client
 
 
@@ -75,9 +79,10 @@ class SearchAgentV3:
         if system_prompt:
             base_prompt = system_prompt
         elif os.getenv("EXECUTOR_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}:
-            # GLM-5.2 and other pure-reasoning models get stuck in reasoning when the
-            # system prompt is too long. Use a compact prompt that still carries the
-            # core execution contract but lets the model emit tool_calls / content.
+            # Reasoning-capable models (e.g. GLM-5.2, DeepSeek-reasoner) can get
+            # stuck in reasoning when the system prompt is too long. Use a compact
+            # prompt that still carries the core execution contract but lets the
+            # model emit tool_calls / content.
             simple_path = os.path.join(os.path.dirname(__file__), 'search_agent_prompt_glm.md')
             with open(simple_path, 'r', encoding='utf-8') as f:
                 base_prompt = f.read()
@@ -266,6 +271,26 @@ Candidate handling is critical:
         findings.setdefault("candidate_updates", self._empty_candidate_tool_updates())
         findings.setdefault("source_feedback", {"promising_sources": [], "unhelpful_sources": []})
         findings.setdefault("suggestion_for_planner", "")
+        # GLM-5.2 may emit candidate_updates as a list of candidate objects
+        # instead of the expected dict format.  Coerce list -> dict so downstream
+        # code can safely access new_candidates / candidate_assessments.
+        if isinstance(findings.get("candidate_updates"), list):
+            list_updates = findings["candidate_updates"]
+            new_candidates = []
+            assessments = []
+            for item in list_updates:
+                if isinstance(item, dict):
+                    name = str(item.get("name") or item.get("candidate") or "").strip()
+                    if name:
+                        new_candidates.append(name)
+                    assessments.append(item)
+                elif isinstance(item, str):
+                    new_candidates.append(item)
+            findings["candidate_updates"] = {
+                "new_candidates": new_candidates,
+                "eliminated_candidates": [],
+                "candidate_assessments": assessments,
+            }
         if not isinstance(findings.get("candidate_updates"), dict):
             findings["candidate_updates"] = self._empty_candidate_tool_updates()
         updates = findings["candidate_updates"]
@@ -660,23 +685,31 @@ Candidate handling is critical:
         for turn in range(self.max_turns):
             metadata["turns"] = turn + 1
             try:
-                completion = self.client.chat.completions.create(
-                    **build_chat_completion_kwargs(
-                        model_id=self.model_id,
-                        messages=self.messages,
-                        tools=None if disable_tools_for_wrapup else self.tool_schemas,
-                        temperature=self.temperature,
-                        max_tokens=self.max_output_tokens,
-                    )
+                response = chat_completion_with_structuring(
+                    self.client,
+                    model_id=self.model_id,
+                    messages=self.messages,
+                    tools=None if disable_tools_for_wrapup else self.tool_schemas,
+                    temperature=self.temperature,
+                    max_tokens=self.max_output_tokens,
+                    structurer_format_hint=(
+                        "Output your findings in a <findings>...</findings> block with valid JSON "
+                        "containing: subtask, status, summary, evidence, candidate_updates, "
+                        "source_feedback, suggestion_for_planner."
+                    ),
                 )
-                response = completion.choices[0].message
                 response_dict = assistant_message_to_dict(response)
                 self.messages.append(response_dict)
                 content = response.content or ""
                 allow_dsml_recovery = malformed_findings_reminders > 0
                 findings = self._extract_findings(content, allow_dsml_recovery=allow_dsml_recovery)
                 if findings is not None:
+                    # Debug: log findings before merge
+                    _nc_before = (findings.get("candidate_updates") or {}).get("new_candidates", [])
+                    logger.info(f"[Executor] findings extracted: new_candidates_before_merge={_nc_before}")
                     findings = self._merge_candidate_tool_updates_into_findings(findings)
+                    _nc_after = (findings.get("candidate_updates") or {}).get("new_candidates", [])
+                    logger.info(f"[Executor] findings after merge: new_candidates_after_merge={_nc_after}")
                     metadata.update({"finished_at": datetime.now().isoformat(), "status": "completed"})
                     return {"findings": findings, "trajectory": self.messages, "metadata": metadata}
                 if self._contains_dsml_candidate_call(content) and malformed_findings_reminders < 1:
@@ -744,15 +777,16 @@ Candidate handling is critical:
             ),
         })
         try:
-            completion = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=self.messages,
-                    temperature=self.temperature,
-                    max_tokens=self.max_output_tokens,
-                )
+            response = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=self.messages,
+                temperature=self.temperature,
+                max_tokens=self.max_output_tokens,
+                structurer_format_hint=(
+                    "Output your findings in a <findings>...</findings> block with valid JSON."
+                ),
             )
-            response = completion.choices[0].message
             self.messages.append(assistant_message_to_dict(response))
             content = response.content or ""
             findings = self._extract_findings(content, allow_dsml_recovery=False)
@@ -762,15 +796,16 @@ Candidate handling is critical:
                 return {"findings": findings, "trajectory": self.messages, "metadata": metadata}
             if content.strip():
                 self._append_findings_format_retry(content)
-                completion = self.client.chat.completions.create(
-                    **build_chat_completion_kwargs(
-                        model_id=self.model_id,
-                        messages=self.messages,
-                        temperature=self.temperature,
-                        max_tokens=self.max_output_tokens,
-                    )
+                response = chat_completion_with_structuring(
+                    self.client,
+                    model_id=self.model_id,
+                    messages=self.messages,
+                    temperature=self.temperature,
+                    max_tokens=self.max_output_tokens,
+                    structurer_format_hint=(
+                        "Output your findings in a <findings>...</findings> block with valid JSON."
+                    ),
                 )
-                response = completion.choices[0].message
                 self.messages.append(assistant_message_to_dict(response))
                 findings = self._extract_findings(response.content or "", allow_dsml_recovery=True)
                 if findings is not None:

@@ -20,7 +20,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs
+from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 
 
@@ -196,15 +196,15 @@ class DirectionCritic:
         )
 
         try:
-            response = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0,
-                    max_tokens=2048,
-                )
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=2048,
+                structurer_format_hint="Output the result as JSON.",
             )
-            content = response.choices[0].message.content.strip()
+            content = (getattr(message, "content", None) or "").strip()
 
             json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if not json_match:

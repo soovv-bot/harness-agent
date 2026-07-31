@@ -29,7 +29,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs
+from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 
 
@@ -169,6 +169,42 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         self.lookback = lookback
 
         self.client = build_openai_client(api_base, api_key)
+        # P1: decision cache — key is (phase, n_candidates, n_pending_urls), value is verdict dict
+        self._decision_cache: Dict[str, dict] = {}
+        self._cache_max_size = 100
+
+    def _decision_cache_key(
+        self,
+        phase: str,
+        pending_urls: List[str],
+        current_candidates: List[str],
+    ) -> str:
+        """Build cache key from phase + candidate count + url count (coarse-grained)."""
+        return f"{phase}|c={len(current_candidates)}|u={len(pending_urls)}"
+
+    def _lookup_decision_cache(self, key: str) -> Optional["SearchCrawlVerdict"]:
+        entry = self._decision_cache.get(key)
+        if entry is None:
+            return None
+        data = entry["verdict"]
+        logger.info(f"[SearchCrawlController] Cache HIT: {data['decision']}")
+        return SearchCrawlVerdict(
+            decision=data["decision"],
+            reason=f"[cached] {data['reason']}",
+            signals={},
+        )
+
+    def _store_decision_cache(self, key: str, verdict: "SearchCrawlVerdict") -> None:
+        if len(self._decision_cache) >= self._cache_max_size:
+            keys = list(self._decision_cache.keys())
+            for k in keys[: self._cache_max_size // 4]:
+                self._decision_cache.pop(k, None)
+        self._decision_cache[key] = {
+            "verdict": {
+                "decision": verdict.decision,
+                "reason": verdict.reason,
+            },
+        }
 
     def evaluate(
         self,
@@ -195,6 +231,12 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         current_candidates = current_candidates or []
         active_sources = active_sources or []
 
+        # P1: decision cache lookup (coarse-grained by phase + counts)
+        cache_key = self._decision_cache_key(phase, pending_urls, current_candidates)
+        cached = self._lookup_decision_cache(cache_key)
+        if cached is not None:
+            return cached
+
         signals = self._compute_signals(pending_urls, current_candidates, active_sources)
 
         # Stage 1: Rule-based check
@@ -202,17 +244,22 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         if rule_verdict:
             rule_verdict.signals = signals
             logger.info(f"[SearchCrawlController] Rule-based verdict: {rule_verdict.decision}")
+            self._store_decision_cache(cache_key, rule_verdict)
             return rule_verdict
 
-        # Stage 2: LLM-based check
+        # Stage 2: LLM-based check (default OFF — P1 optimization: rules first)
         if not use_llm:
-            return SearchCrawlVerdict(
+            v = SearchCrawlVerdict(
                 decision=CONTINUE_SEARCH,
                 reason="No rule triggers. LLM check skipped.",
                 signals=signals,
             )
+            self._store_decision_cache(cache_key, v)
+            return v
 
-        return self._llm_based_check(phase, pending_urls, current_candidates, active_sources, signals)
+        result = self._llm_based_check(phase, pending_urls, current_candidates, active_sources, signals)
+        self._store_decision_cache(cache_key, result)
+        return result
 
     def _compute_signals(
         self,
@@ -339,6 +386,40 @@ Evaluate and output JSON only (no markdown, no extra text)."""
                 ),
             )
 
+        # P1: Extended rules — cover more cases to reduce LLM fallback
+        # 6. Have candidates and pending URLs → hybrid (crawl + verify)
+        if (signals.get("candidate_count", 0) >= 1
+                and signals["pending_url_count"] >= 1
+                and signals["recent_crawl_count"] >= 1):
+            return SearchCrawlVerdict(
+                decision=HYBRID,
+                reason=(
+                    f"{signals['candidate_count']} candidate(s) and {signals['pending_url_count']} "
+                    f"pending URL(s). Continue searching while crawling to verify candidates."
+                ),
+                recommended_urls=pending_urls[:2],
+            )
+
+        # 7. Many candidates, no pending URLs — keep searching to narrow down
+        if (signals.get("candidate_count", 0) >= 3
+                and signals["pending_url_count"] == 0
+                and signals["recent_search_count"] < 8):
+            return SearchCrawlVerdict(
+                decision=CONTINUE_SEARCH,
+                reason=(
+                    f"{signals['candidate_count']} candidates need narrowing. "
+                    f"Search for distinguishing constraints."
+                ),
+            )
+
+        # 8. Few queries and no pending URLs — keep searching
+        if (signals["total_queries"] <= 3
+                and signals["pending_url_count"] == 0):
+            return SearchCrawlVerdict(
+                decision=CONTINUE_SEARCH,
+                reason="Early in search; keep gathering URLs and sources.",
+            )
+
         # Rules inconclusive — defer to LLM
         return None
 
@@ -375,15 +456,15 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         )
 
         try:
-            response = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0,
-                    max_tokens=1024,
-                )
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=1024,
+                structurer_format_hint="Output the result as JSON.",
             )
-            content = response.choices[0].message.content.strip()
+            content = (getattr(message, "content", None) or "").strip()
 
             json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if not json_match:

@@ -96,6 +96,16 @@ def _env_flag(name: str, default: str = "0") -> bool:
 
 _REQUESTS_SESSION: Optional[requests.Session] = None
 
+# Jina Reader circuit breaker: when r.jina.ai is unreachable, fail fast to
+# html2text instead of blocking 60s per call. Resets only on process restart.
+_JINA_FAILURE_COUNT = 0
+_JINA_DISABLED = False
+
+# Wikipedia circuit breaker: when en.wikipedia.org is unreachable, fail fast
+# instead of retrying 10x with 1s sleeps (8+ minutes per call).
+_WIKI_FAILURE_COUNT = 0
+_WIKI_DISABLED = False
+
 
 def _get_requests_session() -> requests.Session:
     """
@@ -139,7 +149,7 @@ def _estimate_token_count(text: str) -> int:
 def call_llm(
     prompt: str,
     max_tries: int = 10,
-    model_name: str = "deepseek-chat",
+    model_name: str = "GLM-5.2",
 ):
     """
     Call LLM API for content extraction.
@@ -150,7 +160,7 @@ def call_llm(
     Args:
         prompt: Prompt text
         max_tries: Maximum retry attempts
-        model_name: Model name (default: deepseek-chat)
+        model_name: Model name (default: GLM-5.2)
 
     Returns:
         Model response text
@@ -161,7 +171,7 @@ def call_llm(
         raise ValueError("Neither DEEPSEEK_API_KEY nor OPENAI_API_KEY is set in environment variables")
 
     messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": "You are a helpful assistant. Answer directly. Do not reason."},
         {"role": "user", "content": prompt},
     ]
 
@@ -171,17 +181,24 @@ def call_llm(
             chat_response = client.chat.completions.create(
                 model=model_name,
                 messages=messages,
+                max_tokens=2000,
             )
             content = chat_response.choices[0].message.content
-            return content
+            if content:
+                return content
+            # GLM-5.2 may put the answer in reasoning_content when content is empty
+            reasoning = getattr(chat_response.choices[0].message, "reasoning_content", None) or ""
+            if reasoning:
+                return reasoning
+            logger.warning(f"Empty content and reasoning on attempt {attempt}")
         except Exception as e:
-            logger.warning(f"Error calling DeepSeek API: {e}")
+            logger.warning(f"Error calling LLM API: {e}")
             if attempt < max_tries - 1:
                 time.sleep(5)
             continue
     
-    logger.error("All attempts failed to call DeepSeek API")
-    return "Failed to call DeepSeek API"
+    logger.error("All attempts failed to call LLM API")
+    return "Failed to call LLM API"
 
 
 def _call_serper_api(query: str) -> str:
@@ -238,7 +255,8 @@ def _call_jina_api(url: str) -> str:
     }
 
     session = _get_requests_session()
-    response = session.get(api_url, headers=headers, timeout=60)
+    jina_timeout = float(os.getenv("JINA_TIMEOUT_S", "10"))
+    response = session.get(api_url, headers=headers, timeout=jina_timeout)
     response.raise_for_status()
     return response.text
 
@@ -250,7 +268,8 @@ def _call_html2text(url: str) -> str:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
         session = _get_requests_session()
-        response = session.get(url, headers=headers, timeout=30)
+        crawl_timeout = float(os.getenv("CRAWL_TIMEOUT_S", "15"))
+        response = session.get(url, headers=headers, timeout=crawl_timeout)
         response.raise_for_status()
         text_processor = html2text.HTML2Text()
         text_processor.ignore_links = True
@@ -277,12 +296,23 @@ def _crawl_url(url: str) -> str:
     if not url.startswith("http"):
         return f"The given value is not a URL: {url}. Please check the URL and try again."
     
+    global _JINA_FAILURE_COUNT, _JINA_DISABLED
+
     crawler_engine = os.getenv("CRAWLER_ENGINE", "html2text")
-    if crawler_engine == "jina":
+    if crawler_engine == "jina" and not _JINA_DISABLED:
         try:
             return _call_jina_api(url)
         except Exception as e:
-            logger.warning(f"Jina API failed, falling back to html2text: {e}")
+            _JINA_FAILURE_COUNT += 1
+            max_failures = int(os.getenv("JINA_MAX_FAILURES", "2"))
+            if _JINA_FAILURE_COUNT >= max_failures:
+                _JINA_DISABLED = True
+                logger.warning(
+                    f"Jina API failed {_JINA_FAILURE_COUNT}x (>= {max_failures}); "
+                    f"disabling Jina for this run, using html2text. Last error: {e}"
+                )
+            else:
+                logger.warning(f"Jina API failed, falling back to html2text: {e}")
             return _call_html2text(url)
     else:
         # Handle PDF files
@@ -462,19 +492,36 @@ def visit_urls(urls: List[str], query: str) -> List[str]:
 
 def _search_wiki(entity: str) -> str:
     """Search Wikipedia for a single entity."""
+    global _WIKI_FAILURE_COUNT, _WIKI_DISABLED
+
+    if _WIKI_DISABLED:
+        return f"title: {entity}\n\nWikipedia is currently unreachable (circuit breaker open). Please use search or visit_urls instead.\n"
+
     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    wiki_wiki = wikipediaapi.Wikipedia(user_agent=user_agent, language='en')
+    wiki_timeout = float(os.getenv("WIKI_TIMEOUT_S", "10"))
+    wiki_wiki = wikipediaapi.Wikipedia(
+        user_agent=user_agent, language='en', timeout=wiki_timeout, max_retries=0
+    )
     entity_page = wiki_wiki.page(entity)
-    max_tries = 10
+    max_tries = int(os.getenv("WIKI_MAX_TRIES", "2"))
     title = entity
     content = ""
-    
-    for _ in range(max_tries):
+
+    for attempt in range(max_tries):
         try:
             title = entity_page.title
             content = entity_page.text
             break
         except Exception as e:
+            if attempt == max_tries - 1:
+                _WIKI_FAILURE_COUNT += 1
+                max_failures = int(os.getenv("WIKI_MAX_FAILURES", "1"))
+                if _WIKI_FAILURE_COUNT >= max_failures:
+                    _WIKI_DISABLED = True
+                    logger.warning(
+                        f"Wikipedia unreachable {_WIKI_FAILURE_COUNT}x (>= {max_failures}); "
+                        f"disabling search_wiki for this run. Last error: {e}"
+                    )
             time.sleep(1)
             continue
 

@@ -197,6 +197,11 @@ class SearchHarnessPipelineV4:
             if self.trajectory_recorder:
                 self.trajectory_recorder.record_executor(messages=self.executor.messages, iteration=iteration)
             findings = executor_result.get("findings") or self._fallback_findings(subtask, executor_result)
+            # Debug: log findings extraction
+            raw_findings = executor_result.get("findings")
+            cu = (findings or {}).get("candidate_updates", {}) or {}
+            nc = cu.get("new_candidates", []) or []
+            logger.info(f"[Pipeline] iteration={iteration} raw_findings={'present' if raw_findings else 'None'} fallback={'yes' if not raw_findings else 'no'} new_candidates={nc}")
             self.state_store.add_findings(findings)
             self.state_store.record_subtask_execution(
                 iteration=iteration + 1,
@@ -301,7 +306,7 @@ class SearchHarnessPipelineV4:
         for step in plan.get("steps", []) or []:
             if not isinstance(step, dict):
                 continue
-            if step.get("status") not in ("pending", "in_progress"):
+            if step.get("status") not in (None, "pending", "in_progress"):
                 continue
             subtask_type = str(step.get("subtask_type") or step.get("type") or "").strip().lower()
             if subtask_type == "candidate_expansion":
@@ -357,6 +362,11 @@ class SearchHarnessPipelineV4:
     def _finish_with_answer(self, answer: str, iterations: int) -> Dict[str, Any]:
         status = self._pipeline_status_for_answer(answer)
         if self.trajectory_recorder:
+            self.trajectory_recorder.record_pipeline_state(
+                query_history=self.query_memory.to_dict(),
+                snapshots=[s.to_dict() for s in self.state_store.snapshots],
+                state_summary={k: self.state_store.export_compact_state().get(k) for k in ("current_candidates", "eliminated_candidates", "confirmed_wrong_candidates", "candidate_records", "visited_domains", "pending_urls", "crawled_urls")},
+            )
             self.trajectory_recorder.finalize(status=status, iterations=iterations)
         return {
             "answer": answer,
@@ -397,11 +407,11 @@ class SearchHarnessPipelineV4:
         if len(steps) > 6:
             actionable = [
                 step for step in steps
-                if isinstance(step, dict) and step.get("status") in ("pending", "in_progress")
+                if isinstance(step, dict) and step.get("status") in (None, "pending", "in_progress")
             ]
             non_actionable = [
                 step for step in steps
-                if not (isinstance(step, dict) and step.get("status") in ("pending", "in_progress"))
+                if not (isinstance(step, dict) and step.get("status") in (None, "pending", "in_progress"))
             ]
             plan["steps"] = (actionable + non_actionable)[:6]
             steps = plan["steps"]
@@ -417,7 +427,7 @@ class SearchHarnessPipelineV4:
                 continue
             if step.get("name") and not step.get("subtask"):
                 step["subtask"] = step.get("name")
-            if step.get("status") in ("pending", "in_progress") and not step.get("subtask_type"):
+            if step.get("status") in (None, "pending", "in_progress") and not step.get("subtask_type"):
                 step["subtask_type"] = default_type
 
     def _all_candidate_records(self) -> List[Dict[str, Any]]:
@@ -661,7 +671,7 @@ class SearchHarnessPipelineV4:
         plan: Dict[str, Any],
         subtask: Optional[Dict[str, Any]],
         iteration: int,
-        max_rewrites: int = 3,
+        max_rewrites: int = 2,
     ) -> Dict[str, Any]:
         rewrites = 0
         current_plan = plan
@@ -870,6 +880,9 @@ class SearchHarnessPipelineV4:
         updates = findings.get("candidate_updates") or {}
         new_candidates = updates.get("new_candidates", []) or []
         source_feedback = findings.get("source_feedback") or {}
+        # GLM-5.2 may emit source_feedback as a string; coerce to dict for safe access.
+        if not isinstance(source_feedback, dict):
+            source_feedback = {}
         promising = source_feedback.get("promising_sources", []) or []
         summary = (findings.get("summary") or "").strip()
         if new_candidates or promising:
@@ -882,31 +895,33 @@ class SearchHarnessPipelineV4:
 
     def _next_subtask_from_plan(self, plan: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         for idx, step in enumerate(plan.get("steps", []) or []):
-            if step.get("status") in ("pending", "in_progress"):
-                subtask = {
-                    "subtask": step.get("subtask") or step.get("name", "unnamed step"),
-                }
-                subtask_type = step.get("subtask_type") or step.get("type") or step.get("mode")
-                if not subtask_type:
-                    phase = str(plan.get("phase") or "").lower()
-                    if phase in {"candidate_generation", "source_identification"}:
-                        subtask_type = "candidate_expansion"
-                    elif phase in {"candidate_narrowing", "verification"}:
-                        subtask_type = "candidate_verification"
-                if subtask_type:
-                    subtask["subtask_type"] = subtask_type
-                guidance_items: List[str] = []
-                step_guidance = step.get("guidance") or step.get("executor_guidance")
-                if isinstance(step_guidance, list):
-                    guidance_items.extend(str(item) for item in step_guidance if item)
-                elif step_guidance:
-                    guidance_items.append(str(step_guidance))
-                if guidance_items:
-                    subtask["guidance"] = guidance_items
-                source_recommendations = self._plan_source_recommendations(plan)
-                if source_recommendations:
-                    subtask["source_recommendations"] = source_recommendations
-                return subtask
+            status = step.get("status")
+            if status not in (None, "pending", "in_progress"):
+                continue
+            subtask = {
+                "subtask": step.get("subtask") or step.get("name", "unnamed step"),
+            }
+            subtask_type = step.get("subtask_type") or step.get("type") or step.get("mode")
+            if not subtask_type:
+                phase = str(plan.get("phase") or "").lower()
+                if phase in {"candidate_generation", "source_identification"}:
+                    subtask_type = "candidate_expansion"
+                elif phase in {"candidate_narrowing", "verification"}:
+                    subtask_type = "candidate_verification"
+            if subtask_type:
+                subtask["subtask_type"] = subtask_type
+            guidance_items: List[str] = []
+            step_guidance = step.get("guidance") or step.get("executor_guidance")
+            if isinstance(step_guidance, list):
+                guidance_items.extend(str(item) for item in step_guidance if item)
+            elif step_guidance:
+                guidance_items.append(str(step_guidance))
+            if guidance_items:
+                subtask["guidance"] = guidance_items
+            source_recommendations = self._plan_source_recommendations(plan)
+            if source_recommendations:
+                subtask["source_recommendations"] = source_recommendations
+            return subtask
         return None
 
     def _plan_source_recommendations(self, plan: Dict[str, Any]) -> List[str]:

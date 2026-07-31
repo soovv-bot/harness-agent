@@ -20,7 +20,18 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import assistant_message_to_dict, build_chat_completion_kwargs
+from deepseek_thinking_compat import (
+    assistant_message_to_dict,
+    build_chat_completion_kwargs,
+    chat_completion_with_structuring,
+)
+
+_PLANNER_FORMAT_HINT = (
+    "Output exactly one <planning>...</planning> block with valid JSON "
+    'containing: task, steps (each with step, action, search_query, reasoning, '
+    'and status="pending"), and status. Example step: '
+    '{"step": 1, "action": "search", "search_query": "...", "reasoning": "...", "status": "pending"}.'
+)
 from openai_client_factory import build_openai_client
 
 
@@ -66,9 +77,10 @@ class PlanningAgentV3:
         if system_prompt:
             base_prompt = system_prompt
         elif os.getenv("PLANNER_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}:
-            # GLM-5.2 and other pure-reasoning models get stuck in reasoning when the
-            # system prompt is too long. Use a compact prompt that lets the model
-            # emit a parseable <planning> block instead of endless reasoning.
+            # Reasoning-capable models (e.g. GLM-5.2, DeepSeek-reasoner) can get
+            # stuck in long reasoning when the system prompt is too long. Use a
+            # compact prompt that lets the model emit a parseable <planning> block
+            # instead of endless reasoning.
             simple_path = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt_glm.md')
             with open(simple_path, 'r', encoding='utf-8') as f:
                 base_prompt = f.read()
@@ -96,6 +108,7 @@ Strict output contract:
         self.messages: List[Dict[str, Any]] = []
         self._workflow_stage: Optional[str] = None
         self._stage_context: Dict[str, Any] = {}
+        self._fallback_count = 0
 
     def _get_tool_schemas(self) -> List[Dict[str, Any]]:
         return []
@@ -196,6 +209,8 @@ Strict output contract:
         if use_simple:
             return (
                 f"Question: {question}\n\n"
+                f"First identify what TYPE of entity this question asks for (person, band, place, school, organization, etc.). "
+                f"Then identify the most distinctive constraints. "
                 f"Output <planning>...</planning> with a search plan NOW. Do not reason."
             )
         return f"""Please analyze the following search question and create or update a search plan.
@@ -346,16 +361,15 @@ Do not include analysis prose before or after the planning block."""
         for turn in range(self.max_turns):
             metadata["turns"] = turn + 1
             try:
-                completion = self.client.chat.completions.create(
-                    **build_chat_completion_kwargs(
-                        model_id=self.model_id,
-                        messages=self.messages,
-                        tools=None,
-                        temperature=self.temperature,
-                        max_tokens=self.max_output_tokens,
-                    )
+                response = chat_completion_with_structuring(
+                    self.client,
+                    model_id=self.model_id,
+                    messages=self.messages,
+                    tools=None,
+                    temperature=self.temperature,
+                    max_tokens=self.max_output_tokens,
+                    structurer_format_hint=_PLANNER_FORMAT_HINT,
                 )
-                response = completion.choices[0].message
                 response_dict = assistant_message_to_dict(response)
                 self.messages.append(response_dict)
 
@@ -486,15 +500,16 @@ Do not include analysis prose before or after the planning block."""
             ),
         })
         try:
-            completion = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=self.messages,
-                    temperature=self.temperature,
-                    max_tokens=self.max_output_tokens,
-                )
+            response = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=self.messages,
+                temperature=self.temperature,
+                max_tokens=self.max_output_tokens,
+                structurer_format_hint=(
+                    "Output exactly one <answer>...</answer> block with the most likely answer."
+                ),
             )
-            response = completion.choices[0].message
             self.messages.append(assistant_message_to_dict(response))
             content = response.content or ""
             answer = self._extract_answer(content)
@@ -519,6 +534,7 @@ Do not include analysis prose before or after the planning block."""
         }
 
     def _fallback_plan(self, question: Optional[str]) -> Dict[str, Any]:
+        self._fallback_count += 1
         workflow_stage = self._workflow_stage or "candidate_generation"
         stage_context = self._stage_context or {}
         objective = self._fallback_objective(question)
@@ -570,6 +586,13 @@ Do not include analysis prose before or after the planning block."""
                 ],
             }
 
+        fallback_idx = (self._fallback_count - 1) % 4
+        fallback_subtasks = [
+            "Search for candidate entities that satisfy the most distinctive one or two constraints in the original question, then add every plausible candidate without fully verifying all later constraints.",
+            "Search for a distinctive phrase or acknowledgement pattern from the question that can directly identify a document, work, or entity tied to the answer path.",
+            "Search Wikipedia and encyclopedic sources for biographical or historical entries related to the key entities and time period implied by the question.",
+            "Decompose the question into individual constraints and search for each one separately, starting with the least common or most unusual constraint, to find candidates that may not appear in broader searches.",
+        ]
         return {
             "phase": "candidate_generation",
             "workflow_stage": workflow_stage,
@@ -582,7 +605,7 @@ Do not include analysis prose before or after the planning block."""
             "steps": [
                 {
                     "id": 1,
-                    "subtask": "Search for candidate entities that satisfy the most distinctive one or two constraints in the original question, then add every plausible candidate without fully verifying all later constraints.",
+                    "subtask": fallback_subtasks[fallback_idx],
                     "subtask_type": "candidate_expansion",
                     "status": "pending",
                     "progress": 0,

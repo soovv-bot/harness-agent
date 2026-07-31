@@ -18,7 +18,7 @@ def main():
     # Check required environment variables
     api_base = os.getenv("OPENAI_BASE_URL") or os.getenv("OPENAI_API_BASE") or os.getenv("API_BASE")
     api_key = os.getenv("OPENAI_API_KEY") or os.getenv("API_KEY")
-    model_id = os.getenv("MODEL_NAME") or os.getenv("MODEL_ID", "deepseek-chat")
+    model_id = os.getenv("MODEL_NAME") or os.getenv("MODEL_ID", "GLM-5.2")
 
     if not api_base or not api_key:
         logger.error("Please set OPENAI_API_BASE and OPENAI_API_KEY in .env file")

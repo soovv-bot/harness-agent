@@ -22,7 +22,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs
+from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 
 
@@ -237,10 +237,32 @@ Evaluate and output JSON only (no markdown, no extra text)."""
                     ),
                 )
 
+        # 2b. Consecutive partial_success with same name (soft pivot after 3)
+        # partial_success means the subtask ran but didn't find the answer.
+        # Allow retries (the search results may differ), but pivot after 3
+        # consecutive partial results to avoid wasting budget on the same angle.
+        consecutive_partial = 0
+        for rec in reversed(recent):
+            if _normalize(rec.name) == normalized and rec.status == "partial_success":
+                consecutive_partial += 1
+            else:
+                break
+        if consecutive_partial >= 3 and not candidate_specific:
+            return SubtaskVerdict(
+                decision=SUGGEST_PIVOT,
+                reason=(
+                    f"Subtask '{subtask_name}' has returned partial_success {consecutive_partial} consecutive times. "
+                    f"The same approach is not converging. Try a fundamentally different search angle, "
+                    f"source family, or constraint focus."
+                ),
+            )
+
         # 3. Near-duplicate check (Jaccard on word sets)
+        # Skip completed AND partial_success records: partial work made progress
+        # and retrying with a fresh search may yield different results.
         query_words = set(normalized.split())
         for rec in reversed(recent):
-            if rec.status in ("completed",):
+            if rec.status in ("completed", "partial_success"):
                 continue
             rec_words = set(_normalize(rec.name).split())
             if not query_words or not rec_words:
@@ -372,15 +394,15 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         )
 
         try:
-            response = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0,
-                    max_tokens=2048,
-                )
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=2048,
+                structurer_format_hint="Output the result as JSON.",
             )
-            content = response.choices[0].message.content.strip()
+            content = (getattr(message, "content", None) or "").strip()
 
             json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if not json_match:
@@ -416,7 +438,7 @@ def create_subtask_critic(
 
     _api_base = api_base or os.getenv("OPENAI_BASE_URL")
     _api_key = api_key or os.getenv("OPENAI_API_KEY")
-    _model_id = model_id or os.getenv("MODEL_NAME", "deepseek-chat")
+    _model_id = model_id or os.getenv("MODEL_NAME", "GLM-5.2")
 
     return SubtaskCritic(
         api_base=_api_base,

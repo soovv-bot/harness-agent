@@ -18,6 +18,7 @@ import random
 import re
 import sys
 import time
+import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
@@ -30,7 +31,7 @@ from loguru import logger
 from tqdm import tqdm
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from deepseek_thinking_compat import build_chat_completion_kwargs
+from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
 
@@ -117,14 +118,14 @@ class LLMGrader:
             correct_answer=correct_answer,
         )
         try:
-            completion = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.0,
-                )
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.0,
+                structurer_format_hint="Output the result as JSON with fields: correct, reason, extracted.",
             )
-            text = completion.choices[0].message.content or ""
+            text = getattr(message, "content", None) or ""
             json_match = re.search(r'\{.*\}', text, re.DOTALL)
             if not json_match:
                 logger.error(f"Grader: no JSON in response: {text[:200]}")
@@ -204,6 +205,7 @@ def run_single_task(
     except Exception as e:
         infra_type = classify_infra_error(e)
         logger.error(f"[Task {task_index}] Pipeline error: {e}")
+        logger.error(traceback.format_exc())
         return {
             "task_index": task_index,
             "question_preview": question[:150],

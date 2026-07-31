@@ -9,6 +9,10 @@ Two-stage evaluation:
 2. Deep semantic analysis via LLM when rules are inconclusive
 
 Output is a structured verdict with full reasoning, not just a label.
+
+Optimizations (2026-07):
+- Semantic cache: similar query patterns reuse prior verdict (skip LLM)
+- Batch evaluation: multiple queries judged in one LLM call
 """
 
 import json
@@ -25,7 +29,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs
+from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 
 
@@ -140,7 +144,7 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         api_base: str,
         api_key: str,
         model_id: str = "GLM-5.2",
-    ):
+    ) -> None:
         self.memory = memory
         self.api_base = api_base
         self.api_key = api_key
@@ -148,6 +152,46 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         self.max_output_tokens = 1024
 
         self.client = build_openai_client(api_base, api_key)
+        # P0: semantic cache — key is normalized query+phase, value is (verdict_dict, use_count)
+        self._verdict_cache: Dict[str, dict] = {}
+        self._cache_max_size = 200
+
+    def _cache_key(self, query: str, phase: str) -> str:
+        """Build a cache key from normalized query + phase."""
+        return f"{phase}::{_normalize_query(query)[:200]}"
+
+    def _lookup_cache(self, query: str, phase: str) -> Optional["QueryVerdict"]:
+        """Return a cached verdict if available, updating use count."""
+        key = self._cache_key(query, phase)
+        entry = self._verdict_cache.get(key)
+        if entry is None:
+            return None
+        entry["uses"] = entry.get("uses", 0) + 1
+        data = entry["verdict"]
+        logger.info(f"[QueryCritic] Cache HIT (uses={entry['uses']}): {data['decision']}")
+        return QueryVerdict(
+            decision=data["decision"],
+            reason=f"[cached] {data['reason']}",
+            alternative_queries=data.get("alternative_queries", []),
+            checks={},
+        )
+
+    def _store_cache(self, query: str, phase: str, verdict: "QueryVerdict") -> None:
+        """Store a verdict in the cache (if allowed-ish). Evict if too large."""
+        if len(self._verdict_cache) >= self._cache_max_size:
+            # Evict oldest 25% by insertion order (FIFO-ish)
+            keys = list(self._verdict_cache.keys())
+            for k in keys[: self._cache_max_size // 4]:
+                self._verdict_cache.pop(k, None)
+        key = self._cache_key(query, phase)
+        self._verdict_cache[key] = {
+            "verdict": {
+                "decision": verdict.decision,
+                "reason": verdict.reason,
+                "alternative_queries": verdict.alternative_queries,
+            },
+            "uses": 0,
+        }
 
     def evaluate(
         self,
@@ -173,22 +217,32 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         self._current_question = question
         checks = {}
 
+        # P0: semantic cache lookup (before rules + LLM)
+        cached = self._lookup_cache(query, phase)
+        if cached is not None:
+            return cached
+
         # Stage 1: Fast rule-based checks
         rule_verdict = self._rule_based_check(query, checks)
         if rule_verdict:
             rule_verdict.checks = checks
             logger.info(f"[QueryCritic] Rule-based verdict: {rule_verdict.decision}")
+            self._store_cache(query, phase, rule_verdict)
             return rule_verdict
 
         # Stage 2: LLM-based deep analysis
         if not use_llm:
-            return QueryVerdict(
+            v = QueryVerdict(
                 decision=ALLOW,
                 reason="No rule violations detected. LLM check skipped.",
                 checks=checks,
             )
+            self._store_cache(query, phase, v)
+            return v
 
-        return self._llm_based_check(query, phase, subtask, checks)
+        result = self._llm_based_check(query, phase, subtask, checks)
+        self._store_cache(query, phase, result)
+        return result
 
     def _rule_based_check(
         self,
@@ -295,15 +349,15 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         )
 
         try:
-            response = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0,
-                    max_tokens=self.max_output_tokens,
-                )
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=self.max_output_tokens,
+                structurer_format_hint="Output the result as JSON.",
             )
-            content = response.choices[0].message.content.strip()
+            content = (getattr(message, "content", None) or "").strip()
 
             # Parse JSON — handle potential markdown wrapping
             json_match = re.search(r'\{.*\}', content, re.DOTALL)

@@ -58,6 +58,8 @@ tmp/
 *.safetensors
 *.pt
 *.ckpt
+*.json
+logs/
 
 # Large extracted text files
 EigentSearch_extracted.txt

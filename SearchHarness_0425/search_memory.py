@@ -225,6 +225,9 @@ class SearchStateStore:
             self.plan_execution_history = self.plan_execution_history[-keep_last:]
 
         source_feedback = findings.get("source_feedback", {}) or {}
+        # GLM-5.2 may emit source_feedback as a string; coerce to dict for safe access.
+        if not isinstance(source_feedback, dict):
+            source_feedback = {}
         for s in source_feedback.get("unhelpful_sources", []) or []:
             if s and s not in self.ruled_out_source_families:
                 self.ruled_out_source_families.append(s)
@@ -262,6 +265,8 @@ class SearchStateStore:
 
     def create_snapshot(self) -> SearchSnapshot:
         plan = self.current_plan or {}
+        if not isinstance(plan, dict):
+            plan = {}
         source_recommendations = plan.get("source_recommendations")
         if source_recommendations is None:
             source_recommendations = plan.get("source_hypotheses", []) or []
@@ -275,14 +280,20 @@ class SearchStateStore:
                     active_sources.append(str(text))
         resolved_uncertainties: List[str] = []
         pool_assessment = plan.get("pool_assessment") or {}
+        if not isinstance(pool_assessment, dict):
+            pool_assessment = {}
         remaining_uncertainties = [str(x) for x in pool_assessment.get("gaps", []) or [] if x]
         for step in plan.get("steps", []) or []:
+            if not isinstance(step, dict):
+                continue
             if step.get("status") == "completed" and step.get("result"):
                 step_name = step.get("subtask") or step.get("name") or "step"
                 resolved_uncertainties.append(f"{step_name}: {step.get('result', '')}")
 
         top_evidence = []
         for item in self.findings_history[-3:]:
+            if not isinstance(item, dict):
+                continue
             for ev in (item.get("evidence", []) or [])[:2]:
                 top_evidence.append(ev)
         top_evidence = top_evidence[:6]

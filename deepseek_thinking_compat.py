@@ -1,15 +1,24 @@
-"""Compatibility helpers for DeepSeek thinking / non-thinking modes.
+"""Compatibility helpers for reasoning-capable models over OpenAI-compatible APIs.
 
-Supports a single environment switch:
+Provides two opt-in controls via environment variables:
 
     DEEPSEEK_THINKING_MODE=auto|enabled|disabled
+        DeepSeek-only model selection (deepseek-chat vs deepseek-reasoner).
 
-Behavior for DeepSeek models:
-- auto: keep the configured model as-is
-- enabled: force deepseek-reasoner
-- disabled: force deepseek-chat
+    LLM_THINKING_BUDGET_TOKENS=<int>
+        For models that emit ``reasoning_content`` and expose a thinking-budget
+        extension (passed through the OpenAI SDK ``extra_body``), cap the
+        reasoning token budget so it doesn't consume the entire ``max_tokens``
+        allocation and leave ``content`` empty. DeepSeek-reasoner manages its
+        own reasoning internally and is skipped. Standard OpenAI models that
+        produce no reasoning are unaffected when this is unset.
 
-For non-DeepSeek models, the helper is effectively a no-op.
+    LLM_STRUCTURER_MAX_TOKENS=<int>  (default 8000)
+        When the auto-structuring fallback is triggered (see
+        ``chat_completion_with_structuring``), the max_tokens for the second
+        "structuring" call that converts reasoning_content into structured
+        output. Must be large enough for the model's reasoning to finish
+        naturally so content is emitted.
 """
 
 from __future__ import annotations
@@ -19,6 +28,7 @@ import os
 
 
 THINKING_MODE_ENV = "DEEPSEEK_THINKING_MODE"
+THINKING_BUDGET_ENV = "LLM_THINKING_BUDGET_TOKENS"
 SUPPORTED_DEEPSEEK_MODELS = {"deepseek-chat", "deepseek-reasoner"}
 
 
@@ -75,6 +85,31 @@ def build_chat_completion_kwargs(
         if effective_model == "deepseek-reasoner" and key in unsupported_on_reasoner:
             continue
         kwargs[key] = value
+
+    # Reasoning-capable models that emit reasoning_content can spend the entire
+    # max_tokens budget on reasoning, leaving content empty. When the caller
+    # opts in via LLM_THINKING_BUDGET_TOKENS, inject a thinking budget through
+    # the OpenAI SDK extra_body passthrough. DeepSeek-reasoner manages its own
+    # reasoning internally, so it is skipped.
+    if effective_model not in SUPPORTED_DEEPSEEK_MODELS:
+        budget_raw = (os.getenv(THINKING_BUDGET_ENV) or "").strip()
+        if budget_raw:
+            try:
+                budget = int(budget_raw)
+            except ValueError:
+                budget = 0
+            if budget > 0:
+                existing_extra = kwargs.get("extra_body") or {}
+                if isinstance(existing_extra, dict):
+                    existing_extra.setdefault("thinking", {})
+                    if isinstance(existing_extra["thinking"], dict):
+                        existing_extra["thinking"].setdefault("type", "enabled")
+                        existing_extra["thinking"].setdefault("budget_tokens", budget)
+                    kwargs["extra_body"] = existing_extra
+                else:
+                    kwargs["extra_body"] = {
+                        "thinking": {"type": "enabled", "budget_tokens": budget}
+                    }
     return kwargs
 
 
@@ -94,3 +129,164 @@ def assistant_message_to_dict(message: Any) -> Dict[str, Any]:
     if reasoning_content and "reasoning_content" not in payload:
         payload["reasoning_content"] = reasoning_content
     return payload
+
+
+def _get_structurer_max_tokens() -> int:
+    raw = (os.getenv("LLM_STRUCTURER_MAX_TOKENS") or "").strip()
+    try:
+        val = int(raw)
+        if val > 0:
+            return val
+    except ValueError:
+        pass
+    return 3000
+
+
+def _build_structurer_prompt(reasoning_content: str, hint: str) -> str:
+    """Build a structuring prompt using the reasoning's conclusion (tail).
+
+    Reasoning models put their conclusions at the END of reasoning_content.
+    Using the first N chars gives the model an incomplete analysis, causing it
+    to re-reason from scratch and fill the entire token budget with new
+    reasoning. Using the tail (conclusion) lets the model format it directly.
+    """
+    rlen = len(reasoning_content)
+    # Use last 1500 chars (conclusion) + first 500 chars (context)
+    if rlen <= 2000:
+        excerpt = reasoning_content
+    else:
+        head = reasoning_content[:500]
+        tail = reasoning_content[-1500:]
+        excerpt = head + "\n...[truncated]...\n" + tail
+    return (
+        "You have completed your analysis. Now OUTPUT THE RESULT ONLY.\n"
+        + hint
+        + "\n\nStart your response with the appropriate opening tag immediately. "
+        "No preamble, no explanation, no reasoning. Just the structured output.\n\n"
+        "Your analysis (conclusion at the end):\n"
+        + excerpt
+    )
+
+
+def chat_completion_with_structuring(
+    client: Any,
+    *,
+    model_id: str,
+    messages: list[Any],
+    tools: Optional[list[Dict[str, Any]]] = None,
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    structurer_format_hint: str = "",
+    **extra: Any,
+) -> Any:
+    """Chat completion with automatic structuring for reasoning-only models.
+
+    Some reasoning models (e.g. GLM-5.2 on certain endpoints) always put their
+    output in ``reasoning_content`` and leave ``content`` empty, regardless of
+    thinking-budget or response-format controls. When this happens, the
+    downstream parsers that expect structured tags/JSON in ``content`` fail.
+
+    This wrapper makes the primary call. If ``content`` is empty but
+    ``reasoning_content`` is populated (and there are no tool_calls), it makes
+    a second "structuring" call with a simple prompt that asks the model to
+    convert its reasoning into structured output. The structuring call uses a
+    large max_tokens so the model's (naturally shorter) reasoning finishes and
+    content is emitted.
+
+    Returns the response message object. If structuring succeeded, returns the
+    structurer's response (with content populated). Otherwise returns the
+    original response.
+    """
+    kwargs = build_chat_completion_kwargs(
+        model_id=model_id,
+        messages=messages,
+        tools=tools,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        **extra,
+    )
+    completion = client.chat.completions.create(**kwargs)
+    response = completion.choices[0].message
+
+    content = (getattr(response, "content", None) or "").strip()
+    reasoning_content = (getattr(response, "reasoning_content", None) or "").strip()
+    tool_calls = getattr(response, "tool_calls", None)
+
+    # Content populated, or tool calls present, or no reasoning to structure
+    if content or tool_calls or not reasoning_content:
+        return response
+
+    # Content is empty, no tool calls, but reasoning is populated.
+    # Strategy 1: Try to extract structured tags directly from reasoning_content
+    # (fast, no API call). Reasoning models often produce the structured output
+    # within their reasoning text.
+    extracted = _extract_structured_from_reasoning(reasoning_content, structurer_format_hint)
+    if extracted:
+        try:
+            # Create a synthetic response with the extracted content
+            response.content = extracted
+            return response
+        except Exception:
+            pass
+
+    # Strategy 2: Make structuring call(s) with decreasing max_tokens.
+    # Reasoning models fill the token budget with reasoning. Smaller max_tokens
+    # forces the model to be concise and produce content. Try a few sizes.
+    structurer_max = _get_structurer_max_tokens()
+    hint = structurer_format_hint or "Output the result in the format described in the original task."
+    structurer_prompt = _build_structurer_prompt(reasoning_content, hint)
+    # Retry with decreasing max_tokens: [3000, 2000, 1500]
+    for attempt_max in (structurer_max, max(1500, structurer_max - 1000), max(1200, structurer_max - 1500)):
+        structurer_kwargs = build_chat_completion_kwargs(
+            model_id=model_id,
+            messages=[{"role": "user", "content": structurer_prompt}],
+            temperature=0.3,
+            max_tokens=attempt_max,
+        )
+        try:
+            structurer_completion = client.chat.completions.create(**structurer_kwargs)
+            structurer_response = structurer_completion.choices[0].message
+            structurer_content = (getattr(structurer_response, "content", None) or "").strip()
+            # Also check if structurer put it in reasoning_content
+            structurer_reasoning = (getattr(structurer_response, "reasoning_content", None) or "").strip()
+            if structurer_content:
+                return structurer_response
+            if structurer_reasoning:
+                extracted2 = _extract_structured_from_reasoning(structurer_reasoning, hint)
+                if extracted2:
+                    structurer_response.content = extracted2
+                    return structurer_response
+        except Exception:
+            pass
+
+    return response
+
+
+def _extract_structured_from_reasoning(reasoning: str, format_hint: str) -> str:
+    """Try to extract structured output tags directly from reasoning_content.
+
+    Reasoning models often produce the final structured output (e.g. <planning>,
+    <findings>, <answer>) within their reasoning text, even when the content
+    field is empty. This avoids a second API call.
+    """
+    if not reasoning:
+        return ""
+
+    # Look for complete tag blocks in reasoning_content
+    # Use a simple approach: find <tag>...</tag> and extract the content
+    for tag_name in ("planning", "findings", "answer"):
+        open_tag = f"<{tag_name}>"
+        close_tag = f"</{tag_name}>"
+        # Find all occurrences — use the last one (model may echo examples first)
+        last_idx = reasoning.rfind(close_tag)
+        if last_idx == -1:
+            continue
+        # Find the matching open tag before this close tag
+        search_start = reasoning.rfind(open_tag, 0, last_idx)
+        if search_start == -1:
+            continue
+        inner = reasoning[search_start + len(open_tag):last_idx].strip()
+        if inner:
+            return f"{open_tag}\n{inner}\n{close_tag}"
+
+    return ""

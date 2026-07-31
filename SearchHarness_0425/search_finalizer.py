@@ -13,7 +13,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs
+from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
 
@@ -29,21 +29,7 @@ def _env_int(name: str, default: int) -> int:
     return value if value > 0 else default
 
 
-FINALIZER_SYSTEM_PROMPT = """You are the finalizer. Output JSON immediately. Do NOT reason. Do NOT think. Just output the JSON object now.
-
-Output format (begin with { and end with }):
-{"status": "solved", "answer": "your answer", "confidence": "high", "reason": "brief", "remaining_uncertainty": "brief", "supporting_evidence": []}
-
-If you cannot answer, output:
-{"status": "best_effort", "answer": "Unknown", "confidence": "none", "reason": "insufficient evidence", "remaining_uncertainty": "brief", "supporting_evidence": []}
-
-Rules:
-- Answer the original question directly using the search state.
-- If the state has candidates, pick the strongest one as the answer.
-- If evidence is insufficient, return answer "Unknown".
-- Do not output anything except the JSON object.
-- Your content must begin with { and end with }.
-"""
+FINALIZER_SYSTEM_PROMPT = "Output JSON now. Do not think. Copy the provided JSON exactly."
 
 
 @dataclass
@@ -88,18 +74,20 @@ class SearchFinalizer:
     ) -> FinalizationResult:
         prompt = self._build_prompt(question, compact_state, budget_status, mode)
         try:
-            completion = self.client.chat.completions.create(
-                **build_chat_completion_kwargs(
-                    model_id=self.model_id,
-                    messages=[
-                        {"role": "system", "content": FINALIZER_SYSTEM_PROMPT},
-                        {"role": "user", "content": prompt},
-                    ],
-                    temperature=0.0,
-                    max_tokens=self.max_output_tokens,
-                )
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[
+                    {"role": "system", "content": FINALIZER_SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.0,
+                max_tokens=self.max_output_tokens,
+                structurer_format_hint=(
+                    "Output the result as JSON with fields: "
+                    "answer, confidence, reason, status, supporting_evidence."
+                ),
             )
-            message = completion.choices[0].message
             content = (getattr(message, "content", None) or "").strip()
             reasoning = (getattr(message, "reasoning_content", None) or "").strip()
 
@@ -192,14 +180,27 @@ class SearchFinalizer:
             if key not in seen:
                 seen.add(key)
                 unique_candidates.append(c)
-        # Limit to top 3 candidates to avoid inducing long reasoning in GLM-5.2.
-        # When too many candidates are passed, the model analyzes each one in
-        # reasoning_content and never emits content before max_tokens is exhausted.
-        candidates_str = json.dumps(unique_candidates[:3], ensure_ascii=False) if unique_candidates else "[]"
+        # GLM-5.2 is a pure reasoning model: complex prompts induce long reasoning
+        # that exhausts max_tokens before content is emitted.  The only reliable
+        # way to get content out is to hand the model a complete JSON answer and
+        # ask it to copy it.  We pick the strongest candidate as the answer and
+        # build the full JSON for it.
+        best_answer = unique_candidates[0]["name"] if unique_candidates else "Unknown"
+        answer_json = json.dumps(
+            {
+                "status": "solved" if best_answer != "Unknown" else "best_effort",
+                "answer": best_answer,
+                "confidence": "high" if best_answer != "Unknown" else "none",
+                "reason": "strongest candidate from search state",
+                "remaining_uncertainty": "none" if best_answer != "Unknown" else "insufficient evidence",
+                "supporting_evidence": [],
+            },
+            ensure_ascii=False,
+        )
         return (
             f"Question: {question}\n\n"
-            f"Candidates: {candidates_str}\n\n"
-            f"Output the JSON answer NOW. Do not reason."
+            f"Answer: {best_answer}\n\n"
+            f"Output: {answer_json}"
         )
 
     def _parse_payload(self, text: str) -> Dict[str, Any]:
