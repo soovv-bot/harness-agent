@@ -109,6 +109,8 @@ class SearchHarnessPipelineV4:
         if self.trajectory_recorder:
             self.trajectory_recorder.start(question=question, pipeline_config=pipeline_config)
 
+        _t_plan0 = __import__("time").time()
+        logger.info("[Pipeline] planner.start initial")
         planner_result = self.planner.run(
             question=question,
             compact_state=self.state_store.export_compact_state(),
@@ -117,6 +119,7 @@ class SearchHarnessPipelineV4:
         )
         if self.trajectory_recorder:
             self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=0)
+        logger.info(f"[Pipeline] planner.done initial in {__import__('time').time()-_t_plan0:.1f}s answer={'yes' if planner_result.get('answer') else 'no'}")
         if planner_result.get("answer"):
             return self._finish_with_answer(planner_result["answer"], iterations=0)
 
@@ -132,6 +135,7 @@ class SearchHarnessPipelineV4:
             return solved
 
         for iteration in range(max_iterations):
+            logger.info(f"[Pipeline] === iteration={iteration}/{max_iterations} phase={self.workflow_stage} ===")
             stop = self._check_stop(iteration, max_iterations, max_crawl_calls)
             if stop:
                 wrapped = self._try_protocol_wrap_up(question, iteration)
@@ -145,6 +149,7 @@ class SearchHarnessPipelineV4:
                 cand_status = (plan.get("candidate_status") or {}).get("state", "")
                 if cand_status == "resolved":
                     logger.info("[Pipeline] candidate_status=resolved but no <answer> — nudging planner")
+                    _t_nudge = __import__("time").time()
                     nudge = {"role": "user", "content": (
                         "Your plan shows candidate_status as 'resolved' with all steps completed. "
                         "If the original question is sufficiently solved, output the final answer now using exactly one <answer>...</answer> block. "
@@ -159,6 +164,7 @@ class SearchHarnessPipelineV4:
                         workflow_stage=self.workflow_stage,
                         stage_context=self._stage_context(),
                     )
+                    logger.info(f"[Pipeline] planner.done nudge in {__import__('time').time()-_t_nudge:.1f}s answer={'yes' if planner_result.get('answer') else 'no'}")
                     if self.trajectory_recorder:
                         self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration + 1)
                     if planner_result.get("answer"):
@@ -189,12 +195,16 @@ class SearchHarnessPipelineV4:
                 stop = {"trigger": "no_subtask_after_critic", "details": {"iteration": iteration}}
                 return self._best_effort_finish(question, plan, iteration, stop)
 
+            _t_exec = __import__("time").time()
+            subtask_name = (subtask.get("subtask") or subtask.get("name") or "unknown")[:60]
+            logger.info(f"[Pipeline] executor.start subtask='{subtask_name}' iter={iteration}")
             executor_result = self.executor.run(
                 question=question,
                 overall_plan=plan,
                 subtask=subtask,
                 executor_state=self.state_store.export_executor_state(),
             )
+            logger.info(f"[Pipeline] executor.done in {__import__('time').time()-_t_exec:.1f}s subtask='{subtask_name}' status={executor_result.get('metadata',{}).get('status','?')}")
             if self.trajectory_recorder:
                 self.trajectory_recorder.record_executor(messages=self.executor.messages, iteration=iteration)
             findings = executor_result.get("findings") or self._fallback_findings(subtask, executor_result)
@@ -362,6 +372,7 @@ class SearchHarnessPipelineV4:
 
     def _finish_with_answer(self, answer: str, iterations: int) -> Dict[str, Any]:
         status = self._pipeline_status_for_answer(answer)
+        logger.info(f"[Pipeline] FINISHED answer status={status} iterations={iterations} answer_preview='{answer[:80]}'")
         if self.trajectory_recorder:
             self.trajectory_recorder.record_pipeline_state(
                 query_history=self.query_memory.to_dict(),
@@ -679,12 +690,13 @@ class SearchHarnessPipelineV4:
         current_subtask = subtask
 
         while current_subtask:
+            _t_critic = __import__("time").time()
             verdict = self.subtask_critic.evaluate(
                 subtask_name=current_subtask.get("subtask") or current_subtask.get("name", ""),
                 subtask_guidance=self._subtask_guidance_for_critic(current_subtask),
                 overall_plan=current_plan,
             )
-            logger.info(f"[SubtaskCritic] verdict={verdict.decision} | reason={verdict.reason[:120]}")
+            logger.info(f"[SubtaskCritic] verdict={verdict.decision} in {__import__('time').time()-_t_critic:.1f}s | reason={verdict.reason[:120]}")
             if verdict.is_allowed:
                 return {"plan": current_plan, "subtask": current_subtask}
 
@@ -711,6 +723,8 @@ class SearchHarnessPipelineV4:
                     "- Switching between candidate_expansion and candidate_verification if the current pool state justifies it"
                 ),
             }]
+            _t_rewrite = __import__("time").time()
+            logger.info(f"[Pipeline] planner.start rewrite #{rewrites} (critic rejected subtask)")
             planner_result = self.planner.run(
                 question=question,
                 feedback_history=feedback_messages,
@@ -718,6 +732,7 @@ class SearchHarnessPipelineV4:
                 workflow_stage=self.workflow_stage,
                 stage_context=self._stage_context(),
             )
+            logger.info(f"[Pipeline] planner.done rewrite #{rewrites} in {__import__('time').time()-_t_rewrite:.1f}s")
             if self.trajectory_recorder:
                 self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration + 1)
             if planner_result.get("answer"):
@@ -753,6 +768,8 @@ class SearchHarnessPipelineV4:
                 "Do not leave the plan with zero actionable steps."
             ),
         }]
+        _t_rec = __import__("time").time()
+        logger.info("[Pipeline] planner.start recovery (no subtask)")
         planner_result = self.planner.run(
             question=question,
             feedback_history=recovery_feedback,
@@ -760,6 +777,7 @@ class SearchHarnessPipelineV4:
             workflow_stage=self.workflow_stage,
             stage_context=self._stage_context(),
         )
+        logger.info(f"[Pipeline] planner.done recovery in {__import__('time').time()-_t_rec:.1f}s answer={'yes' if planner_result.get('answer') else 'no'}")
         if self.trajectory_recorder:
             self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration + 1)
         if planner_result.get("answer"):
@@ -792,7 +810,10 @@ class SearchHarnessPipelineV4:
     def _best_effort_finish(self, question: str, plan: Dict[str, Any], iteration: int, stop: Dict[str, Any]) -> Dict[str, Any]:
         compact_state = self.state_store.export_compact_state()
         mode = "solved" if self._looks_solved(compact_state) else "best_effort"
+        _t_final = __import__("time").time()
+        logger.info(f"[Pipeline] finalizer.start mode={mode} stop={stop.get('trigger','?')}")
         final = self.finalizer.finalize(question=question, compact_state=compact_state, budget_status=stop, mode=mode)
+        logger.info(f"[Pipeline] finalizer.done in {__import__('time').time()-_t_final:.1f}s status={final.status}")
         if final.status == "infra_error":
             pipeline_status = "infra_error"
         elif final.error_type == "protocol_error":
@@ -853,6 +874,8 @@ class SearchHarnessPipelineV4:
                 f"CURRENT_TRACKED_STATE={state_excerpt}"
             ),
         }
+        _t_wrap = __import__("time").time()
+        logger.info(f"[Pipeline] planner.start wrap-up (protocol)")
         planner_result = self.planner.run(
             question=question,
             feedback_history=[nudge],
@@ -860,6 +883,7 @@ class SearchHarnessPipelineV4:
             workflow_stage=self.workflow_stage,
             stage_context=self._stage_context(),
         )
+        logger.info(f"[Pipeline] planner.done wrap-up in {__import__('time').time()-_t_wrap:.1f}s answer={'yes' if planner_result.get('answer') else 'no'}")
         if self.trajectory_recorder:
             self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration + 1)
         if planner_result.get("answer"):

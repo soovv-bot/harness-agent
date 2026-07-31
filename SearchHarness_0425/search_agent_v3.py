@@ -6,6 +6,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
@@ -684,7 +685,9 @@ Candidate handling is critical:
 
         for turn in range(self.max_turns):
             metadata["turns"] = turn + 1
+            logger.info(f"[Executor] turn={turn+1}/{self.max_turns} subtask='{subtask_text[:60]}' phase={phase}")
             try:
+                _t0 = time.time()
                 response = chat_completion_with_structuring(
                     self.client,
                     model_id=self.model_id,
@@ -698,6 +701,7 @@ Candidate handling is critical:
                         "source_feedback, suggestion_for_planner."
                     ),
                 )
+                logger.info(f"[Executor] LLM turn={turn+1} done in {time.time()-_t0:.1f}s")
                 response_dict = assistant_message_to_dict(response)
                 self.messages.append(response_dict)
                 content = response.content or ""
@@ -741,7 +745,10 @@ Candidate handling is critical:
                         tool_messages.append({"role": "tool", "tool_call_id": tool_call.id, "name": func_name, "content": f"Error: invalid JSON arguments: {e}"})
                         continue
 
+                    _t_tool = time.time()
+                    logger.info(f"[Executor] tool_call start: {func_name} args={json.dumps(arguments, ensure_ascii=False)[:120]}")
                     result = self._execute_tool_with_controls(func_name, arguments, phase, subtask)
+                    logger.info(f"[Executor] tool_call done: {func_name} in {time.time()-_t_tool:.1f}s result_len={len(str(result))}")
                     tool_messages.append({"role": "tool", "tool_call_id": tool_call.id, "name": func_name, "content": str(result)})
                 self.messages.extend(tool_messages)
                 self._micro_compact_tool_messages()
@@ -777,6 +784,8 @@ Candidate handling is critical:
             ),
         })
         try:
+            _t_wrap = time.time()
+            logger.info(f"[Executor] wrap-up LLM start (max_turns reached)")
             response = chat_completion_with_structuring(
                 self.client,
                 model_id=self.model_id,
@@ -787,6 +796,7 @@ Candidate handling is critical:
                     "Output your findings in a <findings>...</findings> block with valid JSON."
                 ),
             )
+            logger.info(f"[Executor] wrap-up LLM done in {time.time()-_t_wrap:.1f}s")
             self.messages.append(assistant_message_to_dict(response))
             content = response.content or ""
             findings = self._extract_findings(content, allow_dsml_recovery=False)
@@ -796,6 +806,8 @@ Candidate handling is critical:
                 return {"findings": findings, "trajectory": self.messages, "metadata": metadata}
             if content.strip():
                 self._append_findings_format_retry(content)
+                _t_retry = time.time()
+                logger.info("[Executor] wrap-up LLM retry start (findings format)")
                 response = chat_completion_with_structuring(
                     self.client,
                     model_id=self.model_id,
@@ -806,6 +818,7 @@ Candidate handling is critical:
                         "Output your findings in a <findings>...</findings> block with valid JSON."
                     ),
                 )
+                logger.info(f"[Executor] wrap-up LLM retry done in {time.time()-_t_retry:.1f}s")
                 self.messages.append(assistant_message_to_dict(response))
                 findings = self._extract_findings(response.content or "", allow_dsml_recovery=True)
                 if findings is not None:
@@ -861,7 +874,10 @@ Candidate handling is critical:
             if not allowed_queries:
                 return json.dumps({"blocked": True, "reason": "No queries passed critic/budget check.", "critic_feedback": critic_feedback}, ensure_ascii=False)
             new_args = {"query": allowed_queries}
+            _t_search = time.time()
+            logger.info(f"[Executor] search start: {len(allowed_queries)} queries: {allowed_queries[:3]}")
             result = self.tool_processor.tools[func_name](new_args)
+            logger.info(f"[Executor] search done in {time.time()-_t_search:.1f}s result_len={len(str(result))}")
             self._search_count += len(allowed_queries)
             result_summary = self._summarize_tool_result(result)
             domains = self._extract_domains(result)
@@ -896,7 +912,10 @@ Candidate handling is critical:
             urls = arguments.get("urls", []) or []
             query = arguments.get("query") or self._current_question or ""
             try:
+                _t_crawl = time.time()
+                logger.info(f"[Executor] visit_urls start: {len(urls)} urls, query='{query[:50]}'")
                 results = visit_urls(urls, query)
+                logger.info(f"[Executor] visit_urls done in {time.time()-_t_crawl:.1f}s ({len(urls)} urls)")
                 result = "\n".join(results)
             except Exception as e:
                 logger.error(f"[Executor] visit_urls failed: {e}")

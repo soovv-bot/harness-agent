@@ -6,6 +6,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -360,7 +361,9 @@ Do not include analysis prose before or after the planning block."""
 
         for turn in range(self.max_turns):
             metadata["turns"] = turn + 1
+            logger.info(f"[Planner] turn={turn+1}/{self.max_turns}")
             try:
+                _t0 = time.time()
                 response = chat_completion_with_structuring(
                     self.client,
                     model_id=self.model_id,
@@ -370,6 +373,7 @@ Do not include analysis prose before or after the planning block."""
                     max_tokens=self.max_output_tokens,
                     structurer_format_hint=_PLANNER_FORMAT_HINT,
                 )
+                logger.info(f"[Planner] LLM turn={turn+1} done in {time.time()-_t0:.1f}s")
                 response_dict = assistant_message_to_dict(response)
                 self.messages.append(response_dict)
 
@@ -500,6 +504,8 @@ Do not include analysis prose before or after the planning block."""
             ),
         })
         try:
+            _t_ans = time.time()
+            logger.info(f"[Planner] max_turns answer LLM start")
             response = chat_completion_with_structuring(
                 self.client,
                 model_id=self.model_id,
@@ -510,6 +516,7 @@ Do not include analysis prose before or after the planning block."""
                     "Output exactly one <answer>...</answer> block with the most likely answer."
                 ),
             )
+            logger.info(f"[Planner] max_turns answer LLM done in {time.time()-_t_ans:.1f}s")
             self.messages.append(assistant_message_to_dict(response))
             content = response.content or ""
             answer = self._extract_answer(content)
