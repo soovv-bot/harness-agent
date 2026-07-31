@@ -7,6 +7,8 @@ import os
 import re
 import sys
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
@@ -62,6 +64,7 @@ class SearchAgentV3:
         max_turns: int = 20,
         search_budget: int = 30,
         enable_query_critic: bool = True,
+        event_callback=None,
     ):
         self.api_base = api_base
         self.api_key = api_key
@@ -75,7 +78,9 @@ class SearchAgentV3:
         self.max_turns = _env_int("EXECUTOR_MAX_TURNS", max_turns)
         self.search_budget = search_budget
         self._search_count = 0
+        self._tool_lock = threading.Lock()
         self.max_output_tokens = _env_int("EXECUTOR_MAX_TOKENS", 1400)
+        self._event_callback = event_callback  # callable(event_type, data) for trajectory recording
 
         if system_prompt:
             base_prompt = system_prompt
@@ -736,20 +741,7 @@ Candidate handling is critical:
                     metadata.update({"finished_at": datetime.now().isoformat(), "status": "stopped_without_findings"})
                     return {"findings": None, "trajectory": self.messages, "metadata": metadata}
 
-                tool_messages = []
-                for tool_call in response.tool_calls:
-                    func_name = tool_call.function.name
-                    try:
-                        arguments = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments, str) else tool_call.function.arguments
-                    except json.JSONDecodeError as e:
-                        tool_messages.append({"role": "tool", "tool_call_id": tool_call.id, "name": func_name, "content": f"Error: invalid JSON arguments: {e}"})
-                        continue
-
-                    _t_tool = time.time()
-                    logger.info(f"[Executor] tool_call start: {func_name} args={json.dumps(arguments, ensure_ascii=False)[:120]}")
-                    result = self._execute_tool_with_controls(func_name, arguments, phase, subtask)
-                    logger.info(f"[Executor] tool_call done: {func_name} in {time.time()-_t_tool:.1f}s result_len={len(str(result))}")
-                    tool_messages.append({"role": "tool", "tool_call_id": tool_call.id, "name": func_name, "content": str(result)})
+                tool_messages = self._execute_tool_calls_parallel(response.tool_calls, phase, subtask)
                 self.messages.extend(tool_messages)
                 self._micro_compact_tool_messages()
 
@@ -830,6 +822,74 @@ Candidate handling is critical:
         metadata.update({"finished_at": datetime.now().isoformat(), "status": "max_turns_reached"})
         return {"findings": None, "trajectory": self.messages, "metadata": metadata}
 
+    def _execute_tool_calls_parallel(self, tool_calls: List[Any], phase: str, subtask: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Execute tool calls in parallel when 2+ calls are present, sequentially otherwise."""
+        if not tool_calls:
+            return []
+
+        # Parse all tool calls upfront
+        parsed = []
+        for tool_call in tool_calls:
+            func_name = tool_call.function.name
+            try:
+                arguments = json.loads(tool_call.function.arguments) if isinstance(tool_call.function.arguments, str) else tool_call.function.arguments
+            except json.JSONDecodeError as e:
+                parsed.append((tool_call.id, func_name, None, f"Error: invalid JSON arguments: {e}"))
+                continue
+            parsed.append((tool_call.id, func_name, arguments, None))
+
+        # Single tool call or only error entries — sequential (no thread overhead)
+        valid_calls = [p for p in parsed if p[2] is not None]
+        if len(valid_calls) <= 1:
+            tool_messages = []
+            for call_id, func_name, arguments, err in parsed:
+                if err is not None:
+                    tool_messages.append({"role": "tool", "tool_call_id": call_id, "name": func_name, "content": err})
+                    continue
+                _t_tool = time.time()
+                logger.info(f"[Executor] tool_call start: {func_name} args={json.dumps(arguments, ensure_ascii=False)[:120]}")
+                result = self._execute_tool_with_controls(func_name, arguments, phase, subtask)
+                logger.info(f"[Executor] tool_call done: {func_name} in {time.time()-_t_tool:.1f}s result_len={len(str(result))}")
+                tool_messages.append({"role": "tool", "tool_call_id": call_id, "name": func_name, "content": str(result)})
+            return tool_messages
+
+        # Multiple valid tool calls — parallel execution
+        max_workers = min(3, len(valid_calls))
+        logger.info(f"[Executor] parallel tool execution: {len(valid_calls)} calls, {max_workers} workers")
+        _t_par = time.time()
+
+        # Map call_id -> index for ordered output
+        ordered_ids = {p[0]: i for i, p in enumerate(parsed)}
+        results: List[Optional[Dict[str, Any]]] = [None] * len(parsed)
+
+        def _run_single(call_id: str, func_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+            _t = time.time()
+            logger.info(f"[Executor] tool_call start: {func_name} args={json.dumps(arguments, ensure_ascii=False)[:120]}")
+            result = self._execute_tool_with_controls(func_name, arguments, phase, subtask)
+            logger.info(f"[Executor] tool_call done: {func_name} in {time.time()-_t:.1f}s result_len={len(str(result))}")
+            return {"role": "tool", "tool_call_id": call_id, "name": func_name, "content": str(result)}
+
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            future_to_id = {}
+            for call_id, func_name, arguments, err in parsed:
+                if err is not None:
+                    results[ordered_ids[call_id]] = {"role": "tool", "tool_call_id": call_id, "name": func_name, "content": err}
+                    continue
+                future = pool.submit(_run_single, call_id, func_name, arguments)
+                future_to_id[future] = call_id
+
+            for future in as_completed(future_to_id):
+                call_id = future_to_id[future]
+                try:
+                    results[ordered_ids[call_id]] = future.result()
+                except Exception as e:
+                    func_name = next(p[1] for p in parsed if p[0] == call_id)
+                    logger.error(f"[Executor] tool_call {func_name} failed: {e}")
+                    results[ordered_ids[call_id]] = {"role": "tool", "tool_call_id": call_id, "name": func_name, "content": f"Error: {e}"}
+
+        logger.info(f"[Executor] parallel tools done in {time.time()-_t_par:.1f}s ({len(valid_calls)} calls)")
+        return [r for r in results if r is not None]
+
     def _execute_tool_with_controls(self, func_name: str, arguments: Dict[str, Any], phase: str, subtask: Dict[str, Any]) -> Any:
         subtask_text = subtask.get("subtask") or subtask.get("name") or "unknown"
         if func_name == "add_candidates":
@@ -854,10 +914,13 @@ Candidate handling is critical:
                 if not q:
                     critic_feedback.append({"query": raw_query, "verdict": "blocked", "reason": "Empty or invalid query."})
                     continue
-                if self._search_count >= self.search_budget:
-                    critic_feedback.append({"query": q, "verdict": "budget_exhausted", "reason": f"Per-subtask search budget reached ({self._search_count}/{self.search_budget})"})
-                    budget_hit = True
-                    continue
+                # Budget check under lock (atomic check-and-reserve)
+                with self._tool_lock:
+                    if self._search_count >= self.search_budget:
+                        critic_feedback.append({"query": q, "verdict": "budget_exhausted", "reason": f"Per-subtask search budget reached ({self._search_count}/{self.search_budget})"})
+                        budget_hit = True
+                        continue
+                # QueryCritic evaluation WITHOUT lock (LLM call — I/O bound, parallel-safe)
                 if self.enable_query_critic:
                     try:
                         verdict = self.query_critic.evaluate(query=q, phase=phase, subtask=subtask_text, question=getattr(self, '_current_question', ''), use_llm=True)
@@ -870,60 +933,96 @@ Candidate handling is critical:
                 if verdict.is_allowed:
                     allowed_queries.append(q)
             if budget_hit:
-                self._budget_exhausted = True
+                with self._tool_lock:
+                    self._budget_exhausted = True
+            # Record per-query critic verdicts for trajectory
+            if self._event_callback:
+                for cf in critic_feedback:
+                    try:
+                        self._event_callback("search_query", {
+                            "query": cf.get("query", ""),
+                            "verdict": cf.get("verdict", cf.get("decision", "")),
+                            "critic_reason": cf.get("reason", ""),
+                            "phase": phase,
+                            "subtask": subtask_text,
+                        })
+                    except Exception:
+                        pass
             if not allowed_queries:
                 return json.dumps({"blocked": True, "reason": "No queries passed critic/budget check.", "critic_feedback": critic_feedback}, ensure_ascii=False)
             new_args = {"query": allowed_queries}
             _t_search = time.time()
             logger.info(f"[Executor] search start: {len(allowed_queries)} queries: {allowed_queries[:3]}")
-            result = self.tool_processor.tools[func_name](new_args)
-            logger.info(f"[Executor] search done in {time.time()-_t_search:.1f}s result_len={len(str(result))}")
-            self._search_count += len(allowed_queries)
-            result_summary = self._summarize_tool_result(result)
-            domains = self._extract_domains(result)
-            urls = self._extract_urls(result)
-            quality = self._infer_result_quality(result_summary, urls)
-            for q in allowed_queries:
-                self.query_memory.record(
-                    query=q,
-                    phase=phase,
-                    subtask=subtask_text,
-                    results_summary=result_summary,
-                    new_source_families=domains[:5],
-                    new_candidates=[],
-                    result_quality=quality,
-                    led_to_crawl=False,
-                    crawl_urls=[],
-                    metadata={"critic_feedback": critic_feedback},
-                )
-            self.state_store.register_tool_observation("search", new_args, result)
+            result = self.tool_processor.tools[func_name](new_args)  # HTTP call — no lock
+            _search_lat = (time.time() - _t_search) * 1000.0
+            logger.info(f"[Executor] search done in {_search_lat/1000:.1f}s result_len={len(str(result))}")
+            # State mutation under lock (fast, protects counters and memory)
+            with self._tool_lock:
+                self._search_count += len(allowed_queries)
+                result_summary = self._summarize_tool_result(result)
+                domains = self._extract_domains(result)
+                urls = self._extract_urls(result)
+                quality = self._infer_result_quality(result_summary, urls)
+                for q in allowed_queries:
+                    self.query_memory.record(
+                        query=q,
+                        phase=phase,
+                        subtask=subtask_text,
+                        results_summary=result_summary,
+                        new_source_families=domains[:5],
+                        new_candidates=[],
+                        result_quality=quality,
+                        led_to_crawl=False,
+                        crawl_urls=[],
+                        metadata={"critic_feedback": critic_feedback},
+                    )
+                self.state_store.register_tool_observation("search", new_args, result)
+            # Record allowed searches with results for trajectory
+            if self._event_callback:
+                for q in allowed_queries:
+                    try:
+                        self._event_callback("search_executed", {
+                            "query": q,
+                            "verdict": "allow",
+                            "result_count": len(urls),
+                            "domains": domains[:5],
+                            "latency_ms": _search_lat,
+                            "phase": phase,
+                            "subtask": subtask_text,
+                        })
+                    except Exception:
+                        pass
             return json.dumps({"result": result, "critic_feedback": critic_feedback, "summary": result_summary}, ensure_ascii=False)
 
         if func_name == "visit_urls":
             from tools.search_tools import visit_urls
-            verdict = self.crawl_controller.evaluate(
-                phase=phase,
-                pending_urls=self.state_store.pending_urls,
-                current_candidates=self.state_store.current_candidates,
-                active_sources=self._current_source_recommendations(),
-                use_llm=False,
-            )
-            self.state_store.set_controller_signals(verdict.to_dict())
+            # Controller evaluation — read state under lock (fast)
+            with self._tool_lock:
+                verdict = self.crawl_controller.evaluate(
+                    phase=phase,
+                    pending_urls=self.state_store.pending_urls,
+                    current_candidates=self.state_store.current_candidates,
+                    active_sources=self._current_source_recommendations(),
+                    use_llm=False,
+                )
+                self.state_store.set_controller_signals(verdict.to_dict())
             urls = arguments.get("urls", []) or []
             query = arguments.get("query") or self._current_question or ""
             try:
                 _t_crawl = time.time()
                 logger.info(f"[Executor] visit_urls start: {len(urls)} urls, query='{query[:50]}'")
-                results = visit_urls(urls, query)
+                results = visit_urls(urls, query)  # HTTP call — no lock
                 logger.info(f"[Executor] visit_urls done in {time.time()-_t_crawl:.1f}s ({len(urls)} urls)")
                 result = "\n".join(results)
             except Exception as e:
                 logger.error(f"[Executor] visit_urls failed: {e}")
                 result = f"Error visiting URLs: {e}"
             crawled_urls = urls
-            if self.query_memory.records:
-                self.query_memory.update_last_record(led_to_crawl=True, crawl_urls=crawled_urls)
-            self.state_store.register_tool_observation("visit_urls", arguments, result)
+            # State mutation under lock
+            with self._tool_lock:
+                if self.query_memory.records:
+                    self.query_memory.update_last_record(led_to_crawl=True, crawl_urls=crawled_urls)
+                self.state_store.register_tool_observation("visit_urls", arguments, result)
             return json.dumps({"controller_verdict": verdict.to_dict(), "result": result, "summary": self._summarize_tool_result(result)}, ensure_ascii=False)
 
         if func_name == "execute_code":
