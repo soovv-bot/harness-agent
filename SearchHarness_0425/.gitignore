@@ -1,0 +1,92 @@
+# ===== SearchHarness .gitignore =====
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# --- IDE / Editor ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# --- Environment / Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# --- Test / Coverage artifacts ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# --- Type checkers ---
+.mypy_cache/
+.pyre/
+.pytype/
+
+# --- SearchHarness runtime artifacts (DO NOT COMMIT) ---
+# Results outputs
+results/
+results_*/
+
+# Logs and trajectories (historical run data — keep only code, not outputs)
+logs/
+logs_*/
+*.log
+*.log.*
+
+# Trajectories (generated per-run)
+trajectories/
+trajectories_*/
+
+# Archive of historical experiments (moved here during cleanup)
+archive/
+
+# Snapshot / debug dumps
+*.snapshot.json
+*.debug.json
+tmp/
+tmp_*/
+
+# --- Keep markdown docs and explicit fixture data ---
+# (these patterns are exceptions and tracked normally)
+!docs/
+!*.md
