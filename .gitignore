@@ -60,7 +60,7 @@ tmp/
 *.ckpt
 *.json
 logs/
-
+*.env*
 # Large extracted text files
 EigentSearch_extracted.txt
 
