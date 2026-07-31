@@ -14,6 +14,7 @@ from loguru import logger
 from search_memory import SearchStateStore
 from planning_agent_v3 import PlanningAgentV3
 from search_agent_v3 import SearchAgentV3
+from config import settings
 from search_finalizer import SearchFinalizer
 from subtask_critic import SubtaskCritic
 from planning_direction_critic import DirectionCritic
@@ -1067,7 +1068,7 @@ if __name__ == "__main__":
     load_dotenv()
     api_base = os.getenv("OPENAI_BASE_URL")
     api_key = os.getenv("OPENAI_API_KEY")
-    model_id = os.getenv("MODEL_NAME", "GLM-5.2")
+    model_id = settings().model_id
     recorder = TrajectoryRecorder(model_id=model_id, output_dir="logs/trajectories")
     pipeline = SearchHarnessPipelineV4(api_base=api_base, api_key=api_key, model_id=model_id, trajectory_recorder=recorder,
                                        max_planner_searches=5, max_executor_searches=15, max_total_searches=30)

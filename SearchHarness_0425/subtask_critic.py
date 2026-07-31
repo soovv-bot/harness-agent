@@ -24,6 +24,7 @@ if root_path not in sys.path:
 
 from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
+from config import settings
 
 
 # Verdict constants
@@ -112,10 +113,10 @@ Plan phase: {phase}
 
 Evaluate and output JSON only (no markdown, no extra text)."""
 
-    def __init__(self, api_base: str, api_key: str, model_id: str = "GLM-5.2"):
+    def __init__(self, api_base: str, api_key: str, model_id: Optional[str] = None):
         self.api_base = api_base
         self.api_key = api_key
-        self.model_id = model_id
+        self.model_id = model_id or settings().model_id
         self.records: List[SubtaskRecord] = []
         self.max_output_tokens = 1024
 
@@ -438,7 +439,7 @@ def create_subtask_critic(
 
     _api_base = api_base or os.getenv("OPENAI_BASE_URL")
     _api_key = api_key or os.getenv("OPENAI_API_KEY")
-    _model_id = model_id or os.getenv("MODEL_NAME", "GLM-5.2")
+    _model_id = model_id or settings().model_id
 
     return SubtaskCritic(
         api_base=_api_base,
