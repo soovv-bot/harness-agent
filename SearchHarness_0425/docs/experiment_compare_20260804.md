@@ -206,6 +206,39 @@ ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=0 python run_browsecomp_fixed_s
 
 ---
 
+## 6.6 任务间并行效率测试（2026-08-04 17:48）
+
+`--max-workers 3` 将 3 题 pos0-2 并行执行（每个 pipeline 独立线程）：
+
+| 维度 | 串行 (w=1) | **并行 (w=3)** | 加速比 |
+|---|---|---|---|
+| 总耗时 | 1759s | **710s** | **2.48x** |
+| 平均/题 | 586s | 237s | 2.48x |
+| Accuracy | 3/3 (1.000) | **2/3 (0.667)** | -33pp |
+| pos0 | ✅ 4 iter 653s | ✅ 2 iter 432s | 加速 |
+| pos1 | ✅ 2 iter 636s | ✅ 2 iter 548s | 加速 |
+| pos2 | ✅ 3 iter 471s | ❌ Unknown 4 iter 710s | **退化** |
+| Structurer fallback | 3 次 | 7 次 | +2.3x |
+
+**根因**：3 pipeline 并行时 API 并发请求增 3 倍（3 pipeline × 内部 tool-call 并行 max 3 = 最多 9 并发 LLM 请求），导致：
+1. LLM 响应变慢（服务端排队）
+2. Structurer 更频繁 fallback（0-content 响应增加 2.3x）
+3. pos2（最难题）受影响最大，在 710s 内只完成 4 iter 且 finalizer 输出 Unknown
+
+**结论**：`max_workers=3` 加速显著但 accuracy 退化，**推荐 `max_workers=2`** 作为效率-质量平衡点（预期 ~1.9x 加速，并发竞争减半）。
+
+**复现命令**：
+
+```bash
+# 并行 3 workers（pos2 退化）
+ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_sample.py \
+    --seed 123 --sample-size 10 --positions 0-2 --max-workers 3 \
+    --output results/planA_parallel3_pos0to2.json \
+    2>&1 | tee logs/run_parallel3_pos0to2.log
+```
+
+---
+
 ## 7. 局限与后续
 
 ### 7.1 局限
@@ -218,6 +251,20 @@ ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=0 python run_browsecomp_fixed_s
 2. **单独消融**：分别开关 Plan B/C，量化各贡献；`VERIFIER_TYPE_AWARE` 0 vs 1 消融（在 pos0 上可复现假阴性）
 3. **跨模型验证**：在更强模型（如 Qwen3-32B、GPT-4o）上重复实验，验证 Plan A precision 是否随模型能力提升而改善（论文假设：强模型上 Plan A 应从 INCONCLUSIVE 主导转向 VERIFIED 主导）
 4. **多 seed 稳定性**：固定模型跑 seed ∈ {42, 123, 456, 789, 1024}，报告 mean±std
+5. **并行 workers 消融**：`--max-workers 2` 测效率-质量平衡点；尝试 `LLM_THINKING_BUDGET_TOKENS=2048` + `EXECUTOR_THINKING=medium` 测单题加速
+
+### 7.3 效率杠杆清单（供后续消融）
+
+| # | 杠杆 | 当前 | 建议 | 预期收益 | 风险 | 改动 |
+|---|---|---|---|---|---|---|
+| 1 | **任务间并行** | `--max-workers 1` | `--max-workers 2` | ~1.9x | pos2 类难题退化 | 加参数 |
+| 2 | thinking budget | 4097 | 2048 | 单题 15-25% | 质量降 | .env |
+| 3 | EXECUTOR_THINKING | high | medium | 10-20% | 质量降 | .env |
+| 4 | max_tokens | P8000/E6000 | P4000/E3000 | 10-15% | 截断 | .env |
+| 5 | candidate 并行验证 | 串行 | 并行 | 小（候选少） | 复杂 | 改代码 |
+| 6 | Plan A 验证预取 | 串行 | 与 finalizer 重叠 | <10s/题 | 复杂 | 改代码 |
+
+注：#1 已实测（§6.6），2-4 未实测，需单独消融量化质量影响。
 
 ## 8. 复现命令
 
