@@ -203,3 +203,68 @@ python3 run_browsecomp_fixed_sample.py \
 - **搜索策略**：在 Planner prompt 中强调"先用最 distinctive 约束组合搜索"（如 "100M records band singer + formed own band 1970-1990"），而非逐条约束拼凑。
 - **预算**：当前 60-search 预算远未触顶（实际 5 次），增加预算不会改善；需改善 query 质量。
 - **thinking 档**：`high` 比 `max` 更稳定（starvation 更少），维持 README 推荐。
+
+---
+
+## 第二轮修复：增强 simple prompt 加 verification 阶段（2026-08-04 18:04）
+
+### 根因深挖
+
+重测后答案仍错（Keith Richards），但排查发现 pipeline 行为已根本改变：
+
+| 指标 | 首测（max） | 重测（high+P0） | 三测（high+P0+prompt） |
+|------|------------|----------------|----------------------|
+| Planner 产 plan | 0/11 | 5/7 | 5/7 |
+| 进入 verification | 否 | 否 | **是** ✅ |
+| 验证候选数 | 0 | 0 | **3**（Townshend→Davies→Clapton） |
+| 搜索次数 | 4 | 5 | **17** |
+| 耗时 | 938s | 920s | 1520s |
+| 答案 | John Lennon | Ronnie Wood | Keith Richards |
+
+**真正的第二层瓶颈**：`PLANNER_SIMPLE_PROMPT=1` 加载的 43 行 prompt **只有 `candidate_generation` 模板**，Planner 从不输出 `verification` phase，pipeline 永远停在候选生成 → 候选从不被验证 → 错答案。
+
+### 修复：增强 `planning_agent_prompt_simple.md`
+
+| 新增内容 | 作用 |
+|---------|------|
+| Phase 模型表（3 phase × subtask_type 映射） | 明确告诉 Planner 何时用哪个 phase |
+| `stage_status: ready_to_advance` 规则 | 触发 `_advance_stage()` 进入 verification |
+| verification / final_check 两个新模板 | Planner 能输出 `candidate_verification` subtask |
+| "Never stay in candidate_generation forever" 硬约束 | 2+ 候选时必须切换 |
+
+### 三测结果
+
+| iter | phase | subtask | 候选 | 结果 |
+|------|-------|---------|------|------|
+| 0-2 | candidate_generation | "Search for candidate entities..." | 10（Richards/Townshend/Davies/Clapton/Page/Mercury/Lennon/Beck/Bowie/Jagger） | 候选池全是主流摇滚巨星，**无 David Coverdale** |
+| 3 | candidate_verification | "Verify Pete Townshend against 'worked in a boutique' and 'married'" | — | **淘汰** Townshend（boutique 矛盾） |
+| 4 | candidate_verification | "Verify Ray Davies against 'married three times', 'one daughter'" | — | 验证 Davies（未淘汰） |
+| 5 | candidate_verification | "Verify Eric Clapton against 'married three times' and 'one daughter'" | — | 验证 Clapton |
+| 6 | wrap-up → best_effort | — | — | finalizer 给出 Keith Richards（错） |
+
+### 剩余瓶颈：候选池质量（非预算、非 phase）
+
+**正确答案是 Whitesnake（David Coverdale）**，但候选池 10 人无 Coverdale。根因：
+- candidate_generation 的 query 全是"art college + boutique"的组合 → 返回主流艺术院校摇滚巨星（Townshend/Lennon/Davies 都上过艺术院校）
+- **最 distinctive 的约束是"100M records band"**（Deep Purple 卖了 1 亿+），但 Planner 从未搜 "rock band sold 100 million records singer"
+- Coverdale 的路径：Deep Purple 主唱 → 1978 组 Whitesnake，这条线需从"100M records 乐队前主唱自组团 1970-1990"切入
+
+### 对用户预算配置的结论
+
+用户配置 `max_iterations=10, max_crawl_calls=60, max_planner_searches=15, max_executor_searches=35, max_total_searches=250`：
+
+| 参数 | 评价 | 建议 |
+|------|------|------|
+| `max_iterations=10` | ✅ 合理（verification 需多轮，三测用 6 轮验证 3 候选） | 维持 10 |
+| `max_crawl_calls=60` | ⚠️ 偏高（三测仅用 17 次搜索，crawl 比例约 1:3） | 可降到 40 |
+| `max_planner_searches=15` | ✅ 合理 | 维持 |
+| `max_executor_searches=35` | ⚠️ 每子任务 35 偏高（三测每候选 ~5 次搜索即出结论） | 可降到 15-20 |
+| `max_total_searches=250` | ⚠️ 过高（三测 17 次，10 题也只 ~170 次） | **降到 150** 节省 API |
+
+**预算不是瓶颈**。三测用 17/60 次搜索即跑完 6 轮。提高准确率的下一杠杆是 **候选池质量**，不是增加预算。
+
+### 下一步（未实施）
+
+1. **Planner 搜索策略增强**：在 simple prompt 加"先搜最 distinctive 约束"规则（如"100M records band"是小列表，先搜它再筛 singer）
+2. **候选池多样性**：限制每候选验证轮数后强制 pivot（当前 Clapton 验证后未回到 expansion 找 Coverdale）
+3. **多题验证**：单题样本太小，需跑 5-10 题看准确率是否稳定提升

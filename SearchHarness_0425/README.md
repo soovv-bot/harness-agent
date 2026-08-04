@@ -526,8 +526,10 @@ python3 run_browsecomp_fixed_sample.py \
 ### 实测附注（2026-08-04）
 
 - **Planner `reasoning_effort` 修复**：此前 Planner 未传 `reasoning_effort`，fallback 到 `minimal` 被 GLM-5.2/tenyun 忽略，导致 0/11 产出 plan。修复后 5/7 产出有效 `<planning>` 块。详见 `docs/budget_test_2026-08-04_analysis.md`。
-- **预算非瓶颈**：单题实测仅 5 次搜索（预算 60），增加预算不改善；Planner 分解质量与 Executor query 命中率才是。
+- **simple prompt 加 verification 阶段**：`planning_agent_prompt_simple.md` 原本只有 `candidate_generation` 模板，Planner 从不输出 `verification` phase，pipeline 永远停在候选生成。增强后加入 3-phase 模型表 + verification/final_check 模板 + `stage_status: ready_to_advance` 规则。修复后 pipeline 进入 verification，逐个验证并淘汰错误候选（Townshend/Davies/Clapton）。
+- **预算非瓶颈**：三测仅用 17/60 次搜索即跑完 6 轮验证。`max_total_searches=250` 过高，建议降到 150。
 - **`high` 优于 `max`**：`max` 档 GLM-5.2 频繁 reasoning starvation（0 content + 30K reasoning）；`high` 档更稳定，维持推荐。
+- **剩余瓶颈**：候选池质量。candidate_generation 的 query 过于泛化（"art college + boutique" 返回主流摇滚巨星），未锁定最 distinctive 约束（"100M records band" → Deep Purple → Coverdale）。需后续优化 Planner 搜索策略，非预算问题。
 
 ---
 
