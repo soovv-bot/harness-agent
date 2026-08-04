@@ -89,10 +89,16 @@ def build_chat_completion_kwargs(
         kwargs[key] = value
 
     # Reasoning-capable models that emit reasoning_content can spend the entire
-    # max_tokens budget on reasoning, leaving content empty. When the caller
-    # opts in via LLM_THINKING_BUDGET_TOKENS, inject a thinking budget through
-    # the OpenAI SDK extra_body passthrough. DeepSeek-reasoner manages its own
-    # reasoning internally, so it is skipped.
+    # max_tokens budget on reasoning, leaving content empty. Cap reasoning via
+    # the model's native control parameter.
+    #
+    # DeepSeek-reasoner manages its own reasoning internally — skip.
+    # GLM-5.2 (Zhipu/Bigmodel) uses `reasoning_effort`: "high" | "max"(default).
+    #   We map LLM_THINKING_BUDGET_TOKENS to reasoning_effort:
+    #     budget <= 512  -> "high" (concise, faster)
+    #     budget <= 2048 -> "high"
+    #     budget > 2048  -> "max"  (deep, default)
+    #   Set LLM_THINKING_BUDGET_TOKENS=0 to disable injection (use model default).
     if effective_model not in SUPPORTED_DEEPSEEK_MODELS:
         budget_raw = (os.getenv(THINKING_BUDGET_ENV) or "").strip()
         if budget_raw:
@@ -100,18 +106,25 @@ def build_chat_completion_kwargs(
                 budget = int(budget_raw)
             except ValueError:
                 budget = 0
-            if budget > 0:
-                existing_extra = kwargs.get("extra_body") or {}
-                if isinstance(existing_extra, dict):
-                    existing_extra.setdefault("thinking", {})
-                    if isinstance(existing_extra["thinking"], dict):
-                        existing_extra["thinking"].setdefault("type", "enabled")
-                        existing_extra["thinking"].setdefault("budget_tokens", budget)
-                    kwargs["extra_body"] = existing_extra
-                else:
-                    kwargs["extra_body"] = {
-                        "thinking": {"type": "enabled", "budget_tokens": budget}
-                    }
+        else:
+            budget = 1024  # default: lean toward "high" to prevent reasoning overrun
+        if budget > 0:
+            existing_extra = kwargs.get("extra_body") or {}
+            if isinstance(existing_extra, dict):
+                # GLM-5.2: reasoning_effort parameter
+                if "reasoning_effort" not in existing_extra:
+                    existing_extra["reasoning_effort"] = "high" if budget <= 2048 else "max"
+                # Also keep thinking dict for DeepSeek-style endpoints that accept it
+                existing_extra.setdefault("thinking", {})
+                if isinstance(existing_extra["thinking"], dict):
+                    existing_extra["thinking"].setdefault("type", "enabled")
+                    existing_extra["thinking"].setdefault("budget_tokens", budget)
+                kwargs["extra_body"] = existing_extra
+            else:
+                kwargs["extra_body"] = {
+                    "reasoning_effort": "high" if budget <= 2048 else "max",
+                    "thinking": {"type": "enabled", "budget_tokens": budget},
+                }
     return kwargs
 
 

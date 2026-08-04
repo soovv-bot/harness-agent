@@ -241,6 +241,19 @@ def run_single_task(
         f"status={status} | {elapsed:.1f}s"
     )
 
+    # Trajectory cross-reference fields for debugging and training
+    trajectory_path = ""
+    iterations = pipeline_result.get("iterations")
+    stop_reason = pipeline_result.get("stop_reason") or pipeline_result.get("status") or pipeline_result.get("failure_category") or ""
+    if trajectory_recorder:
+        try:
+            traj_path = getattr(trajectory_recorder, "output_path", None)
+            if not traj_path:
+                traj_path = str(trajectory_recorder._output_path())
+            trajectory_path = str(traj_path)
+        except Exception:
+            trajectory_path = ""
+
     return {
         "task_index": task_index,
         "question_preview": question[:150],
@@ -255,6 +268,9 @@ def run_single_task(
         "grader_status": grade.get("status", "ok"),
         "grader_error_type": grade.get("error_type", ""),
         "elapsed_seconds": round(elapsed, 1),
+        "trajectory_path": trajectory_path,
+        "iterations": iterations,
+        "stop_reason": stop_reason,
     }
 
 
@@ -285,7 +301,7 @@ def run_evaluation(
     max_total_searches: int = 80,
 ):
     from search_harness_pipeline_v4 import SearchHarnessPipelineV4
-    from trajectory_recorder import TrajectoryRecorder
+    from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
 
     # Load dataset
     logger.info("Loading BrowseComp dataset...")
@@ -322,7 +338,7 @@ def run_evaluation(
         question = _decrypt(example.get("problem", ""), canary)
         answer = _decrypt(example.get("answer", ""), canary)
         # Create a per-task recorder
-        recorder = TrajectoryRecorder(model_id=model_id, output_dir=trajectory_dir, task_index=i) if save_trajectories else None
+        recorder = TrajectoryRecorderEnhanced(model_id=model_id, output_dir=trajectory_dir, task_index=i) if save_trajectories else None
         return run_single_task(
             task_index=i,
             question=question,

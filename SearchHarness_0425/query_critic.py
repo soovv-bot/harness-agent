@@ -139,6 +139,41 @@ Phase: {phase}
 
 Evaluate and output JSON only (no markdown, no extra text)."""
 
+    BATCH_CRITIC_PROMPT = """You are a search query critic. Evaluate a batch of proposed search queries against the history of previous searches. Judge EACH query independently.
+
+Output a JSON array with exactly one object per query, IN THE SAME ORDER as the input queries. Each object has exactly two fields:
+```json
+[{{"decision": "allow | allow_with_warning | reject_as_redundant | suggest_pivot", "reason": "..."}}, ...]
+```
+
+Decision criteria (same as single-query):
+- **allow**: The query explores a genuinely new direction, new constraints, or new source families.
+- **allow_with_warning**: The query has some overlap with history but introduces a meaningful variation.
+- **reject_as_redundant**: The query is essentially a repeat of a previous search with no meaningful change.
+- **suggest_pivot**: The query repeats the same failed pattern. A fundamentally different approach is needed. Include "alternative_queries" in the reason.
+
+## Important: Multi-hop questions require cross-domain searches
+
+The original question may span multiple domains. A query that shifts to a different domain from previous searches is **not** redundant — it may be a necessary step in a multi-hop reasoning chain. Evaluate whether each query is relevant to the **current subtask** and the **original question**, not just whether it matches previous search topics.
+
+## Original Question
+
+{question}
+
+## Current Subtask
+
+{subtask}
+
+## History
+
+{history}
+
+## Proposed Queries (evaluate each, in order)
+
+{queries_block}
+
+Output a JSON array only (no markdown, no extra text). The array MUST have exactly {count} elements, one per query, in the input order."""
+
     def __init__(
         self,
         memory: QueryHistoryMemory,
@@ -298,6 +333,193 @@ Evaluate and output JSON only (no markdown, no extra text)."""
         result = self._llm_based_check(query, phase, subtask, checks)
         self._store_cache(query, phase, result)
         return result
+
+    def batch_evaluate(
+        self,
+        queries: List[str],
+        phase: str,
+        subtask: str,
+        question: str = "",
+        use_llm: bool = True,
+    ) -> List[QueryVerdict]:
+        """Evaluate multiple proposed queries in one batch.
+
+        Fast paths (exact cache, fuzzy cache, rule-based) run per-query with NO
+        LLM. Only the queries that remain undecided after the fast paths are sent
+        to the LLM together in a SINGLE call. Verdicts are returned in the same
+        order as the input queries.
+
+        This collapses N sequential LLM calls into (at most) one, which is the
+        main latency win: a single ``search`` tool call with N queries previously
+        issued N critic LLM round-trips.
+
+        Args:
+            queries: List of proposed search queries (any order preserved).
+            phase: Current planning phase.
+            subtask: Current subtask description.
+            question: The original search question (for cross-domain awareness).
+            use_llm: Whether to use LLM for the undecided queries (default True).
+
+        Returns:
+            List of QueryVerdict aligned 1:1 with the input ``queries``.
+        """
+        self._current_question = question
+        verdicts: List[Optional[QueryVerdict]] = [None] * len(queries)
+        needs_llm: List[Tuple[int, str]] = []  # (original index, query)
+
+        # Phase 1: per-query fast paths (cache + rules) — no LLM, parallel-safe.
+        for i, raw in enumerate(queries):
+            q = str(raw).strip()
+            if not q:
+                verdicts[i] = QueryVerdict(
+                    decision=REJECT_AS_REDUNDANT,
+                    reason="Empty query.",
+                    checks={"empty": True},
+                )
+                continue
+
+            cached = self._lookup_cache(q, phase)
+            if cached is not None:
+                verdicts[i] = cached
+                continue
+
+            cached_fuzzy = self._lookup_cache_fuzzy(q, phase)
+            if cached_fuzzy is not None:
+                verdicts[i] = cached_fuzzy
+                continue
+
+            checks: Dict[str, any] = {}
+            rule_verdict = self._rule_based_check(q, checks)
+            if rule_verdict is not None:
+                rule_verdict.checks = checks
+                logger.info(f"[QueryCritic] batch rule verdict[{i}]: {rule_verdict.decision}")
+                self._store_cache(q, phase, rule_verdict)
+                verdicts[i] = rule_verdict
+                continue
+
+            if not use_llm:
+                v = QueryVerdict(
+                    decision=ALLOW,
+                    reason="No rule violations detected. LLM check skipped.",
+                    checks=checks,
+                )
+                self._store_cache(q, phase, v)
+                verdicts[i] = v
+            else:
+                needs_llm.append((i, q))
+
+        # Phase 2: a single LLM call for all undecided queries.
+        if needs_llm:
+            llm_verdicts = self._llm_batch_check(
+                queries=[q for _, q in needs_llm],
+                phase=phase,
+                subtask=subtask,
+            )
+            for (i, q), v in zip(needs_llm, llm_verdicts):
+                self._store_cache(q, phase, v)
+                verdicts[i] = v
+
+        # Defensive: every slot must be filled.
+        return [v if v is not None else QueryVerdict(
+            decision=ALLOW_WITH_WARNING,
+            reason="Batch slot unfilled (defensive default).",
+            checks={},
+        ) for v in verdicts]
+
+    def _llm_batch_check(
+        self,
+        queries: List[str],
+        phase: str,
+        subtask: str,
+    ) -> List[QueryVerdict]:
+        """Use ONE LLM call to evaluate a batch of queries against history.
+
+        Returns a list of QueryVerdict aligned 1:1 with ``queries``. On any
+        parse/transport failure the whole batch degrades gracefully to
+        ``ALLOW_WITH_WARNING`` (fail-open, like the single-query path).
+        """
+        if not queries:
+            return []
+
+        recent_records = self.memory.records[-20:]
+        history_lines = []
+        for rec in recent_records:
+            history_lines.append(
+                f"- Query: \"{rec.query}\" | Phase: {rec.phase} | "
+                f"Quality: {rec.result_quality} | "
+                f"New sources: {rec.new_source_families} | "
+                f"New candidates: {rec.new_candidates} | "
+                f"Led to crawl: {rec.led_to_crawl}"
+            )
+        history_text = "\n".join(history_lines) if history_lines else "(no previous queries)"
+
+        queries_block = "\n".join(
+            f"{idx + 1}. \"{q}\""
+            for idx, q in enumerate(queries)
+        )
+
+        prompt = self.BATCH_CRITIC_PROMPT.format(
+            question=getattr(self, "_current_question", ""),
+            subtask=subtask,
+            history=history_text,
+            queries_block=queries_block,
+            count=len(queries),
+        )
+
+        try:
+            message = chat_completion_with_structuring(
+                self.client,
+                model_id=self.model_id,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=self.max_output_tokens,
+                structurer_format_hint="Output the result as a JSON array.",
+            )
+            content = (getattr(message, "content", None) or "").strip()
+
+            # Parse JSON array — tolerate markdown code fences.
+            array_match = re.search(r'\[.*\]', content, re.DOTALL)
+            if not array_match:
+                logger.error(
+                    f"[QueryCritic] batch LLM returned no JSON array: {content[:200]}"
+                )
+                return [QueryVerdict(
+                    decision=ALLOW_WITH_WARNING,
+                    reason="Failed to parse batch LLM response. Allowing with warning.",
+                    checks={},
+                ) for _ in queries]
+
+            parsed = json.loads(array_match.group())
+            if not isinstance(parsed, list):
+                raise ValueError("batch LLM response was not a JSON array")
+
+            # Align to input order by index. If count mismatch, fail-open the extras.
+            results: List[QueryVerdict] = []
+            for idx, q in enumerate(queries):
+                entry = parsed[idx] if idx < len(parsed) and isinstance(parsed[idx], dict) else {}
+                decision = entry.get("decision", ALLOW_WITH_WARNING)
+                reason = entry.get("reason", "")
+                alternative_queries = entry.get("alternative_queries", []) or []
+                # Coerce unknown decisions to a safe allow-with-warning.
+                if decision not in (ALLOW, ALLOW_WITH_WARNING, REJECT_AS_REDUNDANT, SUGGEST_PIVOT):
+                    decision = ALLOW_WITH_WARNING
+                    reason = f"[coerced] {reason}"
+                logger.info(f"[QueryCritic] batch LLM verdict[{idx}] '{q[:40]}': {decision}")
+                results.append(QueryVerdict(
+                    decision=decision,
+                    reason=reason,
+                    alternative_queries=alternative_queries,
+                    checks={"batch": True},
+                ))
+            return results
+
+        except Exception as e:
+            logger.error(f"[QueryCritic] batch LLM call failed: {e}")
+            return [QueryVerdict(
+                decision=ALLOW_WITH_WARNING,
+                reason=f"Batch LLM critic call failed ({str(e)}). Allowing with warning.",
+                checks={},
+            ) for _ in queries]
 
     def _rule_based_check(
         self,

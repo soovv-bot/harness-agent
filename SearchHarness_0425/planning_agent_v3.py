@@ -64,6 +64,7 @@ class PlanningAgentV3:
         temperature: float = 0.4,
         max_turns: int = 20,
         search_budget: int = 10,
+        event_callback=None,
     ):
         self.api_base = api_base
         self.api_key = api_key
@@ -74,6 +75,7 @@ class PlanningAgentV3:
         self._search_count = 0
         self.max_output_tokens = _env_int("PLANNER_MAX_TOKENS", 1200)
         self.fail_fast_on_malformed_plan = _env_flag("PLANNER_FAIL_FAST_ON_MALFORMED_PLAN", "1")
+        self._event_callback = event_callback  # callable(event_type, data) for trajectory recording
 
         if system_prompt:
             base_prompt = system_prompt

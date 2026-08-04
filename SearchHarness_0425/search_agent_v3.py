@@ -909,6 +909,9 @@ Candidate handling is critical:
             allowed_queries: List[str] = []
             critic_feedback: List[Dict[str, Any]] = []
             budget_hit = False
+            # Phase 1: validate + budget check (no LLM). Collect queries that pass
+            # so the critic can judge them together in ONE LLM call (batch).
+            validated: List[str] = []  # cleaned, non-empty, in-budget queries
             for raw_query in queries:
                 q = str(raw_query).strip()
                 if not q:
@@ -920,16 +923,34 @@ Candidate handling is critical:
                         critic_feedback.append({"query": q, "verdict": "budget_exhausted", "reason": f"Per-subtask search budget reached ({self._search_count}/{self.search_budget})"})
                         budget_hit = True
                         continue
-                # QueryCritic evaluation WITHOUT lock (LLM call — I/O bound, parallel-safe)
-                if self.enable_query_critic:
-                    try:
-                        verdict = self.query_critic.evaluate(query=q, phase=phase, subtask=subtask_text, question=getattr(self, '_current_question', ''), use_llm=True)
-                    except Exception as e:
-                        logger.warning(f"[Executor] QueryCritic error for '{q[:50]}': {e}")
-                        verdict = QueryVerdict(decision="allow", reason=f"Critic error ({e}), allowing query.", checks={})
-                else:
-                    verdict = QueryVerdict(decision="allow", reason="Query critic disabled.", checks={"query_critic_disabled": True})
-                critic_feedback.append(verdict.to_dict())
+                validated.append(q)
+            # Phase 2: batch QueryCritic evaluation (1 LLM call for all validated
+            # queries). Previously this loop issued one LLM call per query.
+            if not self.enable_query_critic:
+                batch_verdicts: List[QueryVerdict] = [
+                    QueryVerdict(decision="allow", reason="Query critic disabled.", checks={"query_critic_disabled": True})
+                    for _ in validated
+                ]
+            else:
+                try:
+                    batch_verdicts = self.query_critic.batch_evaluate(
+                        queries=validated,
+                        phase=phase,
+                        subtask=subtask_text,
+                        question=getattr(self, '_current_question', ''),
+                        use_llm=True,
+                    )
+                except Exception as e:
+                    logger.warning(f"[Executor] batch QueryCritic error: {e}; failing open")
+                    batch_verdicts = [
+                        QueryVerdict(decision="allow", reason=f"Batch critic error ({e}), allowing query.", checks={})
+                        for _ in validated
+                    ]
+            # Phase 3: apply verdicts to build allowed list + feedback.
+            for q, verdict in zip(validated, batch_verdicts):
+                fb = verdict.to_dict()
+                fb["query"] = q  # enrich trajectory feedback with the query string
+                critic_feedback.append(fb)
                 if verdict.is_allowed:
                     allowed_queries.append(q)
             if budget_hit:

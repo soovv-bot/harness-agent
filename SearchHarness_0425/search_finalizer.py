@@ -183,9 +183,11 @@ class SearchFinalizer:
         # GLM-5.2 is a pure reasoning model: complex prompts induce long reasoning
         # that exhausts max_tokens before content is emitted.  The only reliable
         # way to get content out is to hand the model a complete JSON answer and
-        # ask it to copy it.  We pick the strongest candidate as the answer and
-        # build the full JSON for it.
-        best_answer = unique_candidates[0]["name"] if unique_candidates else "Unknown"
+        # ask it to copy it.  We pick the strongest VIABLE candidate (skipping any
+        # marked eliminated due to hard_conflicts) as the answer and build the
+        # full JSON for it.
+        viable_candidates = [c for c in unique_candidates if c["status"] != "eliminated"]
+        best_answer = viable_candidates[0]["name"] if viable_candidates else "Unknown"
         answer_json = json.dumps(
             {
                 "status": "solved" if best_answer != "Unknown" else "best_effort",

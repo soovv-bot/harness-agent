@@ -128,7 +128,7 @@ def run_fixed_evaluation(
     enable_query_critic: bool = True,
 ) -> None:
     from search_harness_pipeline_v4 import SearchHarnessPipelineV4
-    from trajectory_recorder import TrajectoryRecorder
+    from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
 
     print("[run] starting fixed-sample evaluation", flush=True)
     load_dotenv()
@@ -183,7 +183,7 @@ def run_fixed_evaluation(
             enable_query_critic=enable_query_critic,
         )
         recorder_model_id = model_id if executor_model_id == model_id else f"{model_id}__exec__{executor_model_id}"
-        recorder = TrajectoryRecorder(model_id=recorder_model_id, output_dir=trajectory_dir, task_index=sample_position)
+        recorder = TrajectoryRecorderEnhanced(model_id=recorder_model_id, output_dir=trajectory_dir, task_index=sample_position)
         result = run_single_task(
             task_index=sample_position,
             question=question,
