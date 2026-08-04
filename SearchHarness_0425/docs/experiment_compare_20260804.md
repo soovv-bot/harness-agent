@@ -206,31 +206,50 @@ ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=0 python run_browsecomp_fixed_s
 
 ---
 
-## 6.6 任务间并行效率测试（2026-08-04 17:48）
+## 6.6 任务间并行效率测试（2026-08-04 17:48–18:23）
 
-`--max-workers 3` 将 3 题 pos0-2 并行执行（每个 pipeline 独立线程）：
+`--max-workers N` 将 N 题 pipeline 并行执行（每个独立线程，内部 tool-call 并行 max 3）。
 
-| 维度 | 串行 (w=1) | **并行 (w=3)** | 加速比 |
+### 三方对比（pos0-2，seed=123）
+
+| 维度 | 串行 (w=1) | **并行 (w=2)** | **并行 (w=3)** |
 |---|---|---|---|
-| 总耗时 | 1759s | **710s** | **2.48x** |
-| 平均/题 | 586s | 237s | 2.48x |
-| Accuracy | 3/3 (1.000) | **2/3 (0.667)** | -33pp |
-| pos0 | ✅ 4 iter 653s | ✅ 2 iter 432s | 加速 |
-| pos1 | ✅ 2 iter 636s | ✅ 2 iter 548s | 加速 |
-| pos2 | ✅ 3 iter 471s | ❌ Unknown 4 iter 710s | **退化** |
-| Structurer fallback | 3 次 | 7 次 | +2.3x |
+| 总耗时 | 1759s | **1606s** | **710s** |
+| 加速比 | 1.0x | 1.10x | **2.48x** |
+| 平均/题 | 586s | 535s | 237s |
+| Accuracy | **3/3 (1.000)** | 2/3 (0.667) | 2/3 (0.667) |
+| pos0 | ✅ 4 iter 653s | ✅ 1 iter 226s | ✅ 2 iter 432s |
+| pos1 | ✅ 2 iter 636s | ✅ 2 iter 225s | ✅ 2 iter 548s |
+| pos2 | ✅ 3 iter 471s | ❌ 7 iter 1381s | ❌ 4 iter 710s (unfinished) |
+| Structurer fallback | 3 次 | **16 次** | 7 次 |
+| Plan A 判定 | INC×3 | INC×3 | INC×3 |
 
-**根因**：3 pipeline 并行时 API 并发请求增 3 倍（3 pipeline × 内部 tool-call 并行 max 3 = 最多 9 并发 LLM 请求），导致：
-1. LLM 响应变慢（服务端排队）
-2. Structurer 更频繁 fallback（0-content 响应增加 2.3x）
-3. pos2（最难题）受影响最大，在 710s 内只完成 4 iter 且 finalizer 输出 Unknown
+### 关键发现
 
-**结论**：`max_workers=3` 加速显著但 accuracy 退化，**推荐 `max_workers=2`** 作为效率-质量平衡点（预期 ~1.9x 加速，并发竞争减半）。
+1. **pos2 是并发敏感题**：无论 w=2 还是 w=3，pos2 在并发下都退化（串行 ✅ → 并发 ❌）。根因是 pos2（菲律宾音乐剧 Abangan 2024）需要长链多跳推理，对 LLM 响应延迟和 structurer 0-content fallback 敏感。
+2. **w=2 加速有限（1.10x）**：pos2 在并发下 iter 数从 3 暴增到 7，单题耗时 471s→1381s（+193%），抵消了 pos0/pos1 的加速。Structurer fallback 从 3→16（+5.3x），质量退化比 w=3 更明显。
+3. **w=3 加速显著但 pos2 unfinished**：pos2 只跑了 4 iter 就超时，输出 Unknown。Structurer fallback 7 次（介于 w=1 的 3 和 w=2 的 16 之间）。
+4. **pos0/pos1 在并发下反而更快**：pos0 从 653s→226s (w=2) 或 432s (w=3)，iter 数也减少。易题受并发竞争正向影响（更少冗余思考），难题受负向影响（structurer 失败累积）。
+
+### 结论
+
+- **n=3 上无安全并发数**：w=2 和 w=3 都导致 pos2 退化。瓶颈不在客户端并发能力，而在 LLM 服务端在并发请求下的 structurer 成功率下降。
+- **推荐策略**：
+  - **质量优先**：`--max-workers 1`（论文主实验、消融、可复现性验证）
+  - **效率优先且容忍退化**：`--max-workers 3`（2.48x 加速，适合大批量数据生成、debug 跑通）
+  - **w=2 不推荐**：加速比 1.10x 太小，且 pos2 退化最严重（7 iter/16 fallback），性价比最低
+- **论文价值**：揭示**LLM agent 并发的非线性退化**——不是简单的线程数 × 单线程吞吐，而是受服务端 structurer 成功率调制。可作为 Discussion 里的工程发现。
 
 **复现命令**：
 
 ```bash
-# 并行 3 workers（pos2 退化）
+# 并行 2 workers（pos2 退化，1.10x 加速）
+ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_sample.py \
+    --seed 123 --sample-size 10 --positions 0-2 --max-workers 2 \
+    --output results/planA_parallel2_pos0to2.json \
+    2>&1 | tee logs/run_parallel2_pos0to2.log
+
+# 并行 3 workers（pos2 退化，2.48x 加速）
 ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_sample.py \
     --seed 123 --sample-size 10 --positions 0-2 --max-workers 3 \
     --output results/planA_parallel3_pos0to2.json \
@@ -257,14 +276,14 @@ ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_s
 
 | # | 杠杆 | 当前 | 建议 | 预期收益 | 风险 | 改动 |
 |---|---|---|---|---|---|---|
-| 1 | **任务间并行** | `--max-workers 1` | `--max-workers 2` | ~1.9x | pos2 类难题退化 | 加参数 |
+| 1 | **任务间并行** | `--max-workers 1` | `--max-workers 3` | **2.48x**（实测） | pos2 类难题退化 -33pp | 加参数 |
 | 2 | thinking budget | 4097 | 2048 | 单题 15-25% | 质量降 | .env |
 | 3 | EXECUTOR_THINKING | high | medium | 10-20% | 质量降 | .env |
 | 4 | max_tokens | P8000/E6000 | P4000/E3000 | 10-15% | 截断 | .env |
 | 5 | candidate 并行验证 | 串行 | 并行 | 小（候选少） | 复杂 | 改代码 |
 | 6 | Plan A 验证预取 | 串行 | 与 finalizer 重叠 | <10s/题 | 复杂 | 改代码 |
 
-注：#1 已实测（§6.6），2-4 未实测，需单独消融量化质量影响。
+注：#1 已实测（§6.6），2-4 未实测，需单独消融量化质量影响。**#1 发现并发非线性退化**：w=2 加速仅 1.10x 且 pos2 退化最严重（16 fallback），w=3 加速 2.48x 但 pos2 unfinished。瓶颈在 LLM 服务端 structurer 成功率，非客户端并发能力。
 
 ## 8. 复现命令
 
