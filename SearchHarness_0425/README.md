@@ -438,33 +438,35 @@ python3 run_browsecomp.py \
 
 ## 预算参数配置建议（BrowseComp 评测，实测 2026-08-04）
 
-BrowseComp 是 **业界最难的 web-search benchmark 之一**，多数问题需要 3–6 跳跨域推理。直接用默认预算（`max_total_searches=120`）几乎全部以 `unfinished` 终结，且很难爬到决定性证据。下面给出基于历史运行数据（`cluster_run_seed123_k100.json` 100 题统计：94/100 unfinished、0 correct）反推的预算推荐表。
+> **核心结论（三轮单题实测 pos3）**：预算**不是**准确率的瓶颈。三轮测试实际搜索次数 4 → 5 → 17，远低于预算上限 60，但准确率未随预算提升。真正的杠杆是 **Planner 能否进入 verification 阶段**（已修）和 **候选池 query 质量**（待优化）。
 
 ### 预算参数作用范围
 
-| 参数 | 作用域 | 触发后行为 |
-|------|--------|-----------|
-| `--max-iterations` | 每题外层迭代轮数 | 触发 `max_iterations_reached`，进入 best-effort 终结 |
-| `--max-crawl-calls` | 每题全局抓取数 | 触发 `max_crawl_calls_reached`，best-effort 终结 |
-| `--max-planner-searches` | 每题 Planner 累计搜索 | Planner 搜索被拒、改用现有信息规划 |
-| `--max-executor-searches` | **每子任务**（每次 `run()` 重置） | Executor 搜索被拒、注入"预算耗尽"提示收尾 |
-| `--max-total-searches` | 每题全局搜索硬上限 | 触发 `max_total_searches_reached`，best-effort 终结 |
+| 参数 | 作用域 | 触发后行为 | 实测占用 |
+|------|--------|-----------|---------|
+| `--max-iterations` | 每题外层迭代轮数 | 触发 `max_iterations_reached`，进入 best-effort 终结 | 三测 6 轮验证 3 候选即收尾 |
+| `--max-crawl-calls` | 每题全局抓取数 | 触发 `max_crawl_calls_reached`，best-effort 终结 | 三测 ~5 次 crawl（搜索:crawl ≈ 3:1） |
+| `--max-planner-searches` | 每题 Planner 累计搜索 | Planner 搜索被拒、改用现有信息规划 | 未触发 |
+| `--max-executor-searches` | **每子任务**（每次 `run()` 重置） | Executor 搜索被拒、注入"预算耗尽"提示收尾 | 每候选 ~5 次搜索即出结论 |
+| `--max-total-searches` | 每题全局搜索硬上限 | 触发 `max_total_searches_reached`，best-effort 终结 | 三测 17/60，远未触顶 |
 
-> 关键：`--max-executor-searches` 是**每子任务**而非每题。例如 6 个子任务 × 20 = 120 可能远超 `--max-total-searches=80`，因此 `--max-total-searches` 通常最先触发。`--max-iterations` 在实际运行中很少是 binding constraint。
+> **关键**：`--max-executor-searches` 是**每子任务**而非每题。但实测每子任务 ~5 次搜索即出验证结论，35 偏高。`--max-total-searches` 通常最先触发，但修复 verification 后实际消耗远低于预算——增加预算**不会**提升准确率。
 
 ### 三档推荐配置
 
 | 档位 | `--max-iterations` | `--max-crawl-calls` | `--max-planner-searches` | `--max-executor-searches` | `--max-total-searches` | `--max-workers` | `EXECUTOR_THINKING` | 适用场景 |
 |------|-----|-----|-----|-----|-----|-----|-----|-----|
-| **冒烟**（单题 10–15min） | 4 | 30 | 8 | 20 | 60 | 1 | `high` | 验证 API/搜索/链路连通 |
-| **平衡**（10题 6–7h） | 8 | 100 | 15 | 30 | 200 | 4 | `max` | 正式评测，准确率/成本平衡 |
-| **极限**（10题 10–14h） | 10 | 150 | 20 | 40 | 300 | 2 | `max` | 榜单冲刺，预算无上限 |
+| **冒烟**（单题 10–25min） | 6 | 30 | 8 | 20 | 60 | 1 | `high` | 验证 API/搜索/链路连通 |
+| **平衡**（10题 6–7h） | 8 | 40 | 15 | 20 | 150 | 4 | `high` | 正式评测，准确率/成本平衡 |
+| **极限**（10题 10–14h） | 10 | 60 | 20 | 30 | 250 | 2 | `max` | 榜单冲刺，预算无上限 |
+
+> **vs 旧推荐**：平衡档 `max_total_searches` 200→**150**（实测 17 次搜索即够）、`max_crawl_calls` 100→**40**、`max_executor_searches` 30→**20**、`EXECUTOR_THINKING` max→**high**（max 档 GLM-5.2 频繁 reasoning starvation）。
 
 ### 平衡档完整命令（推荐）
 
 ```bash
-# 1. 先设置思考档为 max（BrowseComp 多跳需要最深推理）
-export EXECUTOR_THINKING=max
+# 1. 思考档用 high（实测 max 档 GLM-5.2 频繁 reasoning starvation：0 content + 30K reasoning）
+export EXECUTOR_THINKING=high
 
 # 2. 运行 10 题，4 路并发
 python3 run_browsecomp_fixed_sample.py \
@@ -474,40 +476,41 @@ python3 run_browsecomp_fixed_sample.py \
   --output results/position3_v4_balanced_20260804.json \
   --trajectory-dir logs/trajectories_position3_v4_balanced_20260804 \
   --max-iterations 8 \
-  --max-crawl-calls 100 \
+  --max-crawl-calls 40 \
   --max-planner-searches 15 \
-  --max-executor-searches 30 \
-  --max-total-searches 200 \
+  --max-executor-searches 20 \
+  --max-total-searches 150 \
   --max-workers 4
 ```
 
-### 预算设计原理
+### 预算设计原理（实测修正）
 
 | 设计点 | 解释 |
 |--------|------|
-| `max-crawl-calls=100`（≈ 50% 的搜索） | 历史数据显示多数 unfinished 是因为没爬到决定性证据。50% search→crawl 比例显著提升证据覆盖 |
-| `max-total-searches=200`（1.67× 默认） | 显著增加预算但不翻倍；200 ≈ 15 planner + 30×6 subtask = 195，与上限吻合，几乎不浪费 |
-| `max-iterations=8` 而非 10 | 200 次搜索通常在 6–7 轮耗尽，第 8 轮用于 best-effort 终结；10 轮永远到不了 |
-| `max-executor-searches=30` 每子任务 | 较 20 提升 50%；难子任务允许更深探索，简单子任务自然早停 |
-| `--max-workers=4` | 4 路并发是 API 配额安全区；>6 可能触发 tenyun 网关限流 |
-| `EXECUTOR_THINKING=max` | BrowseComp 需要最深推理；实测 `max` 与 `high` 在多跳问题上答案质量有显著差异（见「思考模式控制」章节实测） |
+| `max-iterations=8` | verification 阶段需多轮（三测 6 轮验证 3 候选）；8 轮覆盖 10 候选 + best-effort |
+| `max-crawl-calls=40` | 实测搜索:crawl ≈ 3:1，17 次搜索 → ~5 次 crawl；40 足够且防失控 |
+| `max-planner-searches=15` | Planner 主要调用 LLM 而非搜索，15 富余 |
+| `max-executor-searches=20` 每子任务 | 实测每候选 ~5 次搜索即出结论，20 富余 |
+| `max-total-searches=150` | 三测单题 17 次，10 题 ~170 次（含 verification）；150 是安全上限，过大会浪费 API 配额 |
+| `--max-workers=4` | 4 路并发是 tenyun 网关限流安全区 |
+| `EXECUTOR_THINKING=high` | 实测 `max` 档 GLM-5.2 推理饥饿（0 content + 30K reasoning），`high` 更稳定；`max` 仅留作疑难题冲刺 |
 
 ### 运行前检查清单
 
 ```bash
-# 1. 确认思考档
-echo $EXECUTOR_THINKING  # 应输出: max
+# 1. 确认思考档（推荐 high；max 仅用于疑难题冲刺）
+echo $EXECUTOR_THINKING  # 应输出: high
 
 # 2. 确认 LLM 端点连通
 python3 debug_llm_smoke.py --verify-thinking
 
-# 3. 单题冒烟（10–15min，验证整链路）
+# 3. 单题冒烟（10–25min，验证整链路 + verification 阶段是否触发）
 #    注意：--positions 必须 < --sample-size；--sample-size 1 时只能用 --positions 0
 python3 run_browsecomp_fixed_sample.py \
   --seed 123 --sample-size 10 --positions 3 \
   --output /tmp/smoke_pos3.json \
   --trajectory-dir /tmp/smoke_traj \
-  --max-iterations 4 --max-crawl-calls 30 \
+  --max-iterations 6 --max-crawl-calls 30 \
   --max-planner-searches 8 --max-executor-searches 20 \
   --max-total-searches 60
 ```
@@ -516,20 +519,30 @@ python3 run_browsecomp_fixed_sample.py \
 
 | 指标 | 平衡档（10题） | 极限档（10题） |
 |------|---------------|---------------|
-| 每题搜索次数 | ~200（硬上限） | ~300（硬上限） |
-| 每题耗时 | 100–150 min | 150–200 min |
-| 10 题总墙钟时间（并发） | **6–7 小时** | **10–14 小时** |
-| 总搜索 API 调用 | ~2000 | ~3000 |
-| 总 LLM 调用 | ~3000–4000 | ~5000–7000 |
-| 预计 LLM token | 30–50M | 50–80M |
+| 每题实际搜索次数 | ~17–30 | ~30–60 |
+| 每题耗时 | 25–40 min | 40–80 min |
+| 10 题总墙钟时间（并发） | **2–3 小时** | **4–6 小时** |
+| 总搜索 API 调用 | ~300 | ~600 |
+| 总 LLM 调用 | ~500–800 | ~1000–1500 |
+| 预计 LLM token | 10–20M | 20–40M |
 
-### 实测附注（2026-08-04）
+> **注**：上表基于实测（单题 17 次搜索、25 min）。旧估计（200 次搜索、100–150 min/题）是预算上限假设，实际消耗远低于此。
 
-- **Planner `reasoning_effort` 修复**：此前 Planner 未传 `reasoning_effort`，fallback 到 `minimal` 被 GLM-5.2/tenyun 忽略，导致 0/11 产出 plan。修复后 5/7 产出有效 `<planning>` 块。详见 `docs/budget_test_2026-08-04_analysis.md`。
-- **simple prompt 加 verification 阶段**：`planning_agent_prompt_simple.md` 原本只有 `candidate_generation` 模板，Planner 从不输出 `verification` phase，pipeline 永远停在候选生成。增强后加入 3-phase 模型表 + verification/final_check 模板 + `stage_status: ready_to_advance` 规则。修复后 pipeline 进入 verification，逐个验证并淘汰错误候选（Townshend/Davies/Clapton）。
-- **预算非瓶颈**：三测仅用 17/60 次搜索即跑完 6 轮验证。`max_total_searches=250` 过高，建议降到 150。
-- **`high` 优于 `max`**：`max` 档 GLM-5.2 频繁 reasoning starvation（0 content + 30K reasoning）；`high` 档更稳定，维持推荐。
-- **剩余瓶颈**：候选池质量。candidate_generation 的 query 过于泛化（"art college + boutique" 返回主流摇滚巨星），未锁定最 distinctive 约束（"100M records band" → Deep Purple → Coverdale）。需后续优化 Planner 搜索策略，非预算问题。
+### 实测附注（2026-08-04，三轮单题 pos3）
+
+三轮同题实测（正确答案 Whitesnake）验证了预算非瓶颈、Planner 阶段切换才是关键：
+
+| 轮次 | 改动 | 搜索次数 | Planner 产 plan | 进入 verification | 答案 | 耗时 |
+|------|------|---------|----------------|------------------|------|------|
+| 首测 | 原始 + EXECUTOR_THINKING=max | 4/60 | 0/11 | 否 | John Lennon（错） | 938s |
+| 重测 | +Planner `reasoning_effort` 修复 | 5/60 | 5/7 | 否 | Ronnie Wood（错） | 920s |
+| 三测 | +simple prompt 加 verification 阶段 | **17/60** | 5/7 | **是** ✅ | Keith Richards（错） | 1520s |
+
+**两个已修 bug**（详见 `docs/budget_test_2026-08-04_analysis.md`）：
+1. **Planner `reasoning_effort` 缺失**（commit `161003c`）：Planner 未传 `reasoning_effort` → fallback `minimal` → GLM-5.2 忽略 → 0/11 产 plan。修复后 5/7 产 plan。
+2. **simple prompt 只有 candidate_generation 模板**（commit `eb1b251`）：`planning_agent_prompt_simple.md` 无 verification phase → Planner 从不输出 `verification` → 候选永不验证。增强后 pipeline 进入 verification，逐个验证淘汰（Townshend/Davies/Clapton）。
+
+**剩余瓶颈**（未修，非预算）：候选池质量。candidate_generation 的 query 过于泛化（"art college + boutique" 返回主流摇滚巨星），未锁定最 distinctive 约束（"100M records band" → Deep Purple → David Coverdale → Whitesnake）。需后续优化 Planner 搜索策略。
 
 ---
 
