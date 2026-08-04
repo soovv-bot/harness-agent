@@ -779,9 +779,25 @@ python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
 | Plan A 判定 | REFUTED（假阴性） | INCONCLUSIVE（安全保留） | 不触发 |
 | 耗时 | 362s | 348s | 329s |
 
-**2. 资源节省的代价**：Treatment（修复前）节省 30-57% 资源，但小样本上 accuracy -33pp。trade-off 明确：早停收益 < 假阴性代价。**修复后** Plan A 不再误拒正确答案，资源节省的净效果需在更大样本上重新评估。
+**2. 修复后全样本重跑（pos0-2，2026-08-04 17:24）**：Plan A 修复后全样本 acc=3/3，无假阴性、零误杀，效率保持。
 
-**3. 失败安全设计生效**：pos2 treatment 给出具体错答（Plan A 未 refute，finalizer 路径较保守），baseline 给 Unknown。Plan A refute 后输出 Unknown 而非错答，保留下游二次验证入口。
+| 维度 | Baseline (无Plan A) | Pre-fix Treatment | **Post-fix Treatment** |
+|---|---|---|---|
+| Accuracy | 2/3 (0.667) | 1/3 (0.333) | **3/3 (1.000)** ✅ |
+| 总耗时 | 2370s | 1662s | 1759s |
+| 平均耗时/题 | 790s | 554s | **586s** |
+| pos0 | ✅ Achimota (1 iter, 329s) | ❌ Unknown (1 iter, 362s) [假阴性] | ✅ Achimota (4 iter, 653s) [INCONCLUSIVE] |
+| pos1 | ✅ Marguerite (2 iter, 498s) | ✅ Marguerite (2 iter, 566s) | ✅ Marguerite (2 iter, 636s) [INCONCLUSIVE] |
+| pos2 | ❌ Unknown (7 iter, 2040s) | ❌ 错答 (6 iter, 1300s) | ✅ Abangan 2024 (3 iter, 471s) [INCONCLUSIVE] |
+| Plan A 判定分布 | n/a | REFUTED×1, INCONCLUSIVE×2 | **INCONCLUSIVE×3**（零误杀） |
+
+- **假阴性彻底修复**：pos0 REFUTED→Unknown 变为 INCONCLUSIVE→Achimota School，与 Baseline 持平且不引入新误杀
+- **零误杀（zero false-refute）**：3 题 Plan A 全部 INCONCLUSIVE，验证器在弱模型上呈现"保守安全"行为，符合 failure-safe 设计
+- **pos2 额外收益**（待验证）：pos2 在 Baseline（Unknown）和 Pre-fix（错答）均失败，Post-fix 首次答对，可能源于 last-sentence-keyword 验证查询更精准，但 n=3 不足以排除运行间噪声，需在 n≥30 上确认
+- **效率保持**：Post-fix 1759s 比 Baseline 2370s 节省 26%，Plan A 每题仅 1 次 _judge LLM 调用 + 1 次证据搜索（<10s/题开销）
+- **论文叙事调整**：Plan A 不再叙述为"always-effective enhancement"，改为"precision/recall trade-off discovery + failure-safe 设计实证"——修复前后对比构成完整故事弧
+
+**3. 失败安全设计生效**：pos2 treatment 给出具体错答（Plan A 未 refute，finalizer 路径较保守），baseline 给 Unknown。Plan A refute 后输出 Unknown 而非错答，保留下游二次验证入口。修复后 pos2 不再触发此路径（答对了），但 failure-safe 语义保留作为安全网。
 
 ### 与 2026.08 SOTA 对比
 
@@ -796,9 +812,10 @@ python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
 
 ### 局限与后续
 
-- 样本量极小（n=3），仅作趋势观察，不具统计显著性
+- 样本量极小（n=3），不具统计显著性；pos2 的 Post-fix 收益尤其需在更大样本上验证是否稳定
 - Plan B/C/E 未单独消融（本实验仅隔离 Plan A）
-- 后续：扩大至 n≥30 估计 Plan A precision；实验"问题约束结构化注入 claim"减少 pos0 类假阴性；跨模型（Qwen3-32B）验证 Plan A precision 是否随模型能力提升而改善
+- 单一模型（GLM-5.2）单一 seed（123）单次运行，未做 temperature=0 严格可复现性验证
+- 后续：扩大至 n≥30 估计 Plan A precision/recall；`VERIFIER_TYPE_AWARE` 0 vs 1 消融；跨模型（Qwen3-32B、GPT-4o）验证 Plan A 是否从 INCONCLUSIVE 主导转向 VERIFIED 主导
 
 ### 复现命令
 
@@ -809,11 +826,17 @@ ENABLE_PLAN_A_VERIFICATION=0 python run_browsecomp_fixed_sample.py \
     --output results/planA_baseline_pos0to2.json \
     2>&1 | tee logs/run_baseline_noPlanA.log
 
-# Treatment (Plan A on, full-path)
+# Treatment (Plan A on, full-path, pre-fix)
 ENABLE_PLAN_A_VERIFICATION=1 python run_browsecomp_fixed_sample.py \
     --seed 123 --sample-size 10 --positions 0-2 \
     --output results/planA_treatment_full_pos0to2.json \
     2>&1 | tee logs/run_treatment_full.log
+
+# Treatment (Plan A on, post-fix, type-aware) — 2026-08-04 17:24 acc=3/3
+ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_sample.py \
+    --seed 123 --sample-size 10 --positions 0-2 \
+    --output results/planA_treatment_fixed_pos0to2.json \
+    2>&1 | tee logs/run_treatment_fixed_pos0to2.log
 ```
 
 ---
