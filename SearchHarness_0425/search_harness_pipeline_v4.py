@@ -44,6 +44,7 @@ class SearchHarnessPipelineV4:
         max_executor_searches: int = 30,
         max_total_searches: int = 80,
         executor_model_id: Optional[str] = None,
+        executor_reasoning_effort: Optional[str] = None,
         enable_query_critic: bool = True,
         enable_direction_critic: bool = False,
     ):
@@ -52,12 +53,23 @@ class SearchHarnessPipelineV4:
         self._api_key = api_key
         self._model_id = model_id
         self._executor_model_id = executor_model_id or model_id
+        # Per-role reasoning control: executor can disable thinking (root fix
+        # for reasoning-model tool-call starvation). Falls back to EXECUTOR_THINKING env.
+        if executor_reasoning_effort is None:
+            executor_reasoning_effort = (os.getenv("EXECUTOR_THINKING") or "").strip().lower() or None
+        self._executor_reasoning_effort = executor_reasoning_effort
         self.enable_query_critic = enable_query_critic
         self.enable_direction_critic = enable_direction_critic
         self.query_memory = QueryHistoryMemory()
         self.query_critic = QueryCritic(self.query_memory, api_base=api_base, api_key=api_key, model_id=model_id)
         self.crawl_controller = SearchCrawlController(self.query_memory, api_base=api_base, api_key=api_key, model_id=model_id)
-        self.planner = PlanningAgentV3(api_base=api_base, api_key=api_key, model_id=model_id, search_budget=max_planner_searches)
+        self.planner = PlanningAgentV3(
+            api_base=api_base,
+            api_key=api_key,
+            model_id=model_id,
+            search_budget=max_planner_searches,
+            reasoning_effort=executor_reasoning_effort,
+        )
         self.executor = SearchAgentV3(
             api_base=api_base,
             api_key=api_key,
@@ -68,6 +80,7 @@ class SearchHarnessPipelineV4:
             crawl_controller=self.crawl_controller,
             search_budget=max_executor_searches,
             enable_query_critic=self.enable_query_critic,
+            reasoning_effort=executor_reasoning_effort,
         )
         self.finalizer = SearchFinalizer(api_base=api_base, api_key=api_key, model_id=model_id)
         self.subtask_critic = SubtaskCritic(api_base=api_base, api_key=api_key, model_id=model_id)
@@ -87,6 +100,7 @@ class SearchHarnessPipelineV4:
         # Reset all state for a new task
         self.state_store = SearchStateStore(keep_recent_observations=self.state_store.keep_recent_observations)
         self.state_store.set_question(question)
+        self._question = question  # cached for full-path self-verification (Plan A)
         self.executor.state_store = self.state_store
         self.subtask_critic.records = []
         self.query_memory = QueryHistoryMemory()
@@ -318,6 +332,11 @@ class SearchHarnessPipelineV4:
             feedback_messages = self.state_store.build_planner_feedback(max_findings=3)
             if stagnation_msg:
                 feedback_messages.append(stagnation_msg)
+            # P1-3A: Inject iteration gap summary so the planner sees what
+            # constraints have been addressed vs. what gaps remain.
+            gap_msg = self._build_gap_summary(iteration)
+            if gap_msg:
+                feedback_messages.append(gap_msg)
             # Old soft-only critic behavior kept for easy rollback:
             # feedback_messages = self.state_store.build_planner_feedback(max_findings=3)
             # if stagnation_msg:
@@ -433,7 +452,43 @@ class SearchHarnessPipelineV4:
             return "unfinished"
         return "finished"
 
+    def _verify_planner_answer(self, answer: str) -> str:
+        """Full-path self-verification (Plan A) for planner-committed answers.
+
+        The planner can short-circuit with a direct ``<answer>`` via
+        ``_finish_with_answer``, bypassing ``SearchFinalizer``. To give Plan A
+        (grounded self-verification) coverage over *every* committed answer —
+        matching the outer-verification-loop design of AREX-style agents — we
+        run one grounded check here too. A refuted answer is downgraded to
+        ``Unknown`` so the pipeline does not commit a strong-but-false
+        candidate on the fast path either. Failure-safe: any error keeps the
+        original answer.
+        """
+        verifier = getattr(self.finalizer, "verifier", None)
+        if verifier is None:
+            return answer
+        a = (answer or "").strip()
+        if not a or a.lower() in {"unknown", "none", "null"}:
+            return answer
+        try:
+            compact_state = self.state_store.export_compact_state()
+            candidate_record = self.finalizer._pick_candidate_record(compact_state, a)
+            vr = verifier.verify(getattr(self, "_question", ""), a, candidate_record)
+            if vr.is_refuted:
+                logger.info(
+                    f"[Pipeline] planner answer REFUTED by grounded verification: "
+                    f"{a!r} -> Unknown | reason={vr.reason[:120]}"
+                )
+                return "Unknown"
+            logger.info(
+                f"[Pipeline] planner answer verification: {a!r} -> {vr.verdict}"
+            )
+        except Exception as exc:
+            logger.warning(f"[Pipeline] planner-answer verification failed (kept original): {exc}")
+        return answer
+
     def _finish_with_answer(self, answer: str, iterations: int) -> Dict[str, Any]:
+        answer = self._verify_planner_answer(answer)
         status = self._pipeline_status_for_answer(answer)
         logger.info(f"[Pipeline] FINISHED answer status={status} iterations={iterations} answer_preview='{answer[:80]}'")
         self._record_event_for_trajectory("pipeline_answer", iterations, {"answer": answer[:200], "status": status})
@@ -874,6 +929,37 @@ class SearchHarnessPipelineV4:
             return {"trigger": "max_total_searches_reached", "details": {"total_search_calls": total_search_calls, "max_total_searches": self.max_total_searches}}
         if crawl_calls >= max_crawl_calls:
             return {"trigger": "max_crawl_calls_reached", "details": {"crawl_calls": crawl_calls, "max_crawl_calls": max_crawl_calls}}
+        # Plan C: adaptive early stop. If a candidate is fully verified and
+        # carries no unresolved hard conflicts, the task is effectively solved
+        # and extra search budget is wasted. This converts the stop policy
+        # from a pure budget gate into an anytime/adaptive stop, producing a
+        # Pareto-style accuracy-vs-search-count curve in ablations.
+        early = self._verified_candidate_early_stop(iteration)
+        if early:
+            return early
+        return None
+
+    def _verified_candidate_early_stop(self, iteration: int) -> Optional[Dict[str, Any]]:
+        """Return an early-stop dict when a candidate is verified & conflict-free."""
+        records = (self.state_store.export_compact_state().get("candidate_records") or [])
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            name = str(record.get("candidate") or record.get("name") or "").strip()
+            if not name or name.lower() in {"unknown", "none", "null"}:
+                continue
+            vs = str(record.get("verification_status") or "").strip().lower()
+            hard_conflicts = record.get("hard_conflicts") or []
+            unresolved = record.get("unresolved_constraints") or []
+            if vs == "verified" and not hard_conflicts and not unresolved:
+                return {
+                    "trigger": "verified_candidate_early_stop",
+                    "details": {
+                        "iteration": iteration,
+                        "candidate": name,
+                        "verification_status": vs,
+                    },
+                }
         return None
 
     def _record_candidate_snapshot_for_trajectory(self, iteration: int) -> None:
@@ -1028,7 +1114,7 @@ class SearchHarnessPipelineV4:
         updates = findings.get("candidate_updates") or {}
         new_candidates = updates.get("new_candidates", []) or []
         source_feedback = findings.get("source_feedback") or {}
-        # GLM-5.2 may emit source_feedback as a string; coerce to dict for safe access.
+        # Reasoning models may emit source_feedback as a string; coerce to dict for safe access.
         if not isinstance(source_feedback, dict):
             source_feedback = {}
         promising = source_feedback.get("promising_sources", []) or []
@@ -1135,6 +1221,64 @@ class SearchHarnessPipelineV4:
                 f"{suggestions_text}"
             ),
         }
+
+    def _build_gap_summary(self, iteration: int) -> Optional[Dict[str, str]]:
+        """P1-3A: Build a concise iteration gap summary for the planner.
+
+        Lists what constraints have evidence, what candidates are active/eliminated,
+        and what search directions have been tried. Helps the planner focus on
+        unresolved gaps instead of re-trying exhausted directions.
+        """
+        try:
+            compact_state = self.state_store.export_compact_state()
+            candidate_records = compact_state.get("candidate_records", []) or []
+            current_candidates = compact_state.get("current_candidates", []) or []
+            eliminated = compact_state.get("eliminated_candidates", []) or []
+            confirmed_wrong = compact_state.get("confirmed_wrong_candidates", []) or []
+            executions = compact_state.get("current_plan_executions", []) or []
+            visited_domains = compact_state.get("visited_domains", []) or []
+
+            # Summarize verified vs. partial candidates with evidence
+            verified = []
+            partial = []
+            for cr in candidate_records:
+                if not isinstance(cr, dict):
+                    continue
+                name = cr.get("name", "?")
+                vs = str(cr.get("verification_status", "")).lower()
+                ev_count = len(cr.get("evidence", []) or [])
+                if vs == "verified" and ev_count > 0:
+                    verified.append(f"  ✓ {name} ({ev_count} evidence)")
+                elif vs == "partial":
+                    partial.append(f"  ? {name} ({ev_count} evidence)")
+
+            # Summarize executed subtask types
+            subtask_types = []
+            for ex in executions[-10:]:
+                st = (ex or {}).get("subtask_type", "") or (ex or {}).get("phase", "")
+                if st and st not in subtask_types:
+                    subtask_types.append(st)
+
+            lines = [f"ITERATION GAP SUMMARY (after iteration {iteration})"]
+            lines.append(f"Active candidates: {len(current_candidates)} | Eliminated: {len(eliminated)} | Confirmed wrong: {len(confirmed_wrong)}")
+            if verified:
+                lines.append("Verified (with evidence):")
+                lines.extend(verified[:5])
+            if partial:
+                lines.append("Partial (needs more evidence):")
+                lines.extend(partial[:5])
+            if eliminated:
+                lines.append(f"Eliminated: {', '.join(eliminated[:8])}")
+            if subtask_types:
+                lines.append(f"Subtask types tried: {', '.join(subtask_types)}")
+            if visited_domains:
+                lines.append(f"Domains visited ({len(visited_domains)}): {', '.join(visited_domains[:8])}")
+            lines.append("Focus your next subtask on UNRESOLVED constraints. Do not repeat exhausted search directions.")
+
+            return {"role": "user", "content": "\n".join(lines)}
+        except Exception as e:
+            logger.debug(f"[Pipeline] gap summary build error: {e}")
+            return None
 
     def _direction_critic_context(self) -> Dict[str, Any]:
         compact_state = self.state_store.export_compact_state()

@@ -21,7 +21,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import (
+from llm_reasoning_compat import (
     assistant_message_to_dict,
     build_chat_completion_kwargs,
     chat_completion_with_structuring,
@@ -65,6 +65,7 @@ class PlanningAgentV3:
         max_turns: int = 20,
         search_budget: int = 10,
         event_callback=None,
+        reasoning_effort: Optional[str] = None,
     ):
         self.api_base = api_base
         self.api_key = api_key
@@ -76,15 +77,20 @@ class PlanningAgentV3:
         self.max_output_tokens = _env_int("PLANNER_MAX_TOKENS", 1200)
         self.fail_fast_on_malformed_plan = _env_flag("PLANNER_FAIL_FAST_ON_MALFORMED_PLAN", "1")
         self._event_callback = event_callback  # callable(event_type, data) for trajectory recording
+        # Per-role reasoning control (mirrors SearchAgentV3). When None, falls
+        # back to LLM_THINKING_BUDGET_TOKENS via _resolve_effort() in the compat
+        # layer. Pass explicitly to avoid the "minimal → ignored by endpoint →
+        # 30K reasoning with 0 content" trap on GLM-5.2/tenyun.
+        self.reasoning_effort = reasoning_effort
 
         if system_prompt:
             base_prompt = system_prompt
         elif os.getenv("PLANNER_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}:
-            # Reasoning-capable models (e.g. GLM-5.2, DeepSeek-reasoner) can get
+            # Reasoning-capable models can get
             # stuck in long reasoning when the system prompt is too long. Use a
             # compact prompt that lets the model emit a parseable <planning> block
             # instead of endless reasoning.
-            simple_path = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt_glm.md')
+            simple_path = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt_simple.md')
             with open(simple_path, 'r', encoding='utf-8') as f:
                 base_prompt = f.read()
         else:
@@ -374,6 +380,7 @@ Do not include analysis prose before or after the planning block."""
                     temperature=self.temperature,
                     max_tokens=self.max_output_tokens,
                     structurer_format_hint=_PLANNER_FORMAT_HINT,
+                    reasoning_effort_override=self.reasoning_effort,
                 )
                 logger.info(f"[Planner] LLM turn={turn+1} done in {time.time()-_t0:.1f}s")
                 response_dict = assistant_message_to_dict(response)
@@ -517,6 +524,7 @@ Do not include analysis prose before or after the planning block."""
                 structurer_format_hint=(
                     "Output exactly one <answer>...</answer> block with the most likely answer."
                 ),
+                reasoning_effort_override=self.reasoning_effort,
             )
             logger.info(f"[Planner] max_turns answer LLM done in {time.time()-_t_ans:.1f}s")
             self.messages.append(assistant_message_to_dict(response))
