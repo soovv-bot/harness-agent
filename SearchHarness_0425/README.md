@@ -14,6 +14,7 @@
 - [配置说明](#配置说明)
 - [快速开始](#快速开始)
 - [评测脚本](#评测脚本)
+- [并发模型](#并发模型)
 - [调试与排错](#调试与排错)
 - [单元测试](#单元测试)
 - [轨迹与蒸馏](#轨迹与蒸馏)
@@ -62,9 +63,10 @@
 | `subtask_critic.py` | 子任务质量评估：reject / accept / suggest_pivot |
 | `planning_direction_critic.py` | 规划方向评估（可选，默认关闭） |
 | `search_finalizer.py` | 终结器：从 `candidate_records` 收敛出最终答案，硬冲突候选不会被轻易采纳 |
-| `trajectory_recorder.py` / `trajectory_recorder_enhanced.py` | 轨迹录制器，输出 OpenAI 格式，兼容 `convert_trajectory_to_offseeker_format.py` |
+| `trajectory_recorder.py` / `trajectory_recorder_enhanced.py` | 轨迹录制器。增强版输出 10 个结构化字段（事件流、搜索日志、LLM 调用元数据、候选快照、逐轮对话等），兼容 `convert_trajectory_to_offseeker_format.py` |
 | `config.py` | 集中式配置（dataclass + 环境变量） |
 | `llm_client.py` / `openai_client_factory.py` / `llm_error_utils.py` | LLM 客户端工厂与错误分类 |
+| `deepseek_thinking_compat.py` | 推理模型流式兼容层：处理 `reasoning_content` 字段、思考预算（`LLM_THINKING_BUDGET_TOKENS`）、工具调用流式解析 |
 | `run_browsecomp.py` | 全量 BrowseComp 评测入口 |
 | `run_browsecomp_fixed_sample.py` | 固定样本评测入口（可指定 positions） |
 | `run_seed_repeats.py` | 同一种子重复运行以测量稳定性 |
@@ -99,6 +101,7 @@ SearchHarness_0425/
 ├── trajectory_recorder.py / trajectory_recorder_enhanced.py
 ├── config.py                         # 集中式配置
 ├── llm_client.py / openai_client_factory.py / llm_error_utils.py
+├── deepseek_thinking_compat.py       # 推理模型流式兼容层（reasoning_content + 思考预算）
 ├── run_browsecomp.py                 # 全量评测入口
 ├── run_browsecomp_fixed_sample.py    # 固定样本评测入口
 ├── run_seed_repeats.py               # 重复运行
@@ -316,6 +319,8 @@ python3 run_browsecomp.py \
   --seed 123
 ```
 
+> **推理模型提示**：使用 GLM-5.2 等推理模型时，设置 `LLM_THINKING_BUDGET_TOKENS`（如 `4096`）可让模型充分推理后再决策。默认 `1000` 对复杂多跳问题可能不足，导致规划过浅。设置方法：在 `.env` 中配置或运行时前缀 `LLM_THINKING_BUDGET_TOKENS=4096 python3 run_browsecomp_fixed_sample.py ...`。
+
 ---
 
 ## 评测脚本
@@ -379,6 +384,23 @@ python3 build_seed123_k10_full.py
 
 ---
 
+## 并发模型
+
+`--max-workers > 1` 时，评测脚本使用 `ThreadPoolExecutor` 并发处理多个题目。并发架构为 **per-worker 隔离实例**，无共享可变状态：
+
+| 组件 | 作用域 | 线程安全说明 |
+|------|--------|-------------|
+| `SearchHarnessPipelineV4` | 每个 worker 独立创建 | 包含独立的 state_store / planner / executor |
+| `TrajectoryRecorderEnhanced` | 每个 worker 独立创建 | 输出文件按 `task_index` 唯一命名，原子写入（临时文件 + rename） |
+| `QueryCritic` / `QueryHistoryMemory` | 每个 pipeline 独立创建 | 无跨 worker 共享 |
+| `SearchCrawlController` | 每个 pipeline 独立创建 | 无跨 worker 共享 |
+| `LLMGrader` | 全局共享 | 无状态，httpx 客户端线程安全 |
+| `results_lock` | 全局共享 | `Lock` 保护结果列表追加 |
+
+> 并发不会导致轨迹数据串扰：每个 pipeline 拥有独立的 `_trajectory_current_iter` 可变容器，事件回调闭包捕获各自的容器引用，无跨任务泄漏。
+
+---
+
 ## 调试与排错
 
 ### 1. 冒烟测试脚本
@@ -392,29 +414,69 @@ python3 build_seed123_k10_full.py
 
 ### 2. 查看轨迹
 
-每次运行会在 `--trajectory-dir` 下生成 `task_NNNNNN.json`（OpenAI 格式）：
+每次运行会在 `--trajectory-dir/{model_id}/` 下生成 `task_NNNNNN.json`（增强格式，约 1-2MB）。同时写入 `task_NNNNNN.partial.json` 增量快照，防止中途崩溃丢失数据。
+
+#### 增强轨迹格式（`trajectory_recorder_enhanced.py`）
+
+增强录制器在原有扁平 `messages` 基础上新增 **10 个结构化字段**，为模型训练和日志排查提供精确数据：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `metadata` | object | 问题、模型、状态、迭代数、耗时、pipeline 配置 |
+| `events` | array | 结构化事件流：每个关键决策点（搜索、候选变更、规划、答题）一条，含 `timestamp`/`iteration`/`agent`/`event_type`/`data` |
+| `search_log` | array | 搜索日志：query → 判重 verdict → 结果数 → 延迟，按迭代分组 |
+| `llm_calls` | array | LLM 调用元数据：每次 planner/executor 调用的延迟、content/reasoning 字符数 |
+| `candidate_snapshots` | array | 候选池快照：每轮迭代后的候选状态（add/verify/eliminate 转移） |
+| `iteration_summaries` | array | 每轮迭代摘要：子任务、findings、新候选、阶段 |
+| `planner_conversations` | array | Planner 逐轮对话（含 plan/answer/latency） |
+| `executor_conversations` | array | Executor 逐轮对话（含 subtask/findings/status/latency/new_candidates） |
+| `pipeline_state` | object | 流水线最终状态：阶段、候选记录、验证队列 |
+| `messages` | array | 向后兼容的扁平合并消息（planner + executor），带 `_agent`/`_iteration` 标签 |
 
 ```json
 {
   "metadata": {
-    "question": "...",
-    "model": "GLM-5.2",
-    "status": "solved",
-    "iterations": 4,
-    "pipeline_config": { "max_iterations": 6, ... }
+    "question": "...", "model": "GLM-5.2", "status": "finished",
+    "iterations": 4, "started_at": "...", "finished_at": "...",
+    "pipeline_config": { "max_iterations": 5, "max_total_searches": 200, ... }
   },
-  "messages": [ ...planner/executor/tool 对话... ],
-  "candidate_records": [ ...结构化候选状态... ]
+  "events": [
+    {"timestamp": 1234567890.0, "iteration": 0, "agent": "executor",
+     "event_type": "search_query", "data": {"queries": [...], "verdict": "allow"}},
+    {"timestamp": 1234567891.0, "iteration": 0, "agent": "executor",
+     "event_type": "search_executed", "data": {"query": "...", "num_results": 8, "latency_ms": 1234.0}}
+  ],
+  "search_log": [
+    {"iteration": 0, "agent": "executor", "query": "...",
+     "verdict": "allow", "num_results": 8, "latency_ms": 1234.0}
+  ],
+  "llm_calls": [
+    {"iteration": 0, "agent": "planner", "latency_ms": 6138.0,
+     "content_chars": 3399, "reasoning_chars": 1338}
+  ],
+  "candidate_snapshots": [
+    {"iteration": 0, "total": 3, "active": 2, "eliminated": 1, "names": [...]}
+  ],
+  "planner_conversations": [{"iteration": 0, "plan": {...}, "messages": [...]}],
+  "executor_conversations": [{"iteration": 0, "subtask": "...", "messages": [...]}],
+  "messages": [ ...向后兼容的扁平合并消息... ]
 }
 ```
 
+#### 事件录制系统
+
+Pipeline 通过 `event_callback` 钩子将结构化事件推送到录制器。Executor 在每次搜索时触发 `search_query`（判重结果）和 `search_executed`（搜索结果）事件，Pipeline 在子任务选择、候选变更、答题终结时触发对应事件。
+
+迭代追踪：Pipeline 使用可变容器 `_trajectory_current_iter = [0]`，在每次迭代开始时更新 `_current_iter[0] = iteration`，闭包捕获容器引用并在调用时读取当前值，确保事件标签正确反映所属迭代。
+
 排查答题质量问题时重点检查：
 
-- `candidate_records` 是否在 compact state / snapshot 中出现
-- 错误候选是否累积了 `hard_conflicts`
-- 错误候选是否被 downgraded / eliminated，而非一直保持 `active`
-- finalizer 是否避免了在仍有未解决硬冲突时收敛
-- `Unknown` 结局的原因是否清晰（候选状态混乱 vs 真的没找到）
+- `candidate_snapshots` 中候选的 add/verify/eliminate 转移轨迹
+- `search_log` 中查询是否重复（verdict=reject 说明被判重拦截）
+- `llm_calls` 的延迟分布定位耗时瓶颈
+- `events` 流按 iteration 过滤查看特定轮次的决策链
+- `pipeline_state.candidate_records` 中错误候选是否累积 `hard_conflicts` 但未被 eliminate
+- finalizer 是否在仍有未解决硬冲突时过早收敛
 
 ### 3. 日志
 
@@ -466,27 +528,24 @@ pytest tests/test_core_rules.py -v
 
 ## 轨迹与蒸馏
 
-### 轨迹格式（OpenAI 格式，本目录生成）
+### 轨迹格式（增强格式，本目录生成）
 
-```json
-{
-  "metadata": {
-    "question": "...",
-    "model": "GLM-5.2",
-    "started_at": "...",
-    "finished_at": "...",
-    "status": "solved",
-    "iterations": 4
-  },
-  "messages": [
-    {"role": "system", "content": "..."},
-    {"role": "user", "content": "Question: ..."},
-    {"role": "assistant", "content": "...", "tool_calls": [...]},
-    {"role": "tool", "tool_call_id": "...", "name": "search", "content": "..."}
-  ],
-  "candidate_records": [ ... ]
-}
-```
+`trajectory_recorder_enhanced.py` 输出包含 10 个结构化字段的增强轨迹（约 1-2MB），同时保留向后兼容的扁平 `messages` 字段。详见上方 [调试与排错 §2](#2-查看轨迹) 中的字段说明表。
+
+### 结果 JSON 字段
+
+每次评测输出 `results/*.json`，每个题目的结果包含：
+
+| 字段 | 说明 |
+|------|------|
+| `extracted_answer` | Pipeline 收敛出的答案 |
+| `is_correct` | Grader 判定 |
+| `pipeline_status` | `finished` / `max_turns_reached` / `error` |
+| `failure_category` | 失败分类（成功时为空） |
+| `iterations` | 实际迭代轮数 |
+| `stop_reason` | 停止原因（`finished` / `budget_exhausted` / `max_iterations`） |
+| `trajectory_path` | 轨迹文件路径（交叉引用） |
+| `elapsed_seconds` | 耗时 |
 
 ### 转换为 OffSeeker 训练格式
 

@@ -93,11 +93,15 @@ def build_chat_completion_kwargs(
     # the model's native control parameter.
     #
     # DeepSeek-reasoner manages its own reasoning internally — skip.
-    # GLM-5.2 (Zhipu/Bigmodel) uses `reasoning_effort`: "high" | "max"(default).
+    # GLM-5.2 (Zhipu/Bigmodel) uses `reasoning_effort`: "low"|"medium"|"high"|"max".
+    #   Verified on preview.llm.tenyunc.com endpoint (2026-08-04):
+    #     "low"  → ~500c reasoning (12x reduction vs uncapped)
+    #     "medium" → ~2600c, always produces content
+    #     "max"  → ~2400c simple / 24k-33k complex prompts (default, uncapped)
     #   We map LLM_THINKING_BUDGET_TOKENS to reasoning_effort:
-    #     budget <= 512  -> "high" (concise, faster)
-    #     budget <= 2048 -> "high"
-    #     budget > 2048  -> "max"  (deep, default)
+    #     budget <= 1024  -> "low"   (fastest, minimal reasoning — executor default)
+    #     budget <= 4096  -> "medium" (moderate — planner/structurer)
+    #     budget > 4096   -> "max"   (deep, model default)
     #   Set LLM_THINKING_BUDGET_TOKENS=0 to disable injection (use model default).
     if effective_model not in SUPPORTED_DEEPSEEK_MODELS:
         budget_raw = (os.getenv(THINKING_BUDGET_ENV) or "").strip()
@@ -107,13 +111,18 @@ def build_chat_completion_kwargs(
             except ValueError:
                 budget = 0
         else:
-            budget = 1024  # default: lean toward "high" to prevent reasoning overrun
+            budget = 1024  # default: "low" to prevent reasoning overrun (52% of exec time)
         if budget > 0:
+            if budget <= 1024:
+                effort = "low"
+            elif budget <= 4096:
+                effort = "medium"
+            else:
+                effort = "max"
             existing_extra = kwargs.get("extra_body") or {}
             if isinstance(existing_extra, dict):
-                # GLM-5.2: reasoning_effort parameter
                 if "reasoning_effort" not in existing_extra:
-                    existing_extra["reasoning_effort"] = "high" if budget <= 2048 else "max"
+                    existing_extra["reasoning_effort"] = effort
                 # Also keep thinking dict for DeepSeek-style endpoints that accept it
                 existing_extra.setdefault("thinking", {})
                 if isinstance(existing_extra["thinking"], dict):
@@ -122,7 +131,7 @@ def build_chat_completion_kwargs(
                 kwargs["extra_body"] = existing_extra
             else:
                 kwargs["extra_body"] = {
-                    "reasoning_effort": "high" if budget <= 2048 else "max",
+                    "reasoning_effort": effort,
                     "thinking": {"type": "enabled", "budget_tokens": budget},
                 }
     return kwargs
