@@ -374,6 +374,42 @@ payload = {
 
 v3 prompt（254 行）也添加了 tool-first 契约段，但简化 prompt 因更短而推理面更小。
 
+### 实测对比（pos4 Whitesnake，Kimi-K3 `high`）
+
+| 指标 | 优化前（v3 prompt, 无 tool_choice） | 优化后（simple prompt + `first_turn`） | 改善 |
+|------|------|------|------|
+| **总时间** | 2064s | **332s** | **6.2× 加速** |
+| 首轮 LLM 延迟 | ~20s（reasoning 数千字符） | 4.9s（reasoning=411c） | 4× |
+| 后续轮均延迟 | 30–45s | 23–40s | 略快（auto 模式仍推理） |
+| 搜索次数 | 17 | 8 | 2.1× 更少 |
+| 找到答案迭代 | 多轮 | 1 轮（首轮即定位 David Coverdale） | 更高效 |
+| structurer 触发 | 44 次 starvation | 2 次 | 22× 减少 |
+| 答案正确性 | Whitesnake ✅ | Whitesnake ✅ | 准确率保持 |
+
+**关键观察**：
+- `tool_choice="required"` 在首轮的效果最显著——reasoning 从数千字符降到 411c，延迟从 ~20s 降到 4.9s
+- 后续轮用 `auto` 模式仍有 23–40s 推理（Kimi-K3 `high` 的固有行为），如需进一步加速可试 `EXECUTOR_TOOL_CHOICE=required`（每轮强制，但搜索次数会增加）
+- 简化 prompt 减少了模型"读完 prompt 再开始想"的推理面，配合 tool_choice 首轮强制效果叠加
+
+### `tool_choice` 模式决策指南
+
+```
+你的模型是否在工具调用前产生大量 reasoning？
+├─ 否（非 reasoning 模型，如 GPT-4o） → EXECUTOR_TOOL_CHOICE=auto
+└─ 是（reasoning 模型：Kimi-K3, GLM-5.2, o-series）
+   │
+   ├── 追求最快速度，接受搜索次数增加 → required
+   │   （每轮强制工具调用，模型用完预算才输出 findings）
+   │
+   ├── 速度/准确率平衡（推荐） → first_turn
+   │   （首轮强制立即搜索，后续轮让模型决定何时输出 findings）
+   │
+   └── 需要模型灵活决定停止时机 → auto
+       （不强制，依赖 prompt 的 tool-first 契约引导）
+```
+
+> **注意**：`required` 模式下模型无法在证据充分时主动输出 findings，会持续搜索直到预算耗尽。`first_turn` 模式保留后续轮的灵活性——模型可在第 2、3 轮判断"已够"并输出 findings，是 BrowseComp 类任务的最佳平衡点。
+
 ### 按模型自定义思考配置（`model_profiles.yaml`）
 
 不同模型支持的 `reasoning_effort` 取值集合不同——发不支持的值会被端点静默回退（常回退到最强档，与意图相反）。例如 Kimi-K3 只认 `low`/`high`/`max`，发 `minimal` 会被回退到 `max`。为此系统提供 **per-model 配置文件**，**改 YAML 即可加新模型，无需改代码**：
@@ -404,9 +440,14 @@ Kimi-K3 思考永远开启，只认 `low`/`high`/`max`。发 `minimal` 会被静
 MODEL_NAME=Kimi-K3
 EXECUTOR_THINKING=high              # 执行 Agent：high（原生支持）
 LLM_THINKING_BUDGET_TOKENS=0        # planner/critic/grader：0→minimal→low（profile 重映射）
+EXECUTOR_SIMPLE_PROMPT=1            # 简化 executor prompt（tool-first 契约，71 行）
+EXECUTOR_TOOL_CHOICE=first_turn     # 首轮强制工具调用（6.2× 加速，见"工具调用加速"章节）
+PLANNER_SIMPLE_PROMPT=1             # 简化 planner prompt（3-phase 验证模型）
 ```
 
 实测（pos3，正确答案 Abangan 2024）：**CORRECT ✓，805s，4 轮自然结束**，planner reasoning 均值 900c（修复前 30k+），planner 0-content 0%（修复前 74%）。详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`。
+
+实测（pos4，正确答案 Whitesnake，含 tool-first 优化）：**CORRECT ✓，332s（优化前 2064s，6.2× 加速），1 轮迭代找到答案，8 次搜索**。首轮 `tool_choice=required` 将 reasoning 从数千字符降到 411c，延迟 4.9s。
 
 #### GLM-5.2 / tenyun 网关（实测 2026-08-04）
 
@@ -478,6 +519,17 @@ python3 smoke_test_thinking.py --efforts none high
 
 固定样本为 seed `123`、k `10`，**1-indexed**（position `1` = 第一题 = Achimota School，position `2-10` 是其余题）。`docs/seed123_k10_manifest.json` 含 gold answer。
 
+**运行前请确保 `.env` 已配置 tool-first 加速**（详见"工具调用加速"章节）：
+
+```bash
+# .env 推荐配置（Kimi-K3 + tool-first，6.2× 加速）
+# MODEL_NAME=Kimi-K3
+# EXECUTOR_THINKING=high
+# EXECUTOR_SIMPLE_PROMPT=1          # 简化 prompt（tool-first 契约）
+# EXECUTOR_TOOL_CHOICE=first_turn   # 首轮强制工具调用
+# LLM_THINKING_BUDGET_TOKENS=0       # planner/critic/grader：0→minimal→low（profile）
+```
+
 ```bash
 # 评测 position 5（gold: Ding Junhui，历史错误答案: Mark Selby，用于验证硬冲突消除）
 python3 run_browsecomp_fixed_sample.py \
@@ -547,22 +599,24 @@ python3 run_browsecomp.py \
 
 ### 三档推荐配置
 
-> 注：**实测推荐档** = 快速开始示例所用配置（Kimi-K3 + effort-fix，pos3 实测 805s 正确）。冒烟档用于验证连通，极限档用于榜单冲刺。
+> 注：**实测推荐档** = 快速开始示例所用配置（Kimi-K3 + effort-fix + tool-first，pos3 实测 805s 正确，pos4 实测 332s 正确）。冒烟档用于验证连通，极限档用于榜单冲刺。
 
-| 档位 | `--max-iterations` | `--max-crawl-calls` | `--max-planner-searches` | `--max-executor-searches` | `--max-total-searches` | `--max-workers` | `EXECUTOR_THINKING` | `LLM_THINKING_BUDGET_TOKENS` | 适用场景 |
-|------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| **冒烟**（单题 10–25min） | 6 | 30 | 8 | 20 | 60 | 1 | `high` | `0` | 验证 API/搜索/链路连通 |
-| **实测推荐**（单题 ~13min） | 10 | 60 | 15 | 35 | 250 | 1 | `high` | `0` | 正式评测（Kimi-K3，pos3 实测 805s 正确） |
-| **极限**（10题 10–14h） | 10 | 60 | 20 | 30 | 250 | 2 | `high` | `4096` | 榜单冲刺，预算无上限 |
+| 档位 | `--max-iterations` | `--max-crawl-calls` | `--max-planner-searches` | `--max-executor-searches` | `--max-total-searches` | `--max-workers` | `EXECUTOR_THINKING` | `EXECUTOR_TOOL_CHOICE` | `EXECUTOR_SIMPLE_PROMPT` | `LLM_THINKING_BUDGET_TOKENS` | 适用场景 |
+|------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+| **冒烟**（单题 5–13min） | 6 | 30 | 8 | 20 | 60 | 1 | `high` | `first_turn` | `1` | `0` | 验证 API/搜索/链路连通 |
+| **实测推荐**（单题 ~5–13min） | 10 | 60 | 15 | 35 | 250 | 1 | `high` | `first_turn` | `1` | `0` | 正式评测（Kimi-K3，pos4 332s/pos3 805s 正确） |
+| **极限**（10题 5–14h） | 10 | 60 | 20 | 30 | 250 | 2 | `high` | `first_turn` | `1` | `4096` | 榜单冲刺，预算无上限 |
 
-> **vs GLM-5.2 旧推荐**：平衡档 `max_total_searches` 200→150、`max_crawl_calls` 100→40、`EXECUTOR_THINKING` max→high（max 档 GLM-5.2 频繁 reasoning starvation）。Kimi-K3 时期进一步发现 effort-mapping 才是关键杠杆，预算档位随之放宽到实测推荐 250。
+> **vs 优化前**：加入 `EXECUTOR_TOOL_CHOICE=first_turn` + `EXECUTOR_SIMPLE_PROMPT=1` 后，pos4 从 2064s 降到 332s（6.2× 加速），搜索次数从 17 降到 8，准确率保持。预算档位不变——tool-first 优化减少了每轮延迟，不改变搜索预算需求。
 
 ### 实测推荐命令（Kimi-K3，与快速开始示例一致）
 
 ```bash
-# 1. 思考档：executor=high，planner 经 profile 把 minimal→low（0-content 0%）
+# 1. 思考档 + tool-first 加速
 export EXECUTOR_THINKING=high
-export LLM_THINKING_BUDGET_TOKENS=0
+export EXECUTOR_SIMPLE_PROMPT=1          # 简化 prompt（tool-first 契约）
+export EXECUTOR_TOOL_CHOICE=first_turn   # 首轮强制工具调用（6.2× 加速）
+export LLM_THINKING_BUDGET_TOKENS=0      # planner/critic/grader：0→minimal→low（profile）
 
 # 2. 单题评测（pos 5，gold: Ding Junhui；1-indexed）
 python3 run_browsecomp_fixed_sample.py \
@@ -574,6 +628,8 @@ python3 run_browsecomp_fixed_sample.py \
 ```
 
 > 实测（pos3，Abangan 2024）：CORRECT ✓，805s，4 轮自然结束，planner 0-content 0%。
+>
+> 实测（pos4，Whitesnake，含 tool-first）：CORRECT ✓，332s（优化前 2064s，6.2× 加速），1 轮迭代找到答案，8 次搜索。
 
 ### 预算设计原理（实测修正）
 
@@ -585,18 +641,22 @@ python3 run_browsecomp_fixed_sample.py \
 | `max-executor-searches=35` 每子任务 | 实测每候选 ~5 次搜索即出结论，35 偏高但留余量 |
 | `max-total-searches=250` | GLM-5.2 单题 17 次、Kimi-K3 805s 未触顶；250 是安全上限，实测远未达 |
 | `EXECUTOR_THINKING=high` | 实测 `max` 档 GLM-5.2 推理饥饿（0 content + 30K reasoning）；`high` 更稳定 |
+| `EXECUTOR_TOOL_CHOICE=first_turn` | 首轮强制工具调用，消除最大延迟源（首轮 ~20s→4.9s）；后续轮自决保留灵活性 |
+| `EXECUTOR_SIMPLE_PROMPT=1` | 71 行简化 prompt（vs v3 254 行），减少推理面；含 tool-first 契约 + 决策规则 |
 | `LLM_THINKING_BUDGET_TOKENS=0` | Kimi-K3：0→minimal→low（profile 重映射），planner 0-content 74%→0%（**最大收益**） |
 
 ### 运行前检查清单
 
 ```bash
-# 1. 确认思考档（推荐 high；max 仅用于疑难题冲刺）
-echo $EXECUTOR_THINKING  # 应输出: high
+# 1. 确认思考档 + tool-first 配置（推荐组合）
+echo $EXECUTOR_THINKING          # 应输出: high
+echo $EXECUTOR_TOOL_CHOICE       # 应输出: first_turn
+echo $EXECUTOR_SIMPLE_PROMPT     # 应输出: 1
 
 # 2. 确认 LLM 端点连通
 python3 debug_llm_smoke.py --verify-thinking
 
-# 3. 单题冒烟（10–25min，验证整链路 + verification 阶段是否触发）
+# 3. 单题冒烟（5–13min，验证整链路 + tool-first 是否生效）
 #    注意：--positions 是 1-indexed（1 = 第一题），范围 1..sample-size
 python3 run_browsecomp_fixed_sample.py \
   --seed 123 --sample-size 10 --positions 5 \
@@ -609,15 +669,15 @@ python3 run_browsecomp_fixed_sample.py \
 
 ### 资源消耗预估
 
-| 指标 | 实测推荐档（Kimi-K3） | 极限档（10题） |
+| 指标 | 实测推荐档（Kimi-K3 + tool-first） | 极限档（10题） |
 |------|---------------|---------------|
-| 每题耗时 | ~13 min（pos3 实测 805s） | 40–80 min |
-| 10 题总墙钟时间（串行） | **~2.2 小时** | **4–6 小时** |
-| 总搜索 API 调用 | ~300 | ~600 |
-| 总 LLM 调用 | ~500–800 | ~1000–1500 |
-| 预计 LLM token | 10–20M | 20–40M |
+| 每题耗时 | ~5–13 min（pos4 332s / pos3 805s） | 40–80 min |
+| 10 题总墙钟时间（串行） | **~0.8–2.2 小时** | **4–6 小时** |
+| 总搜索 API 调用 | ~200–300 | ~600 |
+| 总 LLM 调用 | ~300–800 | ~1000–1500 |
+| 预计 LLM token | 5–20M | 20–40M |
 
-> **注**：Kimi-K3 + effort-fix 实测单题 805s（4 轮），远低于 GLM-5.2 时期单题 25–40 min。预算上限 250 次搜索实测未触顶。
+> **注**：Kimi-K3 + effort-fix + tool-first 实测单题最快 332s（pos4，6.2× 加速）。tool-first 主要削减首轮推理延迟和总轮数，预算上限 250 次搜索实测未触顶。
 
 ### 实测附注
 
@@ -633,6 +693,26 @@ python3 run_browsecomp_fixed_sample.py \
 | 单题耗时 | — | **805s，4 轮，CORRECT** ✓ |
 
 详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`。
+
+#### Tool-first 优化实测（2026-08-05，pos4，正确答案 Whitesnake）
+
+**两层优化（API + prompt）实现 6.2× 加速，准确率保持**：
+
+| 层 | 优化 | 机制 |
+|-----|------|------|
+| API | `EXECUTOR_TOOL_CHOICE=first_turn` | 首轮 `tool_choice=required` 强制工具调用，消除首轮推理延迟 |
+| Prompt | `EXECUTOR_SIMPLE_PROMPT=1` | 71 行简化 prompt（vs v3 254 行）+ tool-first 契约 + 决策规则 |
+
+| 指标 | 优化前（v3 prompt，无 tool_choice） | 优化后（simple + first_turn） | 改善 |
+|------|------|------|------|
+| 总耗时 | 2064s | **332s** | **6.2× 加速** |
+| 首轮延迟 | ~20s（reasoning 数千字符） | 4.9s（reasoning 411c） | 4× |
+| 搜索次数 | 17 | 8 | 2.1× 减少 |
+| 迭代找到答案 | 多轮 | 1 轮 | 更高效 |
+| starvation 事件 | 44 | 2 | 22× 减少 |
+| 答案 | Whitesnake ✓ | Whitesnake ✓ | 准确率保持 |
+
+**关键观察**：`first_turn` 模式仅首轮强制工具调用，后续轮用 `auto` 让模型自决何时输出 findings——平衡了速度与灵活性。`required` 模式（每轮强制）会致模型搜索至预算耗尽，增加搜索次数。详见"工具调用加速"章节。
 
 #### GLM-5.2 三轮同题实测（2026-08-04，pos3，正确答案 Whitesnake）
 
