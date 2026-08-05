@@ -136,6 +136,7 @@ def run_fixed_evaluation(
     api_key = os.getenv("OPENAI_API_KEY")
     model_id = resolve_primary_model()
     executor_model_id = os.getenv("EXECUTOR_MODEL_NAME") or model_id
+    executor_reasoning_effort = (os.getenv("EXECUTOR_THINKING") or "").strip().lower() or None
     grader_cfg = resolve_grader_config(api_base or "", api_key or "", model_id)
     grader_api_base = grader_cfg["api_base"]
     grader_api_key = grader_cfg["api_key"]
@@ -147,9 +148,11 @@ def run_fixed_evaluation(
     _save_manifest(sample, manifest_path)
     logger.info(f"Manifest saved to {manifest_path}")
 
+    # positions are 1-indexed (user-facing): --positions 4 => 4th question.
+    # Internally converted to 0-indexed for sample[] access in _worker.
     for pos in positions:
-        if pos < 0 or pos >= len(sample):
-            raise ValueError(f"Sample position {pos} is out of range for sample size {len(sample)}")
+        if pos < 1 or pos > len(sample):
+            raise ValueError(f"Sample position {pos} is out of range for sample size {len(sample)} (1-indexed, valid 1..{len(sample)})")
 
     grader = LLMGrader(api_base=grader_api_base, api_key=grader_api_key, model_id=grader_model_id)
     pipeline_kwargs: Dict[str, Any] = {
@@ -164,7 +167,8 @@ def run_fixed_evaluation(
     logger.info(f"Running fixed-sample evaluation for positions={positions} with max_workers={max_workers}")
 
     def _worker(sample_position: int) -> Dict[str, Any]:
-        example = sample[sample_position]
+        # sample_position is 1-indexed (user-facing); convert to 0-indexed.
+        example = sample[sample_position - 1]
         if "problem_plaintext" in example:
             question = example.get("problem_plaintext", "")
             answer = example.get("answer_plaintext", "")
@@ -177,6 +181,7 @@ def run_fixed_evaluation(
             api_key=api_key,
             model_id=model_id,
             executor_model_id=executor_model_id,
+            executor_reasoning_effort=executor_reasoning_effort,
             max_planner_searches=max_planner_searches,
             max_executor_searches=max_executor_searches,
             max_total_searches=max_total_searches,
@@ -243,6 +248,7 @@ def run_fixed_evaluation(
         "positions": positions,
         "model_id": model_id,
         "executor_model_id": executor_model_id,
+        "executor_reasoning_effort": executor_reasoning_effort,
         "grader_model_id": grader_model_id,
         "num_examples": total,
         "correct_count": correct,
@@ -270,6 +276,8 @@ def run_fixed_evaluation(
     print(f"Model:          {model_id}", flush=True)
     if executor_model_id != model_id:
         print(f"Executor:       {executor_model_id}", flush=True)
+    if executor_reasoning_effort:
+        print(f"Executor think: {executor_reasoning_effort}", flush=True)
     print(f"Grader:         {grader_model_id}", flush=True)
     print(f"Examples:       {total}", flush=True)
     print(f"Correct:        {correct}", flush=True)
@@ -288,7 +296,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run BrowseComp on fixed sample positions.")
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--sample-size", type=int, required=True)
-    parser.add_argument("--positions", type=str, required=True, help="Comma-separated positions and ranges, e.g. 2-9 or 1,3,5")
+    parser.add_argument("--positions", type=str, required=True, help="Comma-separated 1-indexed positions and ranges, e.g. 2-9 or 1,3,5 (position 1 = first question)")
     parser.add_argument("--output", type=str, required=True)
     parser.add_argument("--trajectory-dir", type=str, default="logs/trajectories_fixed")
     parser.add_argument("--max-iterations", type=int, default=6)

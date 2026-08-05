@@ -284,7 +284,10 @@ SearchHarnessPipelineV4(executor_reasoning_effort="minimal")
 SearchAgentV3(reasoning_effort="minimal")
        │
        ▼
-chat_completion_with_structuring(reasoning_effort_override="minimal")
+chat_completion_with_structuring(
+    reasoning_effort_override="minimal",          # 主调用
+    structurer_reasoning_effort_override="minimal" # structurer 回退（默认 minimal）
+)
        │
        ▼
 build_chat_completion_kwargs(reasoning_effort="minimal")
@@ -296,6 +299,8 @@ payload = {
 ```
 
 > **设计原则**：仅传递顶层 `reasoning_effort`，不注入任何 vendor-specific `extra_body`（如 `thinking.type`、`budget_tokens`）。兼容任何 OpenAI-compatible 端点。
+
+> **Structurer effort**：当主调用返回 0 content + 大 reasoning 时，structurer 回退调用使用独立的 `structurer_reasoning_effort_override`（默认 `"minimal"`）。structurer 是机械性的"从 reasoning 提取结构化输出"任务——使用主调用的高 effort 会在 Kimi-K3 等模型上触发推理饥饿（0 content + 23K reasoning），浪费时间且无法恢复。structurer 始终用 minimal，与主调用的 effort 解耦。
 
 ### 取值语义
 
@@ -317,6 +322,25 @@ payload = {
 > - **OpenAI 标准端点**（o1/o3/o4、GPT-5）原生支持 `minimal`/`low`/`medium`/`high`，不识别 `max`。同一份配置切到 OpenAI 端点时 `max` 会被端点拒绝或忽略——切端点时请同步调整 `EXECUTOR_THINKING`。
 
 `LLM_THINKING_BUDGET_TOKENS` 环境变量也可控制（当 `EXECUTOR_THINKING` 留空时生效，影响 planner/critic/grader）：`0`→`minimal`，`≤1024`→`low`，`≤4096`→`medium`，`>4096`→`high`。在 GLM-5.2（tenyun 网关）上这些都会被重映射到 `high`，主要对 OpenAI o-series 端点有意义。
+
+### 按模型自定义思考配置（`model_profiles.yaml`）
+
+不同模型支持的 `reasoning_effort` 取值集合不同——发不支持的值会被端点静默回退（常回退到最强档，与意图相反）。例如 Kimi-K3 只认 `low`/`high`/`max`，发 `minimal` 会被回退到 `max`。为此系统提供 **per-model 配置文件**，**改 YAML 即可加新模型，无需改代码**：
+
+```yaml
+# model_profiles.yaml
+profiles:
+  Kimi-K3:
+    thinking_enabled: true              # 始终开启思考
+    supported_efforts: [low, high, max] # 端点真正支持的档位
+    effort_mapping:                     # 不支持的值 → 重映射
+      minimal: low
+      medium: high
+    preserve_reasoning_history: true    # 多轮回传 reasoning_content（Kimi K3 "preserved mode"）
+    minimal_effort_is_honored: true      # low 被尊重→大 reasoning 是正常的，不跳过 structurer
+```
+
+匹配规则：按 `model_id` 大小写不敏感子串匹配，最长匹配胜出，无匹配走 `default`（假设标准 OpenAI，无 reasoning）。YAML 缺失时用 `model_profiles.py` 内置默认，系统仍可运行。字段含义见文件内注释。新增模型只需加一段 profile。
 
 ### 推荐配置（GLM-5.2 / tenyun 网关，实测 2026-08-04）
 
@@ -386,14 +410,14 @@ python3 smoke_test_thinking.py --efforts none high
 
 ### 单题评测（固定样本）
 
-固定样本为 seed `123`、k `10`，其中 position `0` 是跳过的参考项，position `1-9` 是主评测项。`docs/seed123_k10_manifest.json` 含 gold answer。
+固定样本为 seed `123`、k `10`，**1-indexed**（position `1` = 第一题 = Achimota School，position `2-10` 是其余题）。`docs/seed123_k10_manifest.json` 含 gold answer。
 
 ```bash
-# 评测 position 4（gold: Ding Junhui，历史错误答案: Mark Selby，用于验证硬冲突消除）
+# 评测 position 5（gold: Ding Junhui，历史错误答案: Mark Selby，用于验证硬冲突消除）
 python3 run_browsecomp_fixed_sample.py \
   --seed 123 \
   --sample-size 10 \
-  --positions 4 \
+  --positions 5 \
   --output results/seed123_pos4.json \
   --trajectory-dir logs/trajectories_pos4 \
   --max-iterations 6 \
@@ -406,9 +430,9 @@ python3 run_browsecomp_fixed_sample.py \
 ### 多题批量评测
 
 ```bash
-# 评测 position 2-9
+# 评测 position 2-10
 python3 run_browsecomp_fixed_sample.py \
-  --seed 123 --sample-size 10 --positions 2-9 \
+  --seed 123 --sample-size 10 --positions 2-10 \
   --output results/seed123_pos2to9.json \
   --trajectory-dir logs/trajectories_pos2to9 \
   --max-iterations 6 --max-crawl-calls 12 \
@@ -468,13 +492,13 @@ python3 run_browsecomp.py \
 # 1. 思考档用 high（实测 max 档 GLM-5.2 频繁 reasoning starvation：0 content + 30K reasoning）
 export EXECUTOR_THINKING=high
 
-# 2. 运行 10 题，4 路并发
+# 2. 运行 10 题，4 路并发（positions 4 = Whitesnake 题，1-indexed）
 python3 run_browsecomp_fixed_sample.py \
   --seed 123 \
   --sample-size 10 \
-  --positions 3 \
-  --output results/position3_v4_balanced_20260804.json \
-  --trajectory-dir logs/trajectories_position3_v4_balanced_20260804 \
+  --positions 4 \
+  --output results/position4_v4_balanced_20260804.json \
+  --trajectory-dir logs/trajectories_position4_v4_balanced_20260804 \
   --max-iterations 8 \
   --max-crawl-calls 40 \
   --max-planner-searches 15 \
@@ -505,10 +529,10 @@ echo $EXECUTOR_THINKING  # 应输出: high
 python3 debug_llm_smoke.py --verify-thinking
 
 # 3. 单题冒烟（10–25min，验证整链路 + verification 阶段是否触发）
-#    注意：--positions 必须 < --sample-size；--sample-size 1 时只能用 --positions 0
+#    注意：--positions 是 1-indexed（1 = 第一题），范围 1..sample-size
 python3 run_browsecomp_fixed_sample.py \
-  --seed 123 --sample-size 10 --positions 3 \
-  --output /tmp/smoke_pos3.json \
+  --seed 123 --sample-size 10 --positions 4 \
+  --output /tmp/smoke_pos4.json \
   --trajectory-dir /tmp/smoke_traj \
   --max-iterations 6 --max-crawl-calls 30 \
   --max-planner-searches 8 --max-executor-searches 20 \
@@ -571,7 +595,7 @@ python3 run_browsecomp_fixed_sample.py \
 |------|------|------|
 | `--seed` | 必填 | 固定样本种子（`123`） |
 | `--sample-size` | 必填 | 样本大小（`10`） |
-| `--positions` | 必填 | 位置，支持 `4` / `2-9` / `1,3,5` |
+| `--positions` | 必填 | **1-indexed** 位置，支持 `4` / `2-9` / `1,3,5`（`1` = 第一题） |
 | `--output` | 必填 | 结果 JSON 路径 |
 | `--trajectory-dir` | `logs/trajectories_fixed` | 轨迹目录 |
 | `--max-workers` | `1` | 并发数 |
@@ -760,7 +784,7 @@ python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
 
 | 项 | 值 |
 |---|---|
-| 数据集 | BrowseComp 固定样本（seed=123, sample_size=10, positions=0-2, n=3） |
+| 数据集 | BrowseComp 固定样本（seed=123, sample_size=10, positions=1-3, n=3） |
 | 模型 | GLM-5.2（planner+executor+grader 同模型） |
 | Budget | max_iter=6, max_crawl=30, max_total_searches=120 |
 | 变量 | 仅 `ENABLE_PLAN_A_VERIFICATION`（0 vs 1），Plan B/C/E 在两组均开启 |
@@ -837,21 +861,21 @@ python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
 ```bash
 # Baseline (Plan A off)
 ENABLE_PLAN_A_VERIFICATION=0 python run_browsecomp_fixed_sample.py \
-    --seed 123 --sample-size 10 --positions 0-2 \
-    --output results/planA_baseline_pos0to2.json \
+    --seed 123 --sample-size 10 --positions 1-3 \
+    --output results/planA_baseline_pos1to3.json \
     2>&1 | tee logs/run_baseline_noPlanA.log
 
 # Treatment (Plan A on, full-path, pre-fix)
 ENABLE_PLAN_A_VERIFICATION=1 python run_browsecomp_fixed_sample.py \
-    --seed 123 --sample-size 10 --positions 0-2 \
-    --output results/planA_treatment_full_pos0to2.json \
+    --seed 123 --sample-size 10 --positions 1-3 \
+    --output results/planA_treatment_full_pos1to3.json \
     2>&1 | tee logs/run_treatment_full.log
 
 # Treatment (Plan A on, post-fix, type-aware) — 2026-08-04 17:24 acc=3/3
 ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_sample.py \
-    --seed 123 --sample-size 10 --positions 0-2 \
-    --output results/planA_treatment_fixed_pos0to2.json \
-    2>&1 | tee logs/run_treatment_fixed_pos0to2.log
+    --seed 123 --sample-size 10 --positions 1-3 \
+    --output results/planA_treatment_fixed_pos1to3.json \
+    2>&1 | tee logs/run_treatment_fixed_pos1to3.log
 ```
 
 ---
