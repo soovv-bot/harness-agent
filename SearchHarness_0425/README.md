@@ -209,12 +209,16 @@ LLM_TIMEOUT_S=600
 LLM_THINKING_BUDGET_TOKENS=1000
 
 # 思考模式控制（per-role，OpenAI 标准 reasoning_effort）
-# GLM-5.2 (tenyun 网关) 实测取值（2026-08-04）：
-#   EXECUTOR_THINKING=high   → 较快较浅（推荐：~3.5s/轮，避免工具调用饥饿）
-#   EXECUTOR_THINKING=max    → 最深推理（~11.7s/轮，难规划任务用）
-# OpenAI 标准值（minimal/low/medium）在 GLM-5.2 上被网关重映射为 high；
-# none 是 minimal 别名，在 GLM-5.2 上不会真正关闭思考。
-# 切到 OpenAI o-series 端点时改用 minimal/low/medium/high（max 会被拒）。
+# 不同模型支持的取值不同——不支持的值会被端点静默回退（常回退到最强档，
+# 与意图相反）。per-model 重映射规则见 model_profiles.yaml，改 YAML 即可加新模型。
+# Kimi-K3（当前默认，实测 2026-08-05）：
+#   EXECUTOR_THINKING=high  → 执行 Agent 推理（推荐）
+#   LLM_THINKING_BUDGET_TOKENS=0 → planner minimal→low（profile 重映射，0-content 0%）
+# GLM-5.2 (tenyun 网关，实测 2026-08-04)：
+#   EXECUTOR_THINKING=high  → 较快较浅（~3.5s/轮，避免工具调用饥饿）
+#   EXECUTOR_THINKING=max   → 最深推理（~11.7s/轮，难规划任务用）
+#   minimal/low/medium 被网关重映射为 high；none=minimal 别名，不真正关闭思考。
+# OpenAI o-series 端点：原生 minimal/low/medium/high，max 会被拒。
 EXECUTOR_THINKING=high
 
 # ── Grader（可选，缺省回退到主 LLM）──
@@ -231,6 +235,7 @@ CRAWLER_ENGINE=jina                 # 或 html2text
 LOG_LEVEL=INFO
 PLANNER_SIMPLE_PROMPT=false
 EXECUTOR_SIMPLE_PROMPT=false
+EXECUTOR_TOOL_CHOICE=first_turn     # auto / required / first_turn
 ```
 
 > **重要**：`MODEL_NAME` 必须是当前 API Key 可访问的模型。冒烟测试显示部分 Key 可访问某些模型但无法访问其它（如 `deepseek-chat`），模型权限错误不会在启动时暴露，只在调用时返回 model-access denial。
@@ -266,35 +271,36 @@ grader_id = s.grader.model_id      # grader 模型（回退到主模型）
 | `CRAWLER_ENGINE` | `jina` | 抓取引擎：`jina` 或 `html2text` |
 | `LOG_LEVEL` | `INFO` | loguru 日志级别 |
 | `PLANNER_SIMPLE_PROMPT` | `false` | 使用简化 planner prompt |
-| `EXECUTOR_SIMPLE_PROMPT` | `false` | 使用简化 executor prompt |
+| `EXECUTOR_SIMPLE_PROMPT` | `false` | 使用简化 executor prompt（tool-first 契约 + 决策规则，71 行 vs v3 的 254 行；减少推理面） |
+| `EXECUTOR_TOOL_CHOICE` | `first_turn` | 工具调用强制模式：`auto`（模型自决）/ `required`（每轮强制工具调用，最快）/ `first_turn`（仅首轮强制，速度/准确率平衡） |
 
 ---
 
 ## 思考模式控制
 
-推理模型（如 GLM-5.2、DeepSeek-reasoner、Kimi-K3）会在 `reasoning_content` 字段输出思考过程。思考有助于规划质量，但执行阶段过度思考会触发"工具调用饥饿"——模型把全部预算花在推理上、迟迟不发起工具调用。本系统遵循 **OpenAI 标准** `reasoning_effort` 参数控制思考强度，按角色独立配置：
+推理模型（如 GLM-5.2、DeepSeek-reasoner、Kimi-K3）会在 `reasoning_content` 字段输出思考过程。思考有助于规划质量，但执行阶段过度思考会触发"工具调用饥饿"——模型把全部预算花在推理上、迟迟不发起工具调用。本系统遵循 **OpenAI 标准** `reasoning_effort` 参数控制思考强度，按角色独立配置，并由 `model_profiles.yaml` 按模型重映射不支持的档位（如 Kimi-K3 不认 `minimal`，自动 `minimal→low`）：
 
 ```
-EXECUTOR_THINKING=minimal   # 执行 Agent：最弱思考（推荐，避免工具调用饥饿）
+EXECUTOR_THINKING=high       # 执行 Agent：high（Kimi-K3/GLM-5.2 推荐；minimal 在 Kimi-K3 经 profile→low）
        │
        ▼
-SearchHarnessPipelineV4(executor_reasoning_effort="minimal")
+SearchHarnessPipelineV4(executor_reasoning_effort="high")
        │
        ▼
-SearchAgentV3(reasoning_effort="minimal")
+SearchAgentV3(reasoning_effort="high")
        │
        ▼
 chat_completion_with_structuring(
-    reasoning_effort_override="minimal",          # 主调用
-    structurer_reasoning_effort_override="minimal" # structurer 回退（默认 minimal）
+    reasoning_effort_override="high",             # 主调用
+    structurer_reasoning_effort_override="minimal" # structurer 回退（始终 minimal，解耦）
 )
        │
        ▼
-build_chat_completion_kwargs(reasoning_effort="minimal")
+build_chat_completion_kwargs(reasoning_effort="high")  →  profile.snap_effort("high")
        │
        ▼
 payload = {
-  "reasoning_effort": "minimal"   # 顶层 kwarg（OpenAI 标准契约）
+  "reasoning_effort": "high"   # 顶层 kwarg（OpenAI 标准契约），按 model_profiles.yaml 重映射
 }
 ```
 
@@ -306,15 +312,15 @@ payload = {
 
 本系统接受 OpenAI o-series 与 GLM-5 两套词汇的并集，把解析后的值原样转发给端点：
 
-| `EXECUTOR_THINKING` | OpenAI o-series 行为 | GLM-5.2 行为 | 适用场景 |
-|------|------|------|---------|
-| `minimal` | 最弱思考（OpenAI 标准） | **重映射为 `high`**（tenyun 网关）或回退 `max`（官方 API） | 执行 Agent（OpenAI 端点） |
-| `low` | 低强度思考 | 同上（重映射/回退） | 简单多跳（OpenAI 端点） |
-| `medium` | 中等强度 | 同上（重映射/回退） | 复杂多跳（OpenAI 端点） |
-| `high` | 高强度思考 | 较快/较浅思考（GLM-5 原生支持） | 极难推理 / GLM-5 提速 |
-| `max` | **不识别**（端点会报错或忽略） | 最深思考（GLM-5 原生默认档） | GLM-5 最强推理 |
-| `none` | `minimal` 别名 | 同 `minimal` | 向后兼容 |
-| 留空 | 不注入，端点默认 | GLM-5 默认 `max` | 非 reasoning 模型 |
+| `EXECUTOR_THINKING` | OpenAI o-series 行为 | GLM-5.2 行为 | Kimi-K3 行为（profile 重映射） | 适用场景 |
+|------|------|------|------|---------|
+| `minimal` | 最弱思考（OpenAI 标准） | **重映射为 `high`**（tenyun 网关）或回退 `max`（官方 API） | **→ `low`**（profile，被尊重） | 执行 Agent（OpenAI / Kimi-K3 端点） |
+| `low` | 低强度思考 | 同上（重映射/回退） | `low`（原生支持） | 简单多跳（OpenAI / Kimi-K3） |
+| `medium` | 中等强度 | 同上（重映射/回退） | **→ `high`**（profile） | 复杂多跳（OpenAI 端点） |
+| `high` | 高强度思考 | 较快/较浅思考（GLM-5 原生支持） | `high`（原生支持） | 极难推理 / 提速 |
+| `max` | **不识别**（端点会报错或忽略） | 最深思考（GLM-5 原生默认档） | `max`（原生支持，Kimi-K3 默认） | GLM-5 / Kimi-K3 最强推理 |
+| `none` | `minimal` 别名 | 同 `minimal` | → `minimal` → `low`（profile） | 向后兼容 |
+| 留空 | 不注入，端点默认 | GLM-5 默认 `max` | Kimi-K3 默认 `max` | 非 reasoning 模型 |
 
 > **GLM-5.2 关键限制**：
 > - **无法关闭思考**——GLM-5.2 思考永远开启，没有 `none`/`disabled` 等价物。`EXECUTOR_THINKING=none` 在 GLM-5 端点上不会禁用思考，只会被重映射。
@@ -322,6 +328,51 @@ payload = {
 > - **OpenAI 标准端点**（o1/o3/o4、GPT-5）原生支持 `minimal`/`low`/`medium`/`high`，不识别 `max`。同一份配置切到 OpenAI 端点时 `max` 会被端点拒绝或忽略——切端点时请同步调整 `EXECUTOR_THINKING`。
 
 `LLM_THINKING_BUDGET_TOKENS` 环境变量也可控制（当 `EXECUTOR_THINKING` 留空时生效，影响 planner/critic/grader）：`0`→`minimal`，`≤1024`→`low`，`≤4096`→`medium`，`>4096`→`high`。在 GLM-5.2（tenyun 网关）上这些都会被重映射到 `high`，主要对 OpenAI o-series 端点有意义。
+
+## 工具调用加速（Tool-First 优化）
+
+推理模型（Kimi-K3 `high`、GLM-5.2 等）在工具调用前会产生大量 `reasoning_content`，导致每轮 10–60s 延迟。本系统通过 **API 层 + 提示词层** 双管齐下加速决策，参考 OpenAI Function Calling 最佳实践和行业 ReAct/Plan-Execute 模式。
+
+### API 层：`tool_choice` 强制
+
+`EXECUTOR_TOOL_CHOICE` 控制 executor 行动轮的工具调用强制策略（行业最佳实践——OpenAI function calling 指南推荐 `tool_choice` 作为推理模型的第一加速手段）：
+
+| 取值 | 行为 | 适用场景 |
+|------|------|---------|
+| `auto` | 模型自行决定是否调用工具（OpenAI 默认） | 非 reasoning 模型，或需要模型灵活停止 |
+| `required` | 每个行动轮强制至少一次工具调用 | 极速场景——模型用完预算才输出 findings，搜索次数可能增加 |
+| `first_turn` | 仅每个子任务的首轮强制工具调用，后续轮自决 | **推荐**——首轮立即搜索（消除最大延迟源），后续轮保留灵活性 |
+
+**技术细节**：
+- `tool_choice` 通过 `chat_completion_with_structuring(**extra)` → `build_chat_completion_kwargs(**extra)` → API kwargs 透传
+- 当 `disable_tools_for_wrapup=True`（预算耗尽/收尾轮）时 `tools=None`，`tool_choice` 不生效——模型正常输出 findings
+- structurer 回退调用不传 `tool_choice`（无工具，不会泄漏）
+- 已验证 tenyun（LiteLLM 网关）+ Kimi-K3 支持 `tool_choice="required"`（reasoning_content 仅 53 字符 vs 自由模式数千字符）
+
+### 提示词层：Tool-First 契约
+
+`EXECUTOR_SIMPLE_PROMPT=1` 启用简化 executor prompt（71 行），包含：
+
+1. **Tool-first 契约**（CRITICAL 段）：
+   - "Your FIRST action in every subtask MUST be a tool call. No exceptions."
+   - "Do NOT output prose, reasoning, or explanations before your first tool call."
+   - "After receiving tool results: either call another tool OR output findings. Never output prose alone."
+
+2. **决策规则**（IF/THEN 格式，减少推理面）：
+   - "No search yet → call `search` NOW with the most specific constraint combination."
+   - "Budget exhausted or evidence is sufficient → output <findings> block."
+   - "Unsure about a candidate → keep it active with unresolved_constraints."
+
+3. **行为示例**（few-shot pattern）：
+   ```
+   Turn 1: call search(["most distinctive constraint 1", "constraint 2"])
+   Turn 2: call visit_urls(["url from results"], query="constraint to verify")
+   Turn 3: call add_candidates(["Candidate Name"])
+   Turn 4: call search(["Candidate Name", "constraint to verify"])
+   Turn 5: output <findings> with evidence and candidate_updates
+   ```
+
+v3 prompt（254 行）也添加了 tool-first 契约段，但简化 prompt 因更短而推理面更小。
 
 ### 按模型自定义思考配置（`model_profiles.yaml`）
 
@@ -342,9 +393,24 @@ profiles:
 
 匹配规则：按 `model_id` 大小写不敏感子串匹配，最长匹配胜出，无匹配走 `default`（假设标准 OpenAI，无 reasoning）。YAML 缺失时用 `model_profiles.py` 内置默认，系统仍可运行。字段含义见文件内注释。新增模型只需加一段 profile。
 
-### 推荐配置（GLM-5.2 / tenyun 网关，实测 2026-08-04）
+### 推荐配置（按模型，实测）
 
-在 GLM-5.2 上只有 `max` 与 `high` 是原生取值，同一问题实测对比（`smoke_test_thinking.py`，"strawberry 里几个 r"）：
+#### Kimi-K3（当前默认，实测 2026-08-05）
+
+Kimi-K3 思考永远开启，只认 `low`/`high`/`max`。发 `minimal` 会被静默回退到 `max`（最强），撑满 token budget 致 content 饥饿。靠 `model_profiles.yaml` 把 `minimal→low`、`medium→high` 重映射后，planner 0-content 从 74% 降到 0%。
+
+```bash
+# .env（Kimi-K3）
+MODEL_NAME=Kimi-K3
+EXECUTOR_THINKING=high              # 执行 Agent：high（原生支持）
+LLM_THINKING_BUDGET_TOKENS=0        # planner/critic/grader：0→minimal→low（profile 重映射）
+```
+
+实测（pos3，正确答案 Abangan 2024）：**CORRECT ✓，805s，4 轮自然结束**，planner reasoning 均值 900c（修复前 30k+），planner 0-content 0%（修复前 74%）。详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`。
+
+#### GLM-5.2 / tenyun 网关（实测 2026-08-04）
+
+GLM-5.2 只有 `max` 与 `high` 是原生取值，同一问题实测对比（`smoke_test_thinking.py`，"strawberry 里几个 r"）：
 
 | `EXECUTOR_THINKING` | 单轮耗时 | planner reasoning tokens | 说明 |
 |---|---|---|---|
@@ -360,7 +426,7 @@ EXECUTOR_THINKING=high
 EXECUTOR_THINKING=max
 ```
 
-> **为什么默认 `high` 而非 `none`**：早期 `EXECUTOR_THINKING=none` 旨在"关闭思考以让 executor 快速发工具调用"。但 GLM-5.2 无法关闭思考，`none` 在 tenyun 上被重映射成 `high`——行为与直接写 `high` 相同，但语义模糊。显式写 `high` 行为可预测、配置可读。若要最强推理改 `max` 即可。
+> **为什么 GLM-5.2 默认 `high` 而非 `none`**：早期 `EXECUTOR_THINKING=none` 旨在"关闭思考以让 executor 快速发工具调用"。但 GLM-5.2 无法关闭思考，`none` 在 tenyun 上被重映射成 `high`——行为与直接写 `high` 相同，但语义模糊。显式写 `high` 行为可预测、配置可读。若要最强推理改 `max` 即可。
 
 ### 验证思考模式生效
 
@@ -418,13 +484,13 @@ python3 run_browsecomp_fixed_sample.py \
   --seed 123 \
   --sample-size 10 \
   --positions 5 \
-  --output results/seed123_pos4.json \
-  --trajectory-dir logs/trajectories_pos4 \
-  --max-iterations 6 \
-  --max-crawl-calls 12 \
-  --max-planner-searches 10 \
-  --max-executor-searches 30 \
-  --max-total-searches 80
+  --output results/seed123_pos5.json \
+  --trajectory-dir logs/trajectories_pos5 \
+  --max-iterations 10 \
+  --max-crawl-calls 60 \
+  --max-planner-searches 15 \
+  --max-executor-searches 35 \
+  --max-total-searches 250
 ```
 
 ### 多题批量评测
@@ -435,8 +501,8 @@ python3 run_browsecomp_fixed_sample.py \
   --seed 123 --sample-size 10 --positions 2-10 \
   --output results/seed123_pos2to9.json \
   --trajectory-dir logs/trajectories_pos2to9 \
-  --max-iterations 6 --max-crawl-calls 12 \
-  --max-planner-searches 10 --max-executor-searches 30 --max-total-searches 80 \
+  --max-iterations 10 --max-crawl-calls 60 \
+  --max-planner-searches 15 --max-executor-searches 35 --max-total-searches 250 \
   --max-workers 1            # >1 可并行，但会增加 LLM 并发与配额压力
 ```
 
@@ -460,64 +526,66 @@ python3 run_browsecomp.py \
 
 ---
 
-## 预算参数配置建议（BrowseComp 评测，实测 2026-08-04）
+## 预算参数配置建议（BrowseComp 评测，实测）
 
-> **核心结论（三轮单题实测 pos3）**：预算**不是**准确率的瓶颈。三轮测试实际搜索次数 4 → 5 → 17，远低于预算上限 60，但准确率未随预算提升。真正的杠杆是 **Planner 能否进入 verification 阶段**（已修）和 **候选池 query 质量**（待优化）。
+> **核心结论**：预算**不是**准确率的瓶颈——实测搜索次数远低于预算上限，增加预算不提升准确率。真正的杠杆是：
+> 1. **思考强度映射**（Kimi-K3 实测最大收益）：`minimal→low` 重映射后 planner 0-content 74%→0%，reasoning 30k→900c，单题 805s 正确（详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`）。
+> 2. **Planner 进入 verification 阶段**（GLM-5.2 时期已修，见下方实测附注）。
+> 3. **候选池 query 质量**（待优化）。
 
 ### 预算参数作用范围
 
 | 参数 | 作用域 | 触发后行为 | 实测占用 |
 |------|--------|-----------|---------|
-| `--max-iterations` | 每题外层迭代轮数 | 触发 `max_iterations_reached`，进入 best-effort 终结 | 三测 6 轮验证 3 候选即收尾 |
-| `--max-crawl-calls` | 每题全局抓取数 | 触发 `max_crawl_calls_reached`，best-effort 终结 | 三测 ~5 次 crawl（搜索:crawl ≈ 3:1） |
+| `--max-iterations` | 每题外层迭代轮数 | 触发 `max_iterations_reached`，进入 best-effort 终结 | Kimi-K3 实测 4 轮即自然收尾；GLM-5.2 三测 6 轮验证 3 候选 |
+| `--max-crawl-calls` | 每题全局抓取数 | 触发 `max_crawl_calls_reached`，best-effort 终结 | GLM-5.2 ~5 次 crawl（搜索:crawl ≈ 3:1）；Kimi-K3 未触顶 |
 | `--max-planner-searches` | 每题 Planner 累计搜索 | Planner 搜索被拒、改用现有信息规划 | 未触发 |
 | `--max-executor-searches` | **每子任务**（每次 `run()` 重置） | Executor 搜索被拒、注入"预算耗尽"提示收尾 | 每候选 ~5 次搜索即出结论 |
-| `--max-total-searches` | 每题全局搜索硬上限 | 触发 `max_total_searches_reached`，best-effort 终结 | 三测 17/60，远未触顶 |
+| `--max-total-searches` | 每题全局搜索硬上限 | 触发 `max_total_searches_reached`，best-effort 终结 | GLM-5.2 三测 17/60；Kimi-K3 805s 未触顶 |
 
 > **关键**：`--max-executor-searches` 是**每子任务**而非每题。但实测每子任务 ~5 次搜索即出验证结论，35 偏高。`--max-total-searches` 通常最先触发，但修复 verification 后实际消耗远低于预算——增加预算**不会**提升准确率。
 
 ### 三档推荐配置
 
-| 档位 | `--max-iterations` | `--max-crawl-calls` | `--max-planner-searches` | `--max-executor-searches` | `--max-total-searches` | `--max-workers` | `EXECUTOR_THINKING` | 适用场景 |
-|------|-----|-----|-----|-----|-----|-----|-----|-----|
-| **冒烟**（单题 10–25min） | 6 | 30 | 8 | 20 | 60 | 1 | `high` | 验证 API/搜索/链路连通 |
-| **平衡**（10题 6–7h） | 8 | 40 | 15 | 20 | 150 | 4 | `high` | 正式评测，准确率/成本平衡 |
-| **极限**（10题 10–14h） | 10 | 60 | 20 | 30 | 250 | 2 | `max` | 榜单冲刺，预算无上限 |
+> 注：**实测推荐档** = 快速开始示例所用配置（Kimi-K3 + effort-fix，pos3 实测 805s 正确）。冒烟档用于验证连通，极限档用于榜单冲刺。
 
-> **vs 旧推荐**：平衡档 `max_total_searches` 200→**150**（实测 17 次搜索即够）、`max_crawl_calls` 100→**40**、`max_executor_searches` 30→**20**、`EXECUTOR_THINKING` max→**high**（max 档 GLM-5.2 频繁 reasoning starvation）。
+| 档位 | `--max-iterations` | `--max-crawl-calls` | `--max-planner-searches` | `--max-executor-searches` | `--max-total-searches` | `--max-workers` | `EXECUTOR_THINKING` | `LLM_THINKING_BUDGET_TOKENS` | 适用场景 |
+|------|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+| **冒烟**（单题 10–25min） | 6 | 30 | 8 | 20 | 60 | 1 | `high` | `0` | 验证 API/搜索/链路连通 |
+| **实测推荐**（单题 ~13min） | 10 | 60 | 15 | 35 | 250 | 1 | `high` | `0` | 正式评测（Kimi-K3，pos3 实测 805s 正确） |
+| **极限**（10题 10–14h） | 10 | 60 | 20 | 30 | 250 | 2 | `high` | `4096` | 榜单冲刺，预算无上限 |
 
-### 平衡档完整命令（推荐）
+> **vs GLM-5.2 旧推荐**：平衡档 `max_total_searches` 200→150、`max_crawl_calls` 100→40、`EXECUTOR_THINKING` max→high（max 档 GLM-5.2 频繁 reasoning starvation）。Kimi-K3 时期进一步发现 effort-mapping 才是关键杠杆，预算档位随之放宽到实测推荐 250。
+
+### 实测推荐命令（Kimi-K3，与快速开始示例一致）
 
 ```bash
-# 1. 思考档用 high（实测 max 档 GLM-5.2 频繁 reasoning starvation：0 content + 30K reasoning）
+# 1. 思考档：executor=high，planner 经 profile 把 minimal→low（0-content 0%）
 export EXECUTOR_THINKING=high
+export LLM_THINKING_BUDGET_TOKENS=0
 
-# 2. 运行 10 题，4 路并发（positions 4 = Whitesnake 题，1-indexed）
+# 2. 单题评测（pos 5，gold: Ding Junhui；1-indexed）
 python3 run_browsecomp_fixed_sample.py \
-  --seed 123 \
-  --sample-size 10 \
-  --positions 4 \
-  --output results/position4_v4_balanced_20260804.json \
-  --trajectory-dir logs/trajectories_position4_v4_balanced_20260804 \
-  --max-iterations 8 \
-  --max-crawl-calls 40 \
-  --max-planner-searches 15 \
-  --max-executor-searches 20 \
-  --max-total-searches 150 \
-  --max-workers 4
+  --seed 123 --sample-size 10 --positions 5 \
+  --output results/seed123_pos5.json \
+  --trajectory-dir logs/trajectories_pos5 \
+  --max-iterations 10 --max-crawl-calls 60 \
+  --max-planner-searches 15 --max-executor-searches 35 --max-total-searches 250
 ```
+
+> 实测（pos3，Abangan 2024）：CORRECT ✓，805s，4 轮自然结束，planner 0-content 0%。
 
 ### 预算设计原理（实测修正）
 
 | 设计点 | 解释 |
 |--------|------|
-| `max-iterations=8` | verification 阶段需多轮（三测 6 轮验证 3 候选）；8 轮覆盖 10 候选 + best-effort |
-| `max-crawl-calls=40` | 实测搜索:crawl ≈ 3:1，17 次搜索 → ~5 次 crawl；40 足够且防失控 |
+| `max-iterations=10` | Kimi-K3 实测 4 轮即收尾（富余）；GLM-5.2 verification 阶段需多轮（6 轮验证 3 候选） |
+| `max-crawl-calls=60` | 实测搜索:crawl ≈ 3:1；60 足够且防失控 |
 | `max-planner-searches=15` | Planner 主要调用 LLM 而非搜索，15 富余 |
-| `max-executor-searches=20` 每子任务 | 实测每候选 ~5 次搜索即出结论，20 富余 |
-| `max-total-searches=150` | 三测单题 17 次，10 题 ~170 次（含 verification）；150 是安全上限，过大会浪费 API 配额 |
-| `--max-workers=4` | 4 路并发是 tenyun 网关限流安全区 |
-| `EXECUTOR_THINKING=high` | 实测 `max` 档 GLM-5.2 推理饥饿（0 content + 30K reasoning），`high` 更稳定；`max` 仅留作疑难题冲刺 |
+| `max-executor-searches=35` 每子任务 | 实测每候选 ~5 次搜索即出结论，35 偏高但留余量 |
+| `max-total-searches=250` | GLM-5.2 单题 17 次、Kimi-K3 805s 未触顶；250 是安全上限，实测远未达 |
+| `EXECUTOR_THINKING=high` | 实测 `max` 档 GLM-5.2 推理饥饿（0 content + 30K reasoning）；`high` 更稳定 |
+| `LLM_THINKING_BUDGET_TOKENS=0` | Kimi-K3：0→minimal→low（profile 重映射），planner 0-content 74%→0%（**最大收益**） |
 
 ### 运行前检查清单
 
@@ -531,8 +599,8 @@ python3 debug_llm_smoke.py --verify-thinking
 # 3. 单题冒烟（10–25min，验证整链路 + verification 阶段是否触发）
 #    注意：--positions 是 1-indexed（1 = 第一题），范围 1..sample-size
 python3 run_browsecomp_fixed_sample.py \
-  --seed 123 --sample-size 10 --positions 4 \
-  --output /tmp/smoke_pos4.json \
+  --seed 123 --sample-size 10 --positions 5 \
+  --output /tmp/smoke_pos5.json \
   --trajectory-dir /tmp/smoke_traj \
   --max-iterations 6 --max-crawl-calls 30 \
   --max-planner-searches 8 --max-executor-searches 20 \
@@ -541,20 +609,34 @@ python3 run_browsecomp_fixed_sample.py \
 
 ### 资源消耗预估
 
-| 指标 | 平衡档（10题） | 极限档（10题） |
+| 指标 | 实测推荐档（Kimi-K3） | 极限档（10题） |
 |------|---------------|---------------|
-| 每题实际搜索次数 | ~17–30 | ~30–60 |
-| 每题耗时 | 25–40 min | 40–80 min |
-| 10 题总墙钟时间（并发） | **2–3 小时** | **4–6 小时** |
+| 每题耗时 | ~13 min（pos3 实测 805s） | 40–80 min |
+| 10 题总墙钟时间（串行） | **~2.2 小时** | **4–6 小时** |
 | 总搜索 API 调用 | ~300 | ~600 |
 | 总 LLM 调用 | ~500–800 | ~1000–1500 |
 | 预计 LLM token | 10–20M | 20–40M |
 
-> **注**：上表基于实测（单题 17 次搜索、25 min）。旧估计（200 次搜索、100–150 min/题）是预算上限假设，实际消耗远低于此。
+> **注**：Kimi-K3 + effort-fix 实测单题 805s（4 轮），远低于 GLM-5.2 时期单题 25–40 min。预算上限 250 次搜索实测未触顶。
 
-### 实测附注（2026-08-04，三轮单题 pos3）
+### 实测附注
 
-三轮同题实测（正确答案 Whitesnake）验证了预算非瓶颈、Planner 阶段切换才是关键：
+#### Kimi-K3 effort-mapping 修复（2026-08-05，pos3）
+
+**最大收益来自思考强度映射，非预算**。Kimi K3 只认 `low`/`high`/`max`，发 `minimal`（budget=0）被静默回退到 `max`，撑满 token budget 致 content 饥饿（planner 0-content 74%、reasoning 30k+ 字符）。`model_profiles.yaml` 把 `minimal→low` 重映射后：
+
+| 指标 | 修复前（"max" 回退） | 修复后（minimal→low） |
+|-----|-------------------|---------------------|
+| Planner 0-content | 74% | **0%** |
+| Planner reasoning 均值 | 30,000+ 字符 | **900 字符** |
+| Planner 每轮都产出 content | 否 | **是（9/9）** |
+| 单题耗时 | — | **805s，4 轮，CORRECT** ✓ |
+
+详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`。
+
+#### GLM-5.2 三轮同题实测（2026-08-04，pos3，正确答案 Whitesnake）
+
+验证了预算非瓶颈、Planner 阶段切换才是关键（Kimi-K3 时期进一步发现 effort-mapping 才是最大杠杆）：
 
 | 轮次 | 改动 | 搜索次数 | Planner 产 plan | 进入 verification | 答案 | 耗时 |
 |------|------|---------|----------------|------------------|------|------|
@@ -1037,7 +1119,7 @@ pytest tests/test_core_rules.py -v
 cd ..   # 回到 search_data_systhesis/
 
 python convert_trajectory_to_offseeker_format.py \
-  --input SearchHarness_0425/logs/trajectories_pos4 \
+  --input SearchHarness_0425/logs/trajectories_pos5 \
   --output data/offseeker_format/search_harness \
   --enable-hint
 ```
@@ -1055,7 +1137,7 @@ python convert_trajectory_to_offseeker_format.py \
 Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key，更新 `.env` 中的 `SERPER_API_KEY`。
 
 ### Q3: 单题耗时过长
-默认预算较大（`max-total-searches=80`）。冒烟/调试时可大幅缩减：`--max-iterations 4 --max-planner-searches 5 --max-executor-searches 10 --max-total-searches 20`。耗时瓶颈与优化方案见 `docs/latency_optimization_20260731.md`。
+默认预算较大（`--max-total-searches` 脚本默认 120，实测推荐档 250）。冒烟/调试时可大幅缩减：`--max-iterations 4 --max-planner-searches 5 --max-executor-searches 10 --max-total-searches 20`。耗时瓶颈与优化方案见 `docs/latency_optimization_20260731.md` 与 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`（effort-mapping 是最大提速杠杆）。
 
 ### Q4: 答案错误但 status 是 `solved`
 这正是 v4 结构化候选状态要解决的问题。检查轨迹中的 `candidate_records`：错误候选是否积累了 `hard_conflicts` 但未被 eliminate，或者 finalizer 在仍有未解决冲突时过早收敛。
@@ -1071,10 +1153,12 @@ Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key�
 ## 相关文档
 
 - `WORKLOG.md` — 历史工作记录与失败模式分析
+- `docs/kimi_k3_effort_fix_2026-08-05_analysis.md` — Kimi-K3 effort-mapping 修复验证（最大提速杠杆）
 - `docs/latency_optimization_20260731.md` — 耗时分析与优化方案
 - `docs/smoke_test_2026-07-30.md` — 冒烟测试报告
 - `docs/insight_candidate_generation_bottleneck.md` — 候选生成瓶颈分析
 - `docs/insight_verification_ordering_failure.md` — 验证排序失败分析
+- `docs/experiment_compare_20260804.md` — Plan A 自验证消融实验报告
 - `planning_agent_prompt_v3.md` / `search_agent_prompt_v3.md` — v3 通用 prompt
 - `planning_agent_prompt_simple.md` / `search_agent_prompt_simple.md` — 简化 prompt（compact，适配推理模型）
 - 上级目录 `CLAUDE.md` — 整体项目（OffSeeker 蒸馏）说明

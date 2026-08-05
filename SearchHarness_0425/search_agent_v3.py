@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from query_history import QueryHistoryMemory
 from query_critic import QueryCritic, QueryVerdict
 from search_crawl_controller import SearchCrawlController
-from deepseek_thinking_compat import (
+from llm_reasoning_compat import (
     assistant_message_to_dict,
     build_chat_completion_kwargs,
     chat_completion_with_structuring,
@@ -65,10 +65,19 @@ class SearchAgentV3:
         search_budget: int = 30,
         enable_query_critic: bool = True,
         event_callback=None,
+        reasoning_effort: Optional[str] = None,
     ):
         self.api_base = api_base
         self.api_key = api_key
         self.model_id = model_id
+        self.reasoning_effort = reasoning_effort
+        # tool_choice mode for action turns: "auto" (model decides), "required"
+        # (force a tool call every action turn — minimizes pre-tool reasoning),
+        # or "first_turn" (force only on the first turn of each subtask, then auto).
+        self.tool_choice_mode = (os.getenv("EXECUTOR_TOOL_CHOICE", "first_turn").strip().lower()
+                                 or "first_turn")
+        if self.tool_choice_mode not in {"auto", "required", "first_turn"}:
+            self.tool_choice_mode = "first_turn"
         self.state_store = state_store
         self.query_memory = query_memory
         self.query_critic = query_critic
@@ -85,11 +94,11 @@ class SearchAgentV3:
         if system_prompt:
             base_prompt = system_prompt
         elif os.getenv("EXECUTOR_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}:
-            # Reasoning-capable models (e.g. GLM-5.2, DeepSeek-reasoner) can get
+            # Reasoning-capable models can get
             # stuck in reasoning when the system prompt is too long. Use a compact
             # prompt that still carries the core execution contract but lets the
             # model emit tool_calls / content.
-            simple_path = os.path.join(os.path.dirname(__file__), 'search_agent_prompt_glm.md')
+            simple_path = os.path.join(os.path.dirname(__file__), 'search_agent_prompt_simple.md')
             with open(simple_path, 'r', encoding='utf-8') as f:
                 base_prompt = f.read()
         else:
@@ -277,7 +286,7 @@ Candidate handling is critical:
         findings.setdefault("candidate_updates", self._empty_candidate_tool_updates())
         findings.setdefault("source_feedback", {"promising_sources": [], "unhelpful_sources": []})
         findings.setdefault("suggestion_for_planner", "")
-        # GLM-5.2 may emit candidate_updates as a list of candidate objects
+        # Reasoning models may emit candidate_updates as a list of candidate objects
         # instead of the expected dict format.  Coerce list -> dict so downstream
         # code can safely access new_candidates / candidate_assessments.
         if isinstance(findings.get("candidate_updates"), list):
@@ -303,6 +312,36 @@ Candidate handling is critical:
         updates.setdefault("new_candidates", [])
         updates.setdefault("eliminated_candidates", [])
         updates.setdefault("candidate_assessments", [])
+        # P0-2A: Evidence anchoring — downgrade evidence-less "verified" to "partial".
+        # A candidate marked "verified" MUST have at least one evidence entry with
+        # a source_url, otherwise it is downgraded to "partial" to prevent the
+        # model from claiming verification based on memory rather than search results.
+        # This ensures distillation training data shows "evidence -> conclusion" chains.
+        for assessment in updates.get("candidate_assessments", []):
+            if not isinstance(assessment, dict):
+                continue
+            vstatus = str(assessment.get("verification_status", "")).lower().strip()
+            if vstatus == "verified":
+                evidence_list = assessment.get("evidence", [])
+                if not isinstance(evidence_list, list):
+                    evidence_list = []
+                has_anchored = False
+                for ev in evidence_list:
+                    if not isinstance(ev, dict):
+                        continue
+                    # Accept both "source_url" (new prompt schema) and "source"
+                    # (legacy/executor-native field name) as anchored evidence.
+                    url_val = ev.get("source_url") or ev.get("source") or ""
+                    if isinstance(url_val, str) and url_val.strip().startswith("http"):
+                        has_anchored = True
+                        break
+                if not has_anchored:
+                    assessment["verification_status"] = "partial"
+                    assessment.setdefault("_downgrade_reason", "no_anchored_evidence")
+                    logger.debug(
+                        f"[Executor] evidence-anchor: downgraded '{assessment.get('name','?')}' "
+                        f"verified->partial (no source_url/source in evidence)"
+                    )
         return findings
 
     def _extract_dsml_candidate_updates(self, content: str) -> Optional[Dict[str, Any]]:
@@ -413,6 +452,22 @@ Candidate handling is critical:
         if matches:
             logger.warning(f"All <findings> blocks failed to parse ({len(matches)} blocks found)")
         return None
+
+    def _append_force_tool_call(self) -> None:
+        """Append a user message forcing the executor to output a tool call.
+
+        Used when the LLM returns 0-content + 0-tool_calls (true empty response).
+        Instead of prematurely wrapping up with findings, this nudges the model
+        to continue searching — the correct behavior during candidate_generation.
+        """
+        self.messages.append({
+            "role": "user",
+            "content": (
+                "Your previous response produced no visible output and no tool calls. "
+                "You MUST call the search tool now with a relevant query to make progress. "
+                "Output exactly one search tool call. Do not output findings or prose."
+            ),
+        })
 
     def _append_findings_format_retry(self, previous_content: str = "") -> None:
         previous_excerpt = (previous_content or "").strip()
@@ -693,6 +748,15 @@ Candidate handling is critical:
             logger.info(f"[Executor] turn={turn+1}/{self.max_turns} subtask='{subtask_text[:60]}' phase={phase}")
             try:
                 _t0 = time.time()
+                # tool_choice: force a tool call on action turns to minimize
+                # pre-tool reasoning (industry best practice for reasoning models).
+                # On wrap-up turns (tools disabled) tool_choice is irrelevant.
+                extra_kwargs: Dict[str, Any] = {}
+                if not disable_tools_for_wrapup and self.tool_schemas:
+                    if self.tool_choice_mode == "required":
+                        extra_kwargs["tool_choice"] = "required"
+                    elif self.tool_choice_mode == "first_turn" and turn == 0:
+                        extra_kwargs["tool_choice"] = "required"
                 response = chat_completion_with_structuring(
                     self.client,
                     model_id=self.model_id,
@@ -700,11 +764,13 @@ Candidate handling is critical:
                     tools=None if disable_tools_for_wrapup else self.tool_schemas,
                     temperature=self.temperature,
                     max_tokens=self.max_output_tokens,
+                    reasoning_effort_override=self.reasoning_effort,
                     structurer_format_hint=(
                         "Output your findings in a <findings>...</findings> block with valid JSON "
                         "containing: subtask, status, summary, evidence, candidate_updates, "
                         "source_feedback, suggestion_for_planner."
                     ),
+                    **extra_kwargs,
                 )
                 logger.info(f"[Executor] LLM turn={turn+1} done in {time.time()-_t0:.1f}s")
                 response_dict = assistant_message_to_dict(response)
@@ -733,6 +799,14 @@ Candidate handling is critical:
                     continue
 
                 if not response.tool_calls:
+                    # True 0-content (no text, no tool calls). During candidate_generation
+                    # with tools still available, force a tool call to keep searching
+                    # rather than prematurely wrapping up with findings.
+                    if phase == "candidate_generation" and not disable_tools_for_wrapup and missing_findings_reminders < 1:
+                        missing_findings_reminders += 1
+                        logger.info("[Executor] 0-content + no tool_calls → forcing tool call retry")
+                        self._append_force_tool_call()
+                        continue
                     if missing_findings_reminders < 1:
                         missing_findings_reminders += 1
                         self._append_findings_format_retry(content)
@@ -784,6 +858,7 @@ Candidate handling is critical:
                 messages=self.messages,
                 temperature=self.temperature,
                 max_tokens=self.max_output_tokens,
+                reasoning_effort_override=self.reasoning_effort,
                 structurer_format_hint=(
                     "Output your findings in a <findings>...</findings> block with valid JSON."
                 ),
@@ -806,6 +881,7 @@ Candidate handling is critical:
                     messages=self.messages,
                     temperature=self.temperature,
                     max_tokens=self.max_output_tokens,
+                    reasoning_effort_override=self.reasoning_effort,
                     structurer_format_hint=(
                         "Output your findings in a <findings>...</findings> block with valid JSON."
                     ),
