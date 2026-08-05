@@ -714,6 +714,22 @@ python3 run_browsecomp_fixed_sample.py \
 
 **关键观察**：`first_turn` 模式仅首轮强制工具调用，后续轮用 `auto` 让模型自决何时输出 findings——平衡了速度与灵活性。`required` 模式（每轮强制）会致模型搜索至预算耗尽，增加搜索次数。详见"工具调用加速"章节。
 
+#### Tool-first 跨题验证（2026-08-05，pos1，正确答案 Achimota School）
+
+在 pos4 验证后，对 pos1（不同题型：人物 + 学校）跑相同配置验证一致性：
+
+| 指标 | pos4（Whitesnake） | pos1（Achimota School） |
+|------|------|------|
+| 总耗时 | 332s | **356s** |
+| 答案 | Whitesnake ✓ | **Achimota School ✓** |
+| 迭代轮数 | 1 | **1** |
+| 搜索次数 | 8 | **5** |
+| 抓取次数 | 0 | **2** |
+| 首轮 reasoning | 411c | **707c** |
+| 状态 | finished | **finished** |
+
+> **结论**：tool-first 优化在不同题型上表现一致（332s vs 356s，均 <6min，均 1 轮找到正确答案）。首轮 reasoning 均受控（411c/707c vs 优化前数千字符），`tool_choice=first_turn` 有效消除首轮推理延迟。
+
 #### GLM-5.2 三轮同题实测（2026-08-04，pos3，正确答案 Whitesnake）
 
 验证了预算非瓶颈、Planner 阶段切换才是关键（Kimi-K3 时期进一步发现 effort-mapping 才是最大杠杆）：
