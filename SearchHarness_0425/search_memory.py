@@ -13,11 +13,34 @@ import re
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
+import threading
 from typing import Any, Deque, Dict, List, Optional
 from urllib.parse import urlparse
 
 
 URL_RE = re.compile(r"https?://[^\s\]\)\">]+")
+
+# pos9 fix: patterns that indicate a "candidate" is actually a search-intent
+# phrase / instruction rather than a concrete entity name. Shared by the
+# executor candidate-tool gate and the state-store findings gate.
+_PSEUDO_CANDIDATE_PATTERNS = (
+    "need to", "search for", "to identify", "to find", "to look",
+    "to search", "to check", "to verify", "to determine",
+    "looking for", "find out", "find the", "identify the",
+    "entities that", "candidates that", "things that",
+)
+
+
+def _is_pseudo_candidate(name: str) -> bool:
+    """Return True if name looks like a search-intent phrase, not an entity."""
+    if not name:
+        return True
+    lowered = name.strip().lower()
+    if any(lowered.startswith(pat) or f" {pat} " in f" {lowered} " for pat in _PSEUDO_CANDIDATE_PATTERNS):
+        return True
+    if len(name) > 120:
+        return True
+    return False
 
 
 @dataclass
@@ -78,6 +101,7 @@ class SearchStateStore:
     """External structured state for the search harness."""
 
     def __init__(self, keep_recent_observations: int = 3):
+        self._lock = threading.RLock()
         self.question: str = ""
         self.current_plan: Optional[Dict[str, Any]] = None
         self.plan_history: List[Dict[str, Any]] = []
@@ -104,7 +128,8 @@ class SearchStateStore:
         self.question = question
 
     def set_controller_signals(self, signals: Dict[str, Any]) -> None:
-        self.controller_signals = signals or {}
+        with self._lock:
+            self.controller_signals = signals or {}
 
     def add_plan(self, plan: Dict[str, Any]) -> bool:
         """Add plan. Returns True if phase changed."""
@@ -119,6 +144,10 @@ class SearchStateStore:
         return phase_changed
 
     def add_findings(self, findings: Dict[str, Any]) -> None:
+        with self._lock:
+            return self._add_findings_impl(findings)
+
+    def _add_findings_impl(self, findings: Dict[str, Any]) -> None:
         self.findings_history.append(findings)
 
         candidate_updates = findings.get("candidate_updates", {}) or {}
@@ -128,6 +157,10 @@ class SearchStateStore:
         for c in candidate_updates.get("new_candidates", []) or []:
             name = self._candidate_name(c)
             if not name:
+                continue
+            # pos9 fix: reject pseudo-candidates (search-intent phrases) so
+            # the pool is not polluted with non-entity strings.
+            if _is_pseudo_candidate(name):
                 continue
             self._ensure_candidate_record(name)
             self._promote_candidate(name)
@@ -176,7 +209,11 @@ class SearchStateStore:
         self._attach_evidence_to_recent_candidates(evidence)
         self._refresh_candidate_lists()
 
-    def record_subtask_execution(
+    def record_subtask_execution(self, *args, **kwargs):
+        with self._lock:
+            return self._record_subtask_execution_impl(*args, **kwargs)
+
+    def _record_subtask_execution_impl(
         self,
         *,
         iteration: int,
@@ -225,7 +262,7 @@ class SearchStateStore:
             self.plan_execution_history = self.plan_execution_history[-keep_last:]
 
         source_feedback = findings.get("source_feedback", {}) or {}
-        # GLM-5.2 may emit source_feedback as a string; coerce to dict for safe access.
+        # Reasoning models may emit source_feedback as a string; coerce to dict for safe access.
         if not isinstance(source_feedback, dict):
             source_feedback = {}
         for s in source_feedback.get("unhelpful_sources", []) or []:
@@ -240,6 +277,10 @@ class SearchStateStore:
         return None, None
 
     def register_tool_observation(self, tool_name: str, arguments: Dict[str, Any], raw_result: Any) -> ToolObservation:
+        with self._lock:
+            return self._register_tool_observation_impl(tool_name, arguments, raw_result)
+
+    def _register_tool_observation_impl(self, tool_name: str, arguments: Dict[str, Any], raw_result: Any) -> ToolObservation:
         raw_text = self._normalize_result(raw_result)
         summary = self._compact_tool_result(tool_name, arguments, raw_text)
         obs = ToolObservation(tool_name=tool_name, arguments=arguments, raw_result=raw_text, compact_summary=summary)

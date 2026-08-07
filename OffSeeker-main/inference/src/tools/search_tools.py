@@ -6,8 +6,9 @@ Implements web search, URL crawling, and content extraction functionality
 import requests
 import os
 import json
+from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from loguru import logger
 
 # PDF: pypdf is the maintained successor of PyPDF2 (renamed in 2022).
@@ -19,6 +20,8 @@ except ImportError:  # fallback to deprecated PyPDF2 if pypdf not installed yet
 import io
 import html2text
 import time
+import re
+from datetime import datetime, timezone, timedelta
 
 # Trafilatura: optional middle-layer for boilerplate-free main-content extraction.
 # Falls back to html2text if not installed. Install via `pip install trafilatura`.
@@ -161,6 +164,87 @@ def _estimate_token_count(text: str) -> int:
     return max(1, len(text) // 4)
 
 
+# P1-1B: Query-aware paragraph-level extraction.
+# Splits crawled content into paragraphs, scores each by keyword overlap with
+# the query, and returns the top-K most relevant paragraphs. This avoids the
+# slow + expensive LLM extractor call for medium-length pages while preserving
+# exact text (verbatim quotes) for evidence anchoring.
+PARAGRAPH_EXTRACT_TOP_K = int(os.getenv("PARAGRAPH_EXTRACT_TOP_K", "12"))
+PARAGRAPH_EXTRACT_MAX_CHARS = int(os.getenv("PARAGRAPH_EXTRACT_MAX_CHARS", "8000"))
+PARAGRAPH_MIN_LENGTH = int(os.getenv("PARAGRAPH_MIN_LENGTH", "40"))
+
+
+def _extract_relevant_paragraphs(content: str, query: str) -> str:
+    """Extract the most query-relevant paragraphs from crawled content.
+
+    Scoring: each paragraph gets +1 for every query keyword it contains
+    (case-insensitive, word-boundary match). Paragraphs are sorted by score
+    descending (stable: ties keep original order), then the top-K are joined.
+    Output is capped at PARAGRAPH_EXTRACT_MAX_CHARS.
+    """
+    if not content or not query:
+        return content[:PARAGRAPH_EXTRACT_MAX_CHARS]
+
+    # Split on double newlines (paragraph boundaries). For pages that use
+    # single newlines (e.g. html2text output), also split on runs of 2+ spaces.
+    import re
+    paragraphs = re.split(r"\n\s*\n", content)
+    # Further split very long paragraphs at sentence boundaries
+    refined: list[str] = []
+    for p in paragraphs:
+        p = p.strip()
+        if len(p) < PARAGRAPH_MIN_LENGTH:
+            continue
+        if len(p) > 1500:
+            # Split at sentence boundaries within the paragraph
+            sentences = re.split(r'(?<=[.!?])\s+', p)
+            buf = ""
+            for s in sentences:
+                if len(buf) + len(s) > 1500:
+                    if buf:
+                        refined.append(buf.strip())
+                    buf = s
+                else:
+                    buf = buf + " " + s if buf else s
+            if buf:
+                refined.append(buf.strip())
+        else:
+            refined.append(p)
+
+    if not refined:
+        return content[:PARAGRAPH_EXTRACT_MAX_CHARS]
+
+    # Extract keywords from the query (lowercase, strip punctuation)
+    query_words = set(re.findall(r"[a-zA-Z0-9]{2,}", query.lower()))
+    # Remove generic stop words
+    stop_words = {"the", "a", "an", "of", "in", "to", "for", "and", "or", "is",
+                   "was", "are", "were", "be", "been", "that", "this", "with",
+                   "from", "by", "on", "at", "as", "it", "its", "has", "have",
+                   "had", "not", "but", "which", "what", "who", "when", "where",
+                   "how", "why", "all", "any", "some", "no", "yes"}
+    keywords = {w for w in query_words if w not in stop_words and len(w) >= 3}
+    if not keywords:
+        keywords = query_words
+
+    # Score each paragraph
+    scored: list[tuple[int, int, str]] = []  # (score, original_index, text)
+    for idx, p in enumerate(refined):
+        p_lower = p.lower()
+        score = sum(1 for kw in keywords if kw in p_lower)
+        scored.append((score, idx, p))
+
+    # Sort: highest score first, ties broken by original order
+    scored.sort(key=lambda x: (-x[0], x[1]))
+
+    # Take top-K
+    selected = [s[2] for s in scored[:PARAGRAPH_EXTRACT_TOP_K]]
+    result = "\n\n".join(selected)
+
+    if len(result) > PARAGRAPH_EXTRACT_MAX_CHARS:
+        result = result[:PARAGRAPH_EXTRACT_MAX_CHARS] + "...[truncated]"
+    return result
+
+
 def call_llm(
     prompt: str,
     max_tries: int = 10,
@@ -247,6 +331,508 @@ def _call_serper_api(query: str) -> str:
             f"Serper API {response.status_code}: {response.text[:500]} | query={query[:200]!r}"
         )
     return response.text
+
+
+# ── Search result post-processing (accuracy core / 数据源管控) ───────────────
+# Data-source governance for the agent: tiered credibility weighting,
+# timeliness constraints, and cross-domain duplicate (repost) merging.
+# All three stages are pure/deterministic (no LLM, no network) so they stay
+# cheap and reproducible. Each is env-gated so prior behavior is restorable.
+#
+# Design goals (accuracy core):
+#   1. 数据源分级可信权重: rerank by a 5-tier credibility model
+#      (official docs / academic > authoritative media / encyclopedia >
+#       vertical forums > generic web > UGC / self-media). Credibility is a
+#      reranking feature (not a hard drop) so recall is preserved.
+#   2. 时效性强制约束: for time-sensitive queries (events, policy, stock
+#      prices, tech versions) drop results with a parseable publish date older
+#      than the freshness window; relax for general-knowledge queries. In a
+#      2026 environment this filters expired 2023/2024 content by default.
+#   3. 去重与同源合并: beyond per-domain dedup, merge cross-domain reposts
+#      (near-identical title+snippet on a different host) keeping the
+#      higher-credibility original so mirrors don't dilute context.
+
+# ── Tiered credibility model (数据源分级可信权重) ──────────────────────────────
+# Higher tier = more trustworthy for factual research. Tier 2 (generic web)
+# is the default and has no explicit domain list.
+_CREDIBILITY_TIERS = {
+    5: [
+        # Official documentation
+        "docs.python.org", "developer.mozilla.org", "developers.google.com",
+        "docs.microsoft.com", "learn.microsoft.com", "kubernetes.io",
+        "docs.docker.com", "react.dev", "vuejs.org", "angular.io",
+        "nodejs.org", "go.dev", "rust-lang.org", "docs.github.com",
+        "graphql.org", "kotlinlang.org", "swift.org", "php.net",
+        "ruby-doc.org", "elixir-lang.org", "docs.aws.amazon.com",
+        "cloud.google.com", "typescriptlang.org",
+        # Academic / primary research
+        "arxiv.org", "doi.org", "scholar.google.com", "pubmed.ncbi.nlm.nih.gov",
+        "pmc.ncbi.nlm.nih.gov", "nature.com", "science.org", "acm.org",
+        "ieeexplore.ieee.org", "jstor.org", "springer.com", "sciencedirect.com",
+        "biorxiv.org", "medrxiv.org", "aclanthology.org", "openreview.net",
+        "semanticscholar.org",
+    ],
+    4: [
+        # Encyclopedia / official institutions (.gov/.edu handled by TLD rule)
+        "wikipedia.org", "britannica.com", "loc.gov", "un.org", "who.int",
+        "worldbank.org", "imf.org", "oecd.org", "nasa.gov",
+        # Authoritative legacy media / wires
+        "reuters.com", "apnews.com", "bbc.com", "bbc.co.uk", "nytimes.com",
+        "washingtonpost.com", "theguardian.com", "guardian.co.uk",
+        "economist.com", "ft.com", "wsj.com", "bloomberg.com", "npr.org",
+        "aljazeera.com", "scientificamerican.com",
+        # Official statistics / registries
+        "census.gov", "bls.gov", "stats.oecd.org", "data.worldbank.org",
+    ],
+    3: [
+        # Vertical professional sites & curated databases
+        "stackoverflow.com", "stackexchange.com", "mathoverflow.net",
+        "serverfault.com", "superuser.com", "github.com",
+        "imdb.com", "themoviedb.org", "musicbrainz.org", "discogs.com",
+        "goodreads.com", "letterboxd.com", "rateyourmusic.com",
+        "baseball-reference.com", "basketball-reference.com", "fbref.com",
+        "pro-football-reference.com", "espn.com", "worldathletics.org",
+        "fifa.com", "uefa.com", "mlb.com", "nba.com", "nfl.com",
+        "crunchbase.com", "opencorporates.com", "icc-cricket.com",
+    ],
+    2: [],  # generic web — default tier
+    1: [
+        # UGC / self-media / content farms / press-release aggregators
+        "reddit.com", "quora.com", "medium.com", "substack.com",
+        "blogspot.com", "wordpress.com", "tumblr.com", "weebly.com",
+        "wattpad.com", "wikihow.com", "answers.com", "prnewswire.com",
+        "prweb.com", "businesswire.com", "globenewswire.com", "wikiwand.com",
+        "fandom.com", "wikia.com", "buzzfeed.com", "dailymail.co.uk",
+    ],
+}
+
+# Domains that bypass per-domain dedup (they host many relevant sub-pages).
+_DEDUP_WHITELIST = {"wikipedia.org", "britannica.com"}
+
+
+def _netloc_labels(url: str) -> List[str]:
+    """Return lowercase domain labels (minus leading www) for a URL."""
+    try:
+        netloc = urlparse(url).netloc.lower().split(":")[0]
+    except Exception:
+        return []
+    if netloc.startswith("www."):
+        netloc = netloc[4:]
+    return netloc.split(".") if netloc else []
+
+
+def _domain_credibility(url: str) -> int:
+    """Tiered data-source credibility (1=UGC/self-media .. 5=official/academic).
+
+    Tier 2 (generic web) is the default. Official-institution TLDs/labels
+    (.gov/.edu/.mil, incl. second-level like .gov.uk) map to tier 4, except
+    SEC EDGAR (sec.gov) which is upgraded to tier 5 (official financial-report
+    regulator). Official investor-relations subdomains (ir.*, investor.*,
+    investors.*) also map to tier 5 (official financial reports / corporate
+    official sites), so they receive the maximum source weight.
+    """
+    labels = _netloc_labels(url)
+    if not labels:
+        return 2
+    # Official investor-relations / financial-report subdomain → tier 5.
+    # Requires >=3 labels so bare `ir.com`-style hosts are not misclassified.
+    if len(labels) >= 3 and labels[0] in _OFFICIAL_FINANCIAL_PREFIXES:
+        return 5
+    if any(lbl in {"gov", "edu", "mil"} for lbl in labels):
+        # SEC EDGAR (sec.gov) → official financial-report regulator → tier 5.
+        if ".".join(labels[-2:]) == "sec.gov":
+            return 5
+        return 4
+    candidates = {".".join(labels)}
+    if len(labels) >= 2:
+        candidates.add(".".join(labels[-2:]))
+    if len(labels) >= 3:
+        candidates.add(".".join(labels[-3:]))
+    # Explicit official financial-report archive domains → tier 5.
+    for dom in _OFFICIAL_FINANCIAL_DOMAINS:
+        if dom in candidates:
+            return 5
+    for tier in (5, 4, 3, 1):
+        for dom in _CREDIBILITY_TIERS[tier]:
+            if dom in candidates:
+                return tier
+    return 2
+
+
+def _domain_authority(url: str) -> int:
+    """Backward-compatible alias (was a 1..3 score; now the 1..5 credibility tier)."""
+    return _domain_credibility(url)
+
+
+# Source-weight mapping (matches _CREDIBILITY_TIERS):
+#   tier 5 → 10  official docs / academic / official financial reports
+#   tier 4 → 8   encyclopedia / official institutions / authoritative media
+#   tier 3 → 5   vertical professional
+#   tier 2 → 3   generic web (default)
+#   tier 1 → 2   UGC / self-media / press-release
+# Rule: "2 high-weight (weight=10) sources agree → fact confirmed, stop".
+_SOURCE_WEIGHTS = {5: 10, 4: 8, 3: 5, 2: 3, 1: 2}
+
+# Subdomain prefixes signaling official investor relations / financial reports.
+_OFFICIAL_FINANCIAL_PREFIXES = frozenset({
+    "ir", "investor", "investors", "investorrelations", "finance",
+})
+
+# Domains that publish official financial reports (regulators / archives).
+_OFFICIAL_FINANCIAL_DOMAINS = frozenset({
+    "sec.gov",          # US SEC EDGAR — official filings
+    "annualreports.com",  # official annual-report archive
+})
+
+
+def _source_weight(url: str) -> int:
+    """Source credibility weight (10=official/academic/financial-report ..
+    2=UGC/self-media). Mapping matches ``_CREDIBILITY_TIERS``:
+      tier 5 → 10  (official docs / academic / official financial reports)
+      tier 4 → 8   (encyclopedia / official institutions / authoritative media)
+      tier 3 → 5   (vertical professional)
+      tier 2 → 3   (generic web, default)
+      tier 1 → 2   (UGC / self-media / press-release)
+    """
+    return _SOURCE_WEIGHTS.get(_domain_credibility(url), 3)
+
+
+def is_authoritative_source(url: str) -> bool:
+    """Return True if ``url`` belongs to a tier>=4 authoritative source.
+
+    Tier 4 = encyclopedia / official institutions (.gov/.edu/.mil) / authoritative
+    legacy media (reuters, bbc, nytimes, ...); tier 5 = official docs / academic /
+    official financial reports (incl. ir.* / investor.* subdomains and sec.gov).
+    This is a pure domain-table lookup independent of ``SRC_CREDIBILITY_ENABLED``
+    (which only gates search-result *annotation*), so it is safe to reuse for
+    early-stop / consensus decisions on executor evidence URLs.
+    """
+    try:
+        return _domain_credibility(url or "") >= 4
+    except Exception:
+        return False
+
+
+def authoritative_domains_in(urls) -> List[str]:
+    """Return the set of distinct authoritative (weight>=8) base-domains among ``urls``.
+
+    Used to count *independent* authoritative sources: two pieces of evidence
+    from the same domain (e.g. two reuters.com pages) count once. ``urls`` is any
+    iterable of URL strings; non-http strings are skipped.
+    """
+    seen: set = set()
+    for u in urls or []:
+        try:
+            labels = _netloc_labels(u)
+        except Exception:
+            labels = []
+        if not labels:
+            continue
+        if not is_authoritative_source(u):
+            continue
+        # base domain = last 2 labels (reuters.com, bbc.co.uk handled by table hit)
+        base = ".".join(labels[-2:]) if len(labels) >= 2 else labels[0]
+        seen.add(base)
+    return sorted(seen)
+
+
+def high_weight_sources_in(urls, min_weight: int = 10) -> List[str]:
+    """Return distinct base-domains whose source weight >= ``min_weight``.
+
+    Default ``min_weight=10`` selects only official docs / academic / official
+    financial reports (tier 5). Used for the "2 high-weight sources agree →
+    fact confirmed" early-stop rule: two such sources from *different* base
+    domains corroborating one candidate suffice to terminate search without
+    further rounds. Same-domain dedup applies (two ir.apple.com pages count once).
+    """
+    seen: set = set()
+    for u in urls or []:
+        try:
+            if _source_weight(u) < min_weight:
+                continue
+            labels = _netloc_labels(u)
+        except Exception:
+            labels = []
+        if not labels:
+            continue
+        base = ".".join(labels[-2:]) if len(labels) >= 2 else labels[0]
+        seen.add(base)
+    return sorted(seen)
+
+
+# ── Timeliness (时效性强制约束) ───────────────────────────────────────────────
+_REL_DATE_RE = re.compile(
+    r"(\d+)\s*(second|minute|hour|day|week|month|year)s?\s*ago", re.IGNORECASE
+)
+_ABS_DATE_FORMATS = (
+    "%Y-%m-%d", "%Y/%m/%d", "%b %d, %Y", "%B %d, %Y",
+    "%d %b %Y", "%d %B %Y", "%d-%b-%Y", "%d-%B-%Y",
+)
+# Query-type heuristics (rule-based; no LLM cost).
+_TIME_SENSITIVE_RE = re.compile(
+    r"\b(20\d{2}|latest|newest|recent|current|today|now|update(d)?|version|"
+    r"release(d)?|price|stock|quote|score|result|champion|winner|policy|law|"
+    r"gdp|inflation|election|announcement)\b"
+    r"|新闻|最新|当前|现在|今天|近期|股价|比分|成绩|冠军|政策|版本|发布",
+    re.IGNORECASE,
+)
+_GENERAL_KNOWLEDGE_RE = re.compile(
+    r"\b(what is|who is|who invented|history of|definition of|biography of|"
+    r"meaning of|introduction to)\b"
+    r"|原理|公式|历史|定义|发明|生平|简介|是什么|是谁",
+    re.IGNORECASE,
+)
+
+
+def _is_time_sensitive_query(query: str) -> bool:
+    """Cheap rule-based classifier: is this a freshness-sensitive query?"""
+    q = (query or "").lower()
+    if not q:
+        return False
+    if _GENERAL_KNOWLEDGE_RE.search(q):
+        return False
+    if _TIME_SENSITIVE_RE.search(q):
+        return True
+    return False
+
+
+def _parse_serper_date(date_str: str, now_dt: datetime) -> Optional[datetime]:
+    """Parse a Serper `date` field into a UTC datetime, or None.
+
+    Handles relative ("3 days ago") and common absolute formats. Falls back to
+    extracting the first 19xx/20xx year in the string.
+    """
+    if not date_str:
+        return None
+    s = date_str.strip()
+    if not s:
+        return None
+    m = _REL_DATE_RE.match(s)
+    if m:
+        n = int(m.group(1))
+        unit = m.group(2).lower()
+        if unit == "second": return now_dt - timedelta(seconds=n)
+        if unit == "minute": return now_dt - timedelta(minutes=n)
+        if unit == "hour":   return now_dt - timedelta(hours=n)
+        if unit == "day":    return now_dt - timedelta(days=n)
+        if unit == "week":   return now_dt - timedelta(weeks=n)
+        if unit == "month":  return now_dt - timedelta(days=30 * n)
+        if unit == "year":   return now_dt - timedelta(days=365 * n)
+    for fmt in _ABS_DATE_FORMATS:
+        try:
+            return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    ym = re.search(r"\b(19|20)\d{2}\b", s)
+    if ym:
+        try:
+            return datetime(int(ym.group(0)), 1, 1, tzinfo=timezone.utc)
+        except ValueError:
+            return None
+    return None
+
+
+def _freshness_flag(age_days: int, max_age_days: int) -> str:
+    """Categorize a result's age for reranking/filtering."""
+    if age_days <= 30:
+        return "fresh"
+    if age_days <= max_age_days:
+        return "recent"
+    return "stale"
+
+
+_FRESHNESS_SCORE = {"fresh": 3, "recent": 2, "stale": 0, "unknown": 1, "stale_kept": 1}
+
+# ── Cross-domain repost merging (去重与同源合并) ──────────────────────────────
+_STOPWORDS = {
+    "the", "a", "an", "of", "in", "on", "at", "to", "for", "and", "or", "with",
+    "is", "are", "was", "were", "by", "from", "as", "that", "this", "it",
+}
+
+
+def _normalize_text_tokens(text: str) -> set:
+    """Lowercase, strip punctuation, drop stopwords → token set for Jaccard."""
+    if not text:
+        return set()
+    text = re.sub(r"[^\w\s]", " ", text.lower())
+    return {t for t in text.split() if t and t not in _STOPWORDS and len(t) > 1}
+
+
+def _jaccard(a: set, b: set) -> float:
+    if not a or not b:
+        return 0.0
+    union = len(a | b)
+    return len(a & b) / union if union else 0.0
+
+
+def _postprocess_serper_results(raw_json: str, query: str) -> str:
+    """Post-process Serper results for data-source accuracy.
+
+    Pipeline (all env-gated, failure-safe — any parse error returns the raw
+    JSON unchanged so search never breaks on a malformed result):
+      1. Per-domain dedup (encyclopedias + query-mentioned domains whitelisted).
+      2. Annotate each result with credibility tier + freshness.
+      3. Cross-domain repost merge (near-identical title+snippet on a different
+         host → keep the higher-credibility original; log the dropped mirror).
+      4. Timeliness filter for time-sensitive queries (drop clearly-stale
+         results; relax for general knowledge; never drop below a floor of 3).
+      5. Credibility-weighted rerank (credibility tier primary, freshness
+         secondary, original Serper position tertiary — stable sort).
+      6. Truncate to top-8.
+
+    Env switches (default ON):
+      SRC_CREDIBILITY_ENABLED, SRC_FRESHNESS_ENABLED,
+      SRC_CROSSDOMAIN_DEDUP_ENABLED, SRC_FRESHNESS_MAX_AGE_DAYS (default 730).
+
+    Args:
+        raw_json: Raw Serper API response (JSON string).
+        query: The search query (used for dedup whitelist + query-type).
+
+    Returns:
+        JSON string with processed (and annotated) organic results.
+    """
+    try:
+        data = json.loads(raw_json)
+    except (json.JSONDecodeError, TypeError):
+        return raw_json  # not valid JSON, return as-is
+
+    organic = data.get("organic", [])
+    if not organic:
+        return raw_json
+
+    credibility_on = _env_flag("SRC_CREDIBILITY_ENABLED", "1")
+    freshness_on = _env_flag("SRC_FRESHNESS_ENABLED", "1")
+    crossdomain_on = _env_flag("SRC_CROSSDOMAIN_DEDUP_ENABLED", "1")
+
+    now_dt = datetime.now(timezone.utc)
+    try:
+        max_age_days = int(os.getenv("SRC_FRESHNESS_MAX_AGE_DAYS", "730") or "730")
+    except ValueError:
+        max_age_days = 730
+    query_sensitive = _is_time_sensitive_query(query) if freshness_on else False
+    query_lower = (query or "").lower()
+
+    # 1. Per-domain dedup (whitelist encyclopedias + domains named in the query).
+    seen_domains = set()
+    deduped: List[Dict[str, Any]] = []
+    for result in organic:
+        link = result.get("link", "")
+        labels = _netloc_labels(link)
+        domain = ".".join(labels) if labels else link
+        is_whitelisted = any(wd in domain for wd in _DEDUP_WHITELIST)
+        if not is_whitelisted and labels and labels[0] in query_lower:
+            is_whitelisted = True
+        if domain in seen_domains and not is_whitelisted:
+            continue
+        seen_domains.add(domain)
+        deduped.append(result)
+
+    # 2. Annotate credibility + freshness (mutates result dicts in place).
+    for result in deduped:
+        tier = _domain_credibility(result.get("link", "")) if credibility_on else 2
+        result["credibility_tier"] = tier
+        result["credibility_score"] = tier
+        date_str = result.get("date")
+        pub_dt = _parse_serper_date(date_str, now_dt) if (freshness_on and date_str) else None
+        if pub_dt:
+            age_days = max(0, (now_dt - pub_dt).days)
+            flag = _freshness_flag(age_days, max_age_days) if query_sensitive else "recent_or_dated"
+            result["freshness"] = {"published": pub_dt.strftime("%Y-%m-%d"), "age_days": age_days}
+            result["freshness_flag"] = flag
+            result["freshness_score"] = _FRESHNESS_SCORE.get(flag, 1) if flag in _FRESHNESS_SCORE else 2
+        else:
+            result["freshness_flag"] = "unknown"
+            result["freshness_score"] = _FRESHNESS_SCORE["unknown"]
+
+    # 3. Cross-domain repost merge (同源合并). O(n^2) but n is small (~10).
+    if crossdomain_on and len(deduped) > 1:
+        title_tokens = [_normalize_text_tokens(r.get("title", "")) for r in deduped]
+        snippet_tokens = [_normalize_text_tokens(r.get("snippet", "")) for r in deduped]
+        domains = [".".join(_netloc_labels(r.get("link", ""))) for r in deduped]
+        positions = [r.get("position", i) for i, r in enumerate(deduped)]
+        dropped = set()
+        merged_log: List[Dict[str, Any]] = []
+        for i in range(len(deduped)):
+            if i in dropped:
+                continue
+            for j in range(i + 1, len(deduped)):
+                if j in dropped:
+                    continue
+                if domains[i] and domains[i] == domains[j]:
+                    continue  # same domain handled in step 1
+                if _jaccard(title_tokens[i], title_tokens[j]) >= 0.80 and \
+                        _jaccard(snippet_tokens[i], snippet_tokens[j]) >= 0.50:
+                    ci, cj = deduped[i]["credibility_tier"], deduped[j]["credibility_tier"]
+                    if cj > ci or (cj == ci and positions[j] < positions[i]):
+                        keep, drop = j, i
+                    else:
+                        keep, drop = i, j
+                    dropped.add(drop)
+                    merged_log.append({
+                        "kept_link": deduped[keep].get("link", ""),
+                        "dropped_link": deduped[drop].get("link", ""),
+                        "dropped_domain": domains[drop],
+                        "title_sim": round(_jaccard(title_tokens[i], title_tokens[j]), 2),
+                        "snippet_sim": round(_jaccard(snippet_tokens[i], snippet_tokens[j]), 2),
+                    })
+        if dropped:
+            deduped = [r for k, r in enumerate(deduped) if k not in dropped]
+            data["dedup_merges"] = merged_log
+
+    # 4. Timeliness filter (时效性强制约束) — time-sensitive queries only.
+    if freshness_on and query_sensitive:
+        kept = [r for r in deduped if r.get("freshness_flag") != "stale"]
+        stale_dropped = [
+            {"link": r.get("link", ""),
+             "published": r.get("freshness", {}).get("published"),
+             "age_days": r.get("freshness", {}).get("age_days")}
+            for r in deduped if r.get("freshness_flag") == "stale"
+        ]
+        # Floor: never over-filter — if fewer than 3 survive, restore the
+        # highest-credibility stale results (kept, but flagged) so the agent
+        # still has sources to reason over and can see they are dated.
+        if len(kept) < 3 and stale_dropped:
+            stale_results = sorted(
+                [r for r in deduped if r.get("freshness_flag") == "stale"],
+                key=lambda r: -int(r.get("credibility_tier", 2)),
+            )
+            restored = stale_results[: 3 - len(kept)]
+            restored_links = {r.get("link") for r in restored}
+            for r in restored:
+                r["freshness_flag"] = "stale_kept"
+                r["freshness_score"] = _FRESHNESS_SCORE["stale_kept"]
+            kept.extend(restored)
+            stale_dropped = [d for d in stale_dropped if d["link"] not in restored_links]
+        deduped = kept
+        if stale_dropped:
+            data["freshness_dropped"] = stale_dropped
+
+    # 5. Credibility-weighted rerank (stable sort preserves Serper order within
+    #    a tier). Credibility tier primary, freshness secondary, position last.
+    if credibility_on or freshness_on:
+        def _rerank_key(r):
+            pos = r.get("position", 0)
+            try:
+                pos = int(pos)
+            except (TypeError, ValueError):
+                pos = 0
+            return (
+                -int(r.get("credibility_tier", 2)),
+                -int(r.get("freshness_score", 1)),
+                pos,
+            )
+        deduped.sort(key=_rerank_key)
+
+    # 6. Truncate to top-8 to reduce token consumption.
+    data["organic"] = deduped[:8]
+    data["source_quality"] = {
+        "query_time_sensitive": query_sensitive,
+        "freshness_max_age_days": max_age_days if freshness_on else None,
+        "credibility_enabled": credibility_on,
+        "freshness_enabled": freshness_on,
+        "crossdomain_dedup_enabled": crossdomain_on,
+    }
+    return json.dumps(data, ensure_ascii=False)
 
 
 def _call_jina_api(url: str) -> str:
@@ -410,6 +996,16 @@ def _visit_url(url: str, query: str) -> str:
     if estimated_tokens <= VISIT_URLS_RAW_RETURN_MAX_TOKENS:
         return content
 
+    # P1-1B: For medium-length pages, use query-aware paragraph extraction
+    # instead of the slow LLM extractor. This preserves exact text (verbatim
+    # quotes) for evidence anchoring and avoids a round-trip LLM call.
+    # Threshold: if paragraph extraction yields a reasonable result, use it;
+    # only fall through to LLM extraction for very long pages.
+    if estimated_tokens <= VISIT_URLS_RAW_RETURN_MAX_TOKENS * 4:
+        extracted = _extract_relevant_paragraphs(content, query)
+        if extracted and len(extracted) > PARAGRAPH_MIN_LENGTH:
+            return extracted
+
     if len(content) < TRUNCATE_LENGTH:
         try:
             extractor_prompt = EXTRACTOR_PROMPT_TEMPLATE.format(webpage_content=content, query=query)
@@ -464,6 +1060,8 @@ def _search_single(query: str) -> str:
         return json.dumps({"error": "Empty search query."}, ensure_ascii=False)
     try:
         result = _call_serper_api(query)
+        # P0-1A: post-process results (dedup by domain, authority rerank, top-8 truncation)
+        result = _postprocess_serper_results(result, query)
         return result
     except Exception as e:
         logger.error(f"Error in search for query={query[:200]!r}: {e}")

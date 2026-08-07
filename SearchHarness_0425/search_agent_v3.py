@@ -22,6 +22,7 @@ if offseeker_src_path not in sys.path:
     sys.path.insert(0, offseeker_src_path)
 
 from tools.tool_processor import ToolProcessor  # type: ignore
+from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore
 from search_memory import SearchStateStore
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -34,6 +35,7 @@ from llm_reasoning_compat import (
     chat_completion_with_structuring,
 )
 from openai_client_factory import build_openai_client
+from llm_error_utils import classify_infra_error
 
 
 def _env_int(name: str, default: int) -> int:
@@ -66,6 +68,7 @@ class SearchAgentV3:
         enable_query_critic: bool = True,
         event_callback=None,
         reasoning_effort: Optional[str] = None,
+        openai_client: Optional[Any] = None,
     ):
         self.api_base = api_base
         self.api_key = api_key
@@ -88,6 +91,19 @@ class SearchAgentV3:
         self.search_budget = search_budget
         self._search_count = 0
         self._tool_lock = threading.Lock()
+        # Authority-consensus early-stop: once a candidate is backed by ≥N
+        # *independent* authoritative domains (tier>=4), the subtask is
+        # effectively solved — nudge the agent to wrap up and save search turns.
+        # Only fires on verification-type subtasks (expansion needs broad recall).
+        self._authority_early_stop = os.getenv(
+            "EXECUTOR_AUTHORITY_EARLY_STOP", "1").strip().lower() in {"1", "true", "yes"}
+        self._authority_min_sources = _env_int("EXECUTOR_AUTHORITY_MIN_SOURCES", 2)
+        # Fact-confirmed early-stop: >=N independent *weight-10* sources
+        # (official docs / academic / official financial reports) agree on one
+        # candidate → fact established, stop immediately (no more search rounds).
+        # Default 2 matches the "2 high-weight sources → fact confirmed" rule.
+        self._fact_confirm_min_sources = _env_int("EXECUTOR_FACT_CONFIRM_MIN_SOURCES", 2)
+        self._authority_consensus_done = False  # inject wrap-up at most once
         self.max_output_tokens = _env_int("EXECUTOR_MAX_TOKENS", 1400)
         self._event_callback = event_callback  # callable(event_type, data) for trajectory recording
 
@@ -155,7 +171,7 @@ Candidate handling is critical:
 - Do not put a candidate in eliminated_candidates just because it is weak, uncertain, or not fully verified. Keep such candidates active with unresolved_constraints.
 """
 
-        self.client = build_openai_client(api_base, api_key)
+        self.client = openai_client or build_openai_client(api_base, api_key)
         self.tool_processor = ToolProcessor()
         self.messages: List[Dict[str, Any]] = []
 
@@ -612,14 +628,27 @@ Candidate handling is critical:
     def _append_new_candidate_names(self, names: List[str]) -> List[str]:
         added: List[str] = []
         existing = {str(name).strip().lower() for name in self._candidate_tool_updates["new_candidates"]}
+        # pos9 fix: reject pseudo-candidates (search-intent phrases) and cap
+        # how many candidates a single subtask can inject so the pool cannot
+        # explode (pos9 had 90 candidates added in one subtask, swamping
+        # verification). Reuses the shared _is_pseudo_candidate helper from
+        # search_memory to stay consistent with the state-store gate.
+        from search_memory import _is_pseudo_candidate  # local import to avoid cycle
+        max_per_subtask = 15
         for name in names:
             candidate_name = str(name).strip()
             key = candidate_name.lower()
             if not candidate_name or key in existing:
                 continue
+            if _is_pseudo_candidate(candidate_name):
+                logger.debug(f"[Executor] rejected pseudo-candidate: {candidate_name!r}")
+                continue
             self._candidate_tool_updates["new_candidates"].append(candidate_name)
             existing.add(key)
             added.append(candidate_name)
+            if len(self._candidate_tool_updates["new_candidates"]) >= max_per_subtask:
+                logger.info(f"[Executor] candidate cap reached ({max_per_subtask}) for this subtask, ignoring rest")
+                break
         return added
 
     def _execute_add_candidates_tool(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -669,6 +698,69 @@ Candidate handling is critical:
         self._sync_findings_candidates_to_query_history(updates)
         return findings
 
+    def _consensus_candidate(self) -> Optional[Dict[str, Any]]:
+        """Return a candidate backed by enough source weight, or None.
+
+        Two-tier decision (matches the "2 high-weight sources → fact confirmed"
+        rule; weight=10 = official docs / academic / official financial reports,
+        weight=2 = UGC / self-media):
+          1. FACT-CONFIRMED: >=N independent weight-10 sources (default 2) agree
+             on one candidate → fact established, stop immediately (strongest
+             early-stop; the "2 high-weight sources → fact confirmed" rule).
+          2. AUTHORITATIVE CONSENSUS: >=N independent weight>=8 sources (tier>=4;
+             default 2) agree → early-stop (the original authoritative-tier rule).
+
+        Returns ``{"name", "kind", "sources"}`` where kind is
+        ``"fact_confirmed"`` or ``"authoritative_consensus"``, or None.
+        """
+        if not self._authority_early_stop or self._authority_consensus_done:
+            return None
+        try:
+            assessments = self._candidate_tool_updates.get("candidate_assessments", []) or []
+        except Exception:
+            return None
+        # Group evidence URLs by candidate name (case-insensitive).
+        per_candidate: Dict[str, List[str]] = {}
+        for assessment in assessments:
+            if not isinstance(assessment, dict):
+                continue
+            name = self._candidate_name(assessment)
+            if not name:
+                continue
+            # Skip explicitly-eliminated / contradicted candidates.
+            status = str(assessment.get("status", "")).strip().lower()
+            vstatus = str(assessment.get("verification_status", "")).strip().lower()
+            if status == "eliminated" or vstatus == "contradicted":
+                continue
+            urls = per_candidate.setdefault(name, [])
+            for ev in assessment.get("evidence", []) or []:
+                if not isinstance(ev, dict):
+                    continue
+                url_val = ev.get("source_url") or ev.get("source") or ""
+                if isinstance(url_val, str) and url_val.strip().startswith("http"):
+                    urls.append(url_val.strip())
+        fact_min = self._fact_confirm_min_sources
+        auth_min = self._authority_min_sources
+        for name, urls in per_candidate.items():
+            # Tier 1: weight-10 sources (fact confirmed) — needs only fact_min.
+            high = high_weight_sources_in(urls, min_weight=10)
+            if len(high) >= fact_min:
+                return {"name": name, "kind": "fact_confirmed", "sources": high}
+            # Tier 2: weight>=8 authoritative consensus (encyclopedia / official
+            # institutions / authoritative media) — needs auth_min.
+            auth = authoritative_domains_in(urls)
+            if len(auth) >= auth_min:
+                return {"name": name, "kind": "authoritative_consensus", "sources": auth}
+        return None
+
+    def _authority_consensus_candidate(self) -> Optional[str]:
+        """Backward-compatible wrapper: return candidate name or None.
+
+        Prefer ``_consensus_candidate`` for new code (returns kind + sources).
+        """
+        result = self._consensus_candidate()
+        return result["name"] if result else None
+
     def _sync_findings_candidates_to_query_history(self, updates: Dict[str, Any]) -> None:
         names: List[str] = []
         for item in updates.get("new_candidates", []) or []:
@@ -717,7 +809,13 @@ Candidate handling is critical:
                 "- Verify the specified candidate or small candidate set strictly from evidence.\n"
                 "- Update candidate records with supporting constraints, unresolved constraints, hard conflicts, and evidence.\n"
                 "- Do not guess. Do not eliminate candidates without explicit hard-conflict evidence.\n"
+                "- Page evidence required (CRITICAL): after your first search, if the results contain any source URLs, you MUST call `visit_urls` on at least one relevant URL to read the actual page content before reporting findings. Verification based only on search snippets (without a `visit_urls` call) will be downgraded to unverified — search summaries are NOT sufficient proof for a verification subtask.\n"
             )
+            # If the subtask itself names URLs, list them so the executor crawls them.
+            _subtask_body = subtask.get("subtask") or subtask.get("name") or ""
+            _urls = re.findall(r'https?://[^\s\)\]\}>\"]+', _subtask_body)
+            if _urls:
+                prompt += "- Required URLs to visit (call visit_urls with these): " + ", ".join(_urls[:5]) + "\n"
         else:
             prompt += (
                 "Candidate handling rules:\n"
@@ -726,7 +824,7 @@ Candidate handling is critical:
             )
         return prompt
 
-    def run(self, question: str, overall_plan: Dict[str, Any], subtask: Dict[str, Any], executor_state: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def run(self, question: str, overall_plan: Dict[str, Any], subtask: Dict[str, Any], executor_state: Optional[Dict[str, Any]] = None, stop_event: Optional[threading.Event] = None) -> Dict[str, Any]:
         self._current_question = question
         subtask_text = subtask.get("subtask") or subtask.get("name") or "unknown"
         self._current_subtask_text = subtask_text
@@ -737,6 +835,8 @@ Candidate handling is critical:
         self._search_count = 0  # Reset per subtask
         self._budget_exhausted = False
         self._candidate_tool_updates = self._empty_candidate_tool_updates()
+        self._infra_retry_count = 0  # P0-B: reset infra retry counter per subtask
+        self._authority_consensus_done = False  # reset per-subtask early-stop gate
         disable_tools_for_wrapup = False
         missing_findings_reminders = 0
         malformed_findings_reminders = 0
@@ -744,6 +844,10 @@ Candidate handling is critical:
         metadata = {"question": question, "subtask": subtask_text, "phase": phase, "model": self.model_id, "started_at": datetime.now().isoformat(), "turns": 0}
 
         for turn in range(self.max_turns):
+            if stop_event is not None and stop_event.is_set():
+                logger.info(f"[Executor] sibling early-stop signaled — winding down subtask='{subtask_text[:60]}'")
+                metadata.update({"finished_at": datetime.now().isoformat(), "status": "sibling_early_stop"})
+                return {"findings": None, "trajectory": self.messages, "metadata": metadata}
             metadata["turns"] = turn + 1
             logger.info(f"[Executor] turn={turn+1}/{self.max_turns} subtask='{subtask_text[:60]}' phase={phase}")
             try:
@@ -827,7 +931,79 @@ Candidate handling is critical:
                     })
                     self._budget_exhausted = False  # Only inject once
                     disable_tools_for_wrapup = True
+                else:
+                    # Authority-consensus early-stop: a candidate now has >=N
+                    # independent authoritative sources backing it. Only on
+                    # verification-type subtasks — expansion needs broad recall.
+                    subtask_type = (subtask.get("subtask_type") or subtask.get("type")
+                                    or subtask.get("mode") or "")
+                    is_verify = "verif" in str(subtask_type).lower()
+                    if is_verify:
+                        consensus = self._consensus_candidate()
+                        if consensus:
+                            self._authority_consensus_done = True
+                            cname = consensus["name"]
+                            ckind = consensus["kind"]
+                            ctrigger = ("authority_consensus_early_stop"
+                                        if ckind == "authoritative_consensus"
+                                        else "fact_confirmed_early_stop")
+                            logger.info(
+                                f"[Executor] {ckind}: candidate='{cname}' backed by "
+                                f"{len(consensus['sources'])} {ckind} sources "
+                                f"({consensus['sources']})"
+                            )
+                            try:
+                                self._event_callback and self._event_callback(
+                                    ctrigger,
+                                    {"candidate": cname, "kind": ckind,
+                                     "sources": consensus["sources"]},
+                                )
+                            except Exception:
+                                pass
+                            if ckind == "fact_confirmed":
+                                wrap_msg = (
+                                    f"A candidate ({cname}) is now backed by "
+                                    f"{len(consensus['sources'])} or more independent "
+                                    "high-weight sources (official site / official "
+                                    "financial report / academic — weight 10). Two "
+                                    "such sources agreeing establishes the fact. Stop "
+                                    "searching and output your findings now in a "
+                                    "<findings>...</findings> block. Do NOT make any "
+                                    "more tool calls."
+                                )
+                            else:
+                                wrap_msg = (
+                                    f"A candidate ({cname}) is now backed by "
+                                    f"{self._authority_min_sources} or more independent "
+                                    "authoritative sources (official/academic/encyclopedia/"
+                                    "tier-1 media). That is sufficient corroboration. "
+                                    "Stop searching and output your findings now in a "
+                                    "<findings>...</findings> block. Do NOT make any more "
+                                    "tool calls."
+                                )
+                            self.messages.append({
+                                "role": "user",
+                                "content": wrap_msg,
+                            })
+                            disable_tools_for_wrapup = True
             except Exception as e:
+                # P0-B: retry transient infra errors (network/service/rate-limit)
+                # instead of aborting the whole subtask on a single API failure.
+                # This prevents a correct candidate from being left under-verified
+                # just because one LLM call hit a transient 500/timeout.
+                _infra_type = classify_infra_error(e)
+                _retryable = _infra_type in {"network_error", "service_error", "rate_limit"}
+                _retry_attempts = int(os.getenv("EXECUTOR_INFRA_RETRY", "2"))
+                if _retryable and getattr(self, "_infra_retry_count", 0) < _retry_attempts and turn < self.max_turns - 1:
+                    self._infra_retry_count = getattr(self, "_infra_retry_count", 0) + 1
+                    _backoff = min(2.0 ** self._infra_retry_count, 8.0)
+                    logger.warning(
+                        f"[Executor] transient infra error ({_infra_type}), "
+                        f"retrying subtask turn after {_backoff:.1f}s backoff "
+                        f"(attempt {self._infra_retry_count}/{_retry_attempts}): {e}"
+                    )
+                    time.sleep(_backoff)
+                    continue
                 logger.error(f"[Executor] Error in conversation loop: {e}")
                 metadata.update({"finished_at": datetime.now().isoformat(), "status": "error", "error": str(e)})
                 return {"findings": None, "trajectory": self.messages, "metadata": metadata}

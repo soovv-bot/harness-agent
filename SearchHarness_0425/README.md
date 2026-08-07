@@ -115,11 +115,13 @@ SearchHarness_0425/
 ├── debug_serper_smoke.py             # Serper 搜索冒烟测试
 ├── smoke_test_simple.py              # 端到端 pipeline 冒烟（单问题）
 ├── smoke_test_thinking.py            # 思考模式端到端冒烟（多 effort 对比）
+├── verify_source_accuracy.py         # 数据源准确性冒烟（真实 Serper before/after 对比）
 ├── planning_agent_prompt_v3.md / search_agent_prompt_v3.md     # v3 通用 prompt
 ├── planning_agent_prompt_simple.md / search_agent_prompt_simple.md  # 简化 prompt（compact，适配推理模型）
 ├── requirements.txt
 ├── tests/
-│   └── test_core_rules.py            # pytest 单元测试（37 个）
+│   ├── test_core_rules.py            # pytest 单元测试（37 个）
+│   └── test_source_accuracy.py       # 数据源管控单测（35 例：可信度/时效/同源合并）
 ├── docs/
 │   ├── browse_comp_test_set.csv      # 缓存的 BrowseComp 数据集
 │   ├── seed123_k10_full.json         # 本地固定子集（seed=123, k=10）
@@ -504,6 +506,9 @@ python3 smoke_test_simple.py
 
 # 5. 思考模式端到端冒烟（同一问题对比 none/high 行为差异，验证 EXECUTOR_THINKING 传递链路）
 python3 smoke_test_thinking.py --efforts none high
+
+# 6. 数据源准确性冒烟（真实 Serper 查询，打印后处理前后对比 + source_quality 元数据）
+python3 verify_source_accuracy.py "best stock picks 2024 performance"
 ```
 
 预期输出：
@@ -512,6 +517,7 @@ python3 smoke_test_thinking.py --efforts none high
 - `debug_serper_smoke.py`：`status_code: 200`，返回搜索结果
 - `smoke_test_simple.py`：`RESULT = PASS`，答案非空
 - `smoke_test_thinking.py`：各组 effort 均完成；`minimal` 组工具调用更早、`high` 组 reasoning_tokens 更高
+- `verify_source_accuracy.py`：BEFORE 段 `tier=- fresh=-`（未标注）；AFTER 段每条带 `tier` 与 `freshness_flag`，过期 2023/2024 结果进入 `freshness_dropped`，UGC（reddit 等）排末位，结果 ≤ top-8
 
 若 Serper 返回 `{"message":"Not enough credits","statusCode":400}`，说明额度耗尽，需充值或更换 Key。
 
@@ -824,21 +830,89 @@ python3 build_seed123_k10_full.py
 
 > 并发不会导致轨迹数据串扰：每个 pipeline 拥有独立的 `_trajectory_current_iter` 可变容器，事件回调闭包捕获各自的容器引用，无跨任务泄漏。
 
+### subtask 并发执行（pipeline 内单题多 subtask 并行）
+
+在 per-worker 多题并发之上，pipeline 内**单题多 subtask 并行执行**：planner 一次产出多个 pending step，executor 池并发跑，按问题复杂度自动选 2 或 3 个并发。
+
+| 维度 | 说明 |
+|------|------|
+| 触发 | `EXECUTOR_SUBTASK_CONCURRENCY`（默认 2）；`=1` 强制串行零回归 |
+| 上限 | `EXECUTOR_MAX_SUBTASK_CONCURRENCY`（默认 3） |
+| 复杂度判定 | `_decide_concurrency`：默认 2；长问题（>200 字符）或 ≥4 pending step → 3；受 max 和 pending 数 cap |
+| 执行池 | `_build_executor_pool(k)`：per-executor 独立 `QueryCritic`/`SearchCrawlController`（隔离缓存与 `_current_question`），共享 `state_store`/`query_memory`（已加 RLock）+ OpenAI client（连接池复用） |
+| 并发调度 | `_run_subtasks_concurrent`：`ThreadPoolExecutor(max_workers=k)` 并发，结果按输入索引顺序聚合 |
+| 早停信号 | `threading.Event`：任一 executor `_authority_consensus_done=True` 即 `set()`，其他 executor 循环顶部检查 `stop_event.is_set()` 提前返回 `status="sibling_early_stop"` |
+| 主循环 | `k≥2` 且 batch≥2 → 并发分支；`k=1` 或 batch<2 → 原串行路径（零回归） |
+
+**线程安全**：共享 `state_store`（`add_findings`/`register_tool_observation`/`set_controller_signals`/`record_subtask_execution`）与 `query_history`（`record`/`update_last_record`/`add_candidates_to_last_record`）均已加 `threading.RLock` 包装；per-executor 的 critic/controller 缓存隔离，无跨线程竞争。
+
+> 设计取舍：并发只在 pending subtask ≥2 时启用，避免单 subtask 额外建池开销；早停信号确保权威共识命中后其他 subtask 及时收手，不浪费搜索预算。单测见 `tests/test_concurrency.py`（13 例）。
+
 ---
 
 ## 搜索质量增强（P0）
 
-### 搜索结果后处理（`search_tools.py`）
-每次 Serper API 返回后，`_postprocess_serper_results()` 对结果做三步处理：
+### 搜索结果后处理（`search_tools.py`）— 数据源管控（准确性核心）
+每次 Serper API 返回后，`_postprocess_serper_results()` 做六步处理，对应数据源管控的三条原则。全部纯函数/确定性实现（无 LLM、无网络调用），且每步均可经环境变量单独关闭以复现旧行为。
 
-1. **域名去重** — 同一域名只保留第一条结果，避免同一站点霸占返回列表。白名单域名（`wikipedia.org`、`britannica.com`）豁免去重，因为百科站点有大量相关子页面。
-2. **权威加权排序** — 按域名权威分排序（稳定排序，不破坏同分原序）：
-   | 权威分 | 域名 |
-   |--------|------|
-   | 3 | `wikipedia.org` / `britannica.com` / `.gov` / `.edu` |
-   | 2 | `nature.com` / `pubmed` / `doi.org` / `imdb.com` / `discogs.com` / `musicbrainz` |
-   | 1 | 其他 |
-3. **截断** — 最多保留 top-8 条结果，减少 token 消耗。
+1. **域名去重** — 同一域名只保留第一条结果，避免同一站点霸占返回列表。白名单域名（`wikipedia.org`、`britannica.com`）以及查询中点名的域名豁免去重，因为百科站点有大量相关子页面。
+2. **数据源分级可信权重**（`SRC_CREDIBILITY_ENABLED`，默认开）— 给每条结果标注 `credibility_tier`（1–5），精排阶段把可信度作为主特征参与打分，避免 Agent 采信造谣/UGC 自媒体：
+   | 层级 | 含义 | 代表来源 |
+   |------|------|---------|
+   | 5 | 官方文档 / 学术论文 | `docs.python.org`、`arxiv.org`、`doi.org`、`nature.com` |
+   | 4 | 权威媒体 / 百科 / 官方机构 | `wikipedia.org`、`britannica.com`、`.gov`/`.edu`、`reuters.com` |
+   | 3 | 垂直论坛 / 专业数据库 | `stackoverflow.com`、`github.com`、`imdb.com`、`musicbrainz.org` |
+   | 2 | 普通网页（默认） | 其他 |
+   | 1 | UGC / 自媒体 / 通稿站 | `reddit.com`、`medium.com`、`blogspot.com`、`prnewswire.com` |
+3. **时效性强制约束**（`SRC_FRESHNESS_ENABLED`，默认开；窗口 `SRC_FRESHNESS_MAX_AGE_DAYS` 默认 730 天）— 事实类问题（赛事、政策、股价、技术版本、年份）命中 `_is_time_sensitive_query()` 时，丢弃可解析且超出时间窗的过期结果（2026 环境下自动过滤 2023/2024 过时资讯）；通用知识（历史、定义、原理）放宽，不丢任何来源。每条结果标注 `freshness_flag`（`fresh`/`recent`/`stale`/`unknown`），过滤动作记入 `freshness_dropped`。设"不少于 3 条"下限，避免过度过滤掏空结果集。
+4. **去重与同源合并**（`SRC_CROSSDOMAIN_DEDUP_ENABLED`，默认开）— 在域名去重之上，跨域名比对标题+片段的 Jaccard 相似度（标题≥0.8 且片段≥0.5），合并镜像/转载内容：只保留可信度更高的一处原文，丢弃镜像并记入 `dedup_merges`，防止重复片段占用上下文、稀释有效信息。
+5. **可信度加权排序** — 稳定排序：可信度层级（降序）→ 新鲜度评分（降序）→ Serper 原始位置（升序）。同层级内保持 Serper 原序。
+6. **截断** — 最多保留 top-8 条结果，减少 token 消耗。同时输出 `source_quality` 元数据（查询是否时效敏感、各开关状态），供下游 Agent 与轨迹可观测。
+
+> 设计取舍：可信度是**加权特征而非硬剔除**（保留召回）；时效性仅对**明确可解析日期且超窗**的结果硬过滤，且仅限时效敏感查询，保证 BrowseComp 类历史长尾问题不被误伤。单测见 `tests/test_source_accuracy.py`（35 例）。
+
+#### 真实 Serper 验证（2026-08-07）
+
+用 `verify_source_accuracy.py` 跑真实查询，确认三条原则在真实流量上生效：
+
+- **时效敏感题** `best stock picks 2024 performance`：`kiplinger.com` 的 "10 2024 Stock Picks"（`Jan 1, 2024`，age_days=949 > 730 窗口）被硬过滤并记入 `freshness_dropped`；`query_time_sensitive=true`；"4 days ago"→`fresh`、"7 months ago"→`recent` 解析正确；新鲜度参与排序（`fresh` 排前，`recent` 次之，无日期 `unknown` 在后）。
+- **AI 模型题** `latest AI model release 2026`：`reddit.com/r/singularity`（UGC，tier 1）排到末位；权威来源 `blog.google`、`orca.security` 上浮；结果截断到 top-8。
+
+复跑命令：
+```bash
+python3 verify_source_accuracy.py "你的查询"      # 默认 query 见脚本顶部
+```
+
+### 权威共识早停（查询效率优化）
+在数据源分级基础上新增**权威共识早停**：一旦某候选被 **≥2 个独立权威域名**佐证，即视为达成共识、终止检索，省去后续搜索轮次。采用**显式权重打分**两段判定（官网/官方财报权重 = 10，自媒体 = 2）：
+
+| 来源类别 | tier | 权重 | 示例 |
+|---|---|---|---|
+| 官方文档 / 学术 / 官方财报 | 5 | **10** | docs.python.org、arxiv.org、ir.apple.com、investor.microsoft.com、sec.gov、nature.com |
+| 百科 / 官方机构 / 权威媒体 | 4 | 8 | wikipedia、reuters、bbc、nasa.gov、harvard.edu |
+| 垂直专业 | 3 | 5 | stackoverflow、imdb |
+| 普通网页（默认） | 2 | 3 | example.com |
+| UGC / 自媒体 / 通稿 | 1 | **2** | reddit、medium、blogspot、prnewswire |
+
+> 官方财报识别：`ir.*` / `investor.*` / `investors.*` 子域前缀 + `sec.gov`（SEC EDGAR）+ `annualreports.com` → tier 5 / 权重 10。需 ≥3 段标签（避免 bare `ir.com` 误判）。
+
+两段触发，优先级递降（命中即停）：
+
+1. **事实成立（fact_confirmed）** — ≥2 个**权重=10**独立来源一致 → 判定事实成立，**立即终止**检索（最强早停，"2 个高权重来源即事实成立"规则）。trigger = `fact_confirmed_early_stop`。
+2. **权威共识（authoritative_consensus）** — ≥2 个**权重≥8**独立来源一致 → 早停（原 tier≥4 逻辑保留）。trigger = `authoritative_consensus_early_stop`。
+
+两层触发，叠加生效：
+
+1. **执行器层**（`search_agent_v3.py` `_consensus_candidate`）— 在 verification 类 subtask 内，每轮工具结果后扫描已累积的 `candidate_assessments.evidence`，统计每个候选的独立高权重/权威域名数；达到阈值则注入 wrap-up 消息，让 agent 立即输出 findings 结束该 subtask（省 subtask 内剩余 turn）。candidate_expansion 类 subtask 不触发（需广召回）。
+2. **流水线层**（`search_harness_pipeline_v4.py` `_authoritative_consensus_early_stop`）— 在 `_check_stop` 中、`_verified_candidate_early_stop` 之后调用，扫描 `candidate_records.evidence`；按上述两段优先级判定，命中任一则返回对应 trigger 终止整个 pipeline（省剩余 planner/executor 迭代）。即使 executor 尚未自报 `verification_status=verified` 也会触发——客观证据计数足够时不必再等 LLM 自我标记。
+
+- **"独立"** = 不同 base 域名（同一 `reuters.com` 的两篇文章只算 1；`ir.apple.com` 归 `apple.com`），由 `high_weight_sources_in()` / `authoritative_domains_in()` 去重统计。
+- **判定复用** `_domain_credibility`（tier→权重映射 `_SOURCE_WEIGHTS = {5:10, 4:8, 3:5, 2:3, 1:2}`），与数据源分级同一张表，独立于 `SRC_CREDIBILITY_ENABLED` 开关。
+- **env 开关**：`EXECUTOR_AUTHORITY_EARLY_STOP`（默认开）/ `EXECUTOR_FACT_CONFIRM_MIN_SOURCES`（默认 2）/ `EXECUTOR_AUTHORITY_MIN_SOURCES`（默认 2）；`PIPELINE_AUTHORITY_EARLY_STOP`（默认开）/ `PIPELINE_FACT_CONFIRM_MIN_SOURCES`（默认 2）/ `PIPELINE_AUTHORITY_MIN_SOURCES`（默认 2）。两层可独立调阈值。
+- **安全约束**：`eliminated` / `contradicted` 候选不触发；执行器层 wrap-up 只注入一次。
+- 单测见 `tests/test_source_accuracy.py`（`test_executor_consensus_*` / `test_executor_fact_confirmed_*` / `test_pipeline_consensus_*` / `test_pipeline_fact_confirmed_*` / `test_source_weight` / `test_high_weight_sources_in_*`，共 35 例）。
+
+> 设计取舍：与既有 `_verified_candidate_early_stop`（要求 `verified` + 无冲突 + 无未决约束）互补——后者等 executor 自报验证完成，较保守；本机制以"客观证据计数"为准，更早触发，在 BrowseComp 等长尾问题上显著降低平均搜索轮次。fact_confirmed（权重=10）比 authoritative_consensus（权重≥8）更强：官方文档+学术/财报一致即判定事实成立，无需继续求证。两者都满足时 `_verified_candidate_early_stop` 先返回。
 
 ### 证据锚定（`search_agent_v3.py` `_coerce_findings`）
 执行器输出的 `candidate_updates.candidate_assessments` 中，`verification_status: "verified"` 的候选**必须**至少有一条 `evidence` 条目包含 `source_url` + `quote`。没有 `source_url` 的"verified"会被自动降级为 `partial`，并标注 `_downgrade_reason: "no_anchored_evidence"`。

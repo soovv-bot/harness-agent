@@ -10,6 +10,7 @@ query critique, and planning feedback will be built on top of this.
 
 import json
 import time
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -105,6 +106,7 @@ class QueryHistoryMemory:
     """
 
     def __init__(self):
+        self._lock = threading.RLock()
         self.records: List[QueryRecord] = []
         self._known_source_families: set = set()
         self._known_candidates: set = set()
@@ -125,7 +127,11 @@ class QueryHistoryMemory:
         """All unique query texts seen so far."""
         return sorted(self._query_texts)
 
-    def record(
+    def record(self, *args, **kwargs):
+        with self._lock:
+            return self._record_impl(*args, **kwargs)
+
+    def _record_impl(
         self,
         query: str,
         phase: str,
@@ -186,7 +192,11 @@ class QueryHistoryMemory:
 
         return entry
 
-    def update_last_record(
+    def update_last_record(self, *args, **kwargs):
+        with self._lock:
+            return self._update_last_record_impl(*args, **kwargs)
+
+    def _update_last_record_impl(
         self,
         results_summary: Optional[str] = None,
         new_source_families: Optional[List[str]] = None,
@@ -221,6 +231,10 @@ class QueryHistoryMemory:
             last.crawl_urls = crawl_urls
 
     def add_candidates_to_last_record(self, candidates: Optional[List[str]]) -> None:
+        with self._lock:
+            return self._add_candidates_to_last_record_impl(candidates)
+
+    def _add_candidates_to_last_record_impl(self, candidates: Optional[List[str]]) -> None:
         """Merge newly surfaced candidates into the most recent query record."""
         if not self.records or not candidates:
             return
