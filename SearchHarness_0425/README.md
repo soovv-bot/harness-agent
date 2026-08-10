@@ -521,6 +521,36 @@ python3 verify_source_accuracy.py "best stock picks 2024 performance"
 
 若 Serper 返回 `{"message":"Not enough credits","statusCode":400}`，说明额度耗尽，需充值或更换 Key。
 
+### 回归冒烟测试（subtask 优化项单测）
+
+对 `search_harness_pipeline_v4.py` / `search_agent_v3.py` 做过任何 subtask 调度、早停、兜底、重试相关的改动后，**必须**先跑一遍回归冒烟测试，确认既有的优化行为没有被破坏：
+
+```bash
+cd SearchHarness_0425
+
+# 7. subtask 优化回归冒烟（23 个用例，覆盖 P0-A/P0-B/P1-B/P1-C/P1-D 五项优化）
+python3 -m pytest tests/test_subtask_optimizations.py -v
+```
+
+覆盖的优化项：
+
+| 优化项 | 描述 | 测试类 | 关键不变量 |
+|--------|------|--------|------------|
+| **P0-A** 兜底答题 | finalizer 返回 Unknown/空时从候选池按 (verification_status, -support_count, -has_evidence) 兜底 | `TestFallbackAnswerFromPool` | finalizer 空 → fallback 提取；support 高的排前；verified > unverified |
+| **P0-B** executor 基础设施重试 | executor `except Exception` 对 transient(network/service/rate_limit) 错误最多重试 2 次(指数退避),auth_error 不重试 | `TestClassifyInfraError` | network/service/rate_limit 归为 transient；auth_error 与 None 不重试 |
+| **P1-B** tied-candidate 早停门 | 多候选平票且兄弟候选仍 unverified 时阻止 `_authoritative_consensus_early_stop`,接近预算上限且兄弟已 verified/contradicted 时释放 | `TestTiedCandidateBlocksEarlyStop` | 单候选不阻止；兄弟 unverified 阻止；预算上限 + 全 verified 释放 |
+| **P1-C** verification 页面证据 | `build_subtask_prompt` 对 candidate_verification 强制 "Page evidence required" 规则,subtask 含 URL 时列出必爬 URL | `TestBuildSubtaskPromptCrawlNudge` | verification 分支含 "Page evidence required"；expansion 分支不含；含 URL 时列出 |
+| **P1-D** planner 阶段推进 | 候选生成轮数超过 `max_candidate_generation_rounds` 且 viable_n≥2 时强制推进到 verification | `TestShouldAdvanceStageForceAdvance` | ready_to_advance 直接 True；预算内不触发；预算超+viable≥2 触发；viable<2 不触发 |
+
+预期输出：`23 passed in <2s`。若出现 FAILED，对照上表定位是哪项优化的不变量被破坏,先修复再提交。
+
+```bash
+# 8. 全量单元测试（199 个用例，含 core_rules/pipeline/concurrency/query_critic_batch/source_accuracy/subtask_optimizations）
+python3 -m pytest tests/ -v
+```
+
+预期输出：`199 passed in <20s`。这是改动前的安全网——若全量测试出现 FAILED，说明改动破坏了既有行为，必须回滚或修复后再继续。
+
 ### 单题评测（固定样本）
 
 固定样本为 seed `123`、k `10`，**1-indexed**（position `1` = 第一题 = Achimota School，position `2-10` 是其余题）。`docs/seed123_k10_manifest.json` 含 gold answer。

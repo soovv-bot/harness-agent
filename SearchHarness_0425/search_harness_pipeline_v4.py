@@ -325,6 +325,36 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
                             self.state_store.add_findings(findings)
                             self.state_store.record_subtask_execution(iteration=iteration + 1, plan=plan, subtask=st, findings=findings)
                         self._record_iteration_summary_for_trajectory(iteration, settled[0] if settled else {}, (results[0] or {}).get("findings") if results else None)
+                        # P1-D fix: concurrent batch path skipped _maybe_advance_stage,
+                        # so the planner could loop on candidate_expansion forever
+                        # (observed 8 identical expansion subtasks). Increment the
+                        # generation round counter per executed subtask and force
+                        # a stage advance when the budget is exhausted with enough
+                        # viable candidates, mirroring the serial path.
+                        for _st in settled:
+                            self.stage_round_counts[self.workflow_stage] = self.stage_round_counts.get(self.workflow_stage, 0) + 1
+                        if self.workflow_stage == self.CANDIDATE_GENERATION:
+                            gen_round = self.stage_round_counts.get(self.CANDIDATE_GENERATION, 0)
+                            viable_n = len(self._viable_candidate_records())
+                            # Diagnostic + lower threshold: pos6 only has 2 key
+                            # candidates (Opium verified + Morpheus), so viable_n>=2
+                            # should be enough to force advance to verification.
+                            logger.info(
+                                f"[Pipeline] concurrent advance check: gen_round={gen_round} "
+                                f"max={self.max_candidate_generation_rounds} viable_n={viable_n}"
+                            )
+                            if gen_round > self.max_candidate_generation_rounds and viable_n >= 2:
+                                logger.info(
+                                    f"[Pipeline] generation budget exhausted (concurrent) "
+                                    f"round {gen_round} > {self.max_candidate_generation_rounds}, "
+                                    f"viable={viable_n} — forcing advance to verification"
+                                )
+                                plan = dict(plan)
+                                plan["stage_status"] = "ready_to_advance"
+                                plan = self._maybe_advance_stage(question, plan, iteration)
+                                solved = self._consume_stage_answer(iterations=iteration + 1)
+                                if solved:
+                                    return solved
                         continue
                     if settled:
                         subtask = settled[0]
@@ -815,7 +845,13 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
             # candidates to actually verify.
             gen_round = self.stage_round_counts.get(self.CANDIDATE_GENERATION, 0) + 1
             viable_n = len(self._viable_candidate_records())
-            if gen_round > self.max_candidate_generation_rounds and viable_n >= 3:
+            # Diagnostic: log why force-advance is/isn't triggering
+            logger.info(
+                f"[Pipeline] _should_advance_stage(gen): gen_round={gen_round} "
+                f"max_rounds={self.max_candidate_generation_rounds} "
+                f"viable_n={viable_n} stage_status={stage_status!r}"
+            )
+            if gen_round > self.max_candidate_generation_rounds and viable_n >= 2:
                 logger.info(
                     f"[Pipeline] generation budget exhausted "
                     f"(round {gen_round} > {self.max_candidate_generation_rounds}) "
@@ -1504,15 +1540,38 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
         # Budget-aware release: near the iteration cap, let the pipeline
         # commit rather than burning the remaining budget on verification
         # that the executor has already shown it cannot complete.
-        if max_iterations > 0 and iteration >= max_iterations - max(2, max_iterations // 4):
+        # pos6 fix: even near budget cap, do NOT release if there is a
+        # viable sibling that has NEVER been verified or contradicted. The
+        # top-2 principle still applies — committing a verified-but-wrong
+        # candidate over an unverified-but-correct sibling is the exact
+        # failure mode pos6 exposed (planner picked "Opium" because the
+        # executor never verified "In the Arms of Morpheus"). Force at
+        # least one verification turn on the top unverified sibling before
+        # allowing the release.
+        near_cap = max_iterations > 0 and iteration >= max_iterations - max(2, max_iterations // 4)
+        trigger_name = str(record.get("candidate") or record.get("name") or "").strip()
+        if near_cap:
+            unverified_siblings = [
+                sib for sib in viable_records
+                if str(sib.get("candidate") or sib.get("name") or "").strip() != trigger_name
+                and str(sib.get("verification_status") or "").strip().lower() not in {"verified", "contradicted"}
+            ]
+            if unverified_siblings:
+                logger.info(
+                    f"[Pipeline] tied gate: near budget cap at iteration="
+                    f"{iteration}/{max_iterations}, but {len(unverified_siblings)} "
+                    f"viable sibling(s) remain unverified (e.g. "
+                    f"{str(unverified_siblings[0].get('candidate') or unverified_siblings[0].get('name',''))!r}) "
+                    f"— top-2 gate holds; deferring release for a verification pass"
+                )
+                return True
             logger.info(
                 f"[Pipeline] tied gate: releasing at iteration={iteration}/"
-                f"{max_iterations} (near budget cap) — allowing early-stop "
+                f"{max_iterations} (near budget cap, all siblings verified/contradicted) — allowing early-stop "
                 f"for candidate "
                 f"{str(record.get('candidate') or record.get('name',''))!r}"
             )
             return False
-        trigger_name = str(record.get("candidate") or record.get("name") or "").strip()
         trigger_vs = str(record.get("verification_status") or "").strip().lower()
         trigger_support = len(record.get("supporting_constraints") or [])
         trigger_unresolved = record.get("unresolved_constraints") or []
