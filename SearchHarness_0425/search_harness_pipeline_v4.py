@@ -325,36 +325,63 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
                             self.state_store.add_findings(findings)
                             self.state_store.record_subtask_execution(iteration=iteration + 1, plan=plan, subtask=st, findings=findings)
                         self._record_iteration_summary_for_trajectory(iteration, settled[0] if settled else {}, (results[0] or {}).get("findings") if results else None)
-                        # P1-D fix: concurrent batch path skipped _maybe_advance_stage,
-                        # so the planner could loop on candidate_expansion forever
-                        # (observed 8 identical expansion subtasks). Increment the
-                        # generation round counter per executed subtask and force
-                        # a stage advance when the budget is exhausted with enough
-                        # viable candidates, mirroring the serial path.
-                        for _st in settled:
-                            self.stage_round_counts[self.workflow_stage] = self.stage_round_counts.get(self.workflow_stage, 0) + 1
-                        if self.workflow_stage == self.CANDIDATE_GENERATION:
-                            gen_round = self.stage_round_counts.get(self.CANDIDATE_GENERATION, 0)
-                            viable_n = len(self._viable_candidate_records())
-                            # Diagnostic + lower threshold: pos6 only has 2 key
-                            # candidates (Opium verified + Morpheus), so viable_n>=2
-                            # should be enough to force advance to verification.
-                            logger.info(
-                                f"[Pipeline] concurrent advance check: gen_round={gen_round} "
-                                f"max={self.max_candidate_generation_rounds} viable_n={viable_n}"
-                            )
-                            if gen_round > self.max_candidate_generation_rounds and viable_n >= 2:
+                        # P1-D fix + rotation fix: wrap stage-advancement logic
+                        # in try/except so a bug in _maybe_advance_stage (e.g.
+                        # the pos8 "slice(None, 3, None)" crash) degrades to
+                        # continuing the next iteration instead of killing the
+                        # whole pipeline. The serial path already calls
+                        # _maybe_advance_stage every iteration; the concurrent
+                        # path previously skipped it entirely (P1-D root cause).
+                        try:
+                            for _st in settled:
+                                self.stage_round_counts[self.workflow_stage] = self.stage_round_counts.get(self.workflow_stage, 0) + 1
+                            # pos6 fix: increment active_candidate_rounds and
+                            # check for candidate rotation (mirrors serial path
+                            # L435+L570). Without this, _should_rotate_active_candidate
+                            # never fires and the planner loops on the same
+                            # candidate indefinitely (observed: 9 iterations all
+                            # verifying "Shaun Murphy" while "Ding Junhui"
+                            # never got a turn in the verification queue).
+                            if self.workflow_stage == self.CANDIDATE_VERIFICATION and self.active_candidate:
+                                self.active_candidate_rounds += 1
                                 logger.info(
-                                    f"[Pipeline] generation budget exhausted (concurrent) "
-                                    f"round {gen_round} > {self.max_candidate_generation_rounds}, "
-                                    f"viable={viable_n} — forcing advance to verification"
+                                    f"[Pipeline] concurrent verification: "
+                                    f"active_candidate={self.active_candidate!r} "
+                                    f"rounds={self.active_candidate_rounds} "
+                                    f"queue_remaining={len(self.verification_queue)}"
                                 )
-                                plan = dict(plan)
-                                plan["stage_status"] = "ready_to_advance"
                                 plan = self._maybe_advance_stage(question, plan, iteration)
                                 solved = self._consume_stage_answer(iterations=iteration + 1)
                                 if solved:
                                     return solved
+                            # P1-D: force-advance from candidate_generation to
+                            # candidate_verification when the generation budget
+                            # is exhausted with enough viable candidates.
+                            if self.workflow_stage == self.CANDIDATE_GENERATION:
+                                gen_round = self.stage_round_counts.get(self.CANDIDATE_GENERATION, 0)
+                                viable_n = len(self._viable_candidate_records())
+                                logger.info(
+                                    f"[Pipeline] concurrent advance check: gen_round={gen_round} "
+                                    f"max={self.max_candidate_generation_rounds} viable_n={viable_n}"
+                                )
+                                if gen_round > self.max_candidate_generation_rounds and viable_n >= 2:
+                                    logger.info(
+                                        f"[Pipeline] generation budget exhausted (concurrent) "
+                                        f"round {gen_round} > {self.max_candidate_generation_rounds}, "
+                                        f"viable={viable_n} — forcing advance to verification"
+                                    )
+                                    plan = dict(plan)
+                                    plan["stage_status"] = "ready_to_advance"
+                                    plan = self._maybe_advance_stage(question, plan, iteration)
+                                    solved = self._consume_stage_answer(iterations=iteration + 1)
+                                    if solved:
+                                        return solved
+                        except Exception as _stage_err:
+                            logger.error(
+                                f"[Pipeline] concurrent post-batch stage logic error (non-fatal): "
+                                f"{_stage_err} | type={type(_stage_err).__name__}",
+                                exc_info=True,
+                            )
                         continue
                     if settled:
                         subtask = settled[0]
@@ -621,6 +648,28 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
                 f"[Pipeline] stage-jump guard: planner tried to jump "
                 f"{self.workflow_stage} -> {target_stage}; forcing "
                 f"{self.CANDIDATE_VERIFICATION} first"
+            )
+            target_stage = self.CANDIDATE_VERIFICATION
+        # pos6 fix: do NOT let the planner skip verification by jumping
+        # from candidate_verification to final_check before ANY verification
+        # subtask has run. Without this, a transition planner that immediately
+        # emits phase=final_check (observed: planner_conv 3 after the
+        # generation->verification force-advance) bypasses the top-2 gate in
+        # _should_advance_stage and lets a single verified-but-weak candidate
+        # (e.g. "Opium") win over 48 unverified siblings (e.g. "In the Arms of
+        # Morpheus"). Require at least one completed verification pass.
+        if (
+            self.workflow_stage == self.CANDIDATE_VERIFICATION
+            and target_stage == self.FINAL_CHECK
+            and not self.completed_verification_candidates
+            and self.active_candidate_rounds == 0
+        ):
+            logger.info(
+                f"[Pipeline] stage-jump guard: planner tried to advance "
+                f"candidate_verification -> final_check before ANY "
+                f"verification subtask ran (completed=[], "
+                f"active_rounds=0) — forcing back to "
+                f"{self.CANDIDATE_VERIFICATION}"
             )
             target_stage = self.CANDIDATE_VERIFICATION
 

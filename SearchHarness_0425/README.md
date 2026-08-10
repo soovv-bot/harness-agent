@@ -528,7 +528,7 @@ python3 verify_source_accuracy.py "best stock picks 2024 performance"
 ```bash
 cd SearchHarness_0425
 
-# 7. subtask 优化回归冒烟（23 个用例，覆盖 P0-A/P0-B/P1-B/P1-C/P1-D 五项优化）
+# 7. subtask 优化回归冒烟（30 个用例，覆盖 P0-A/P0-B/P1-B/P1-C/P1-D/P1-E 六项优化）
 python3 -m pytest tests/test_subtask_optimizations.py -v
 ```
 
@@ -541,15 +541,16 @@ python3 -m pytest tests/test_subtask_optimizations.py -v
 | **P1-B** tied-candidate 早停门 | 多候选平票且兄弟候选仍 unverified 时阻止 `_authoritative_consensus_early_stop`,接近预算上限且兄弟已 verified/contradicted 时释放 | `TestTiedCandidateBlocksEarlyStop` | 单候选不阻止；兄弟 unverified 阻止；预算上限 + 全 verified 释放 |
 | **P1-C** verification 页面证据 | `build_subtask_prompt` 对 candidate_verification 强制 "Page evidence required" 规则,subtask 含 URL 时列出必爬 URL | `TestBuildSubtaskPromptCrawlNudge` | verification 分支含 "Page evidence required"；expansion 分支不含；含 URL 时列出 |
 | **P1-D** planner 阶段推进 | 候选生成轮数超过 `max_candidate_generation_rounds` 且 viable_n≥2 时强制推进到 verification | `TestShouldAdvanceStageForceAdvance` | ready_to_advance 直接 True；预算内不触发；预算超+viable≥2 触发；viable<2 不触发 |
+| **P1-E** 候选轮换(并发路径) | 并发 batch 执行后调用 `_maybe_advance_stage` 触发 `_should_rotate_active_candidate`(rounds≥2),将验证队列中下一候选轮为 active | `TestCandidateRotation` | rounds≥2 触发轮换；rounds=1 不触发；hard_conflicts 触发；轮换后 active_candidate 变更且 rounds 重置；队列空返回 False；跳过已完成候选 |
 
-预期输出：`23 passed in <2s`。若出现 FAILED，对照上表定位是哪项优化的不变量被破坏,先修复再提交。
+预期输出：`30 passed in <2s`。若出现 FAILED，对照上表定位是哪项优化的不变量被破坏,先修复再提交。
 
 ```bash
-# 8. 全量单元测试（199 个用例，含 core_rules/pipeline/concurrency/query_critic_batch/source_accuracy/subtask_optimizations）
+# 8. 全量单元测试（206 个用例，含 core_rules/pipeline/concurrency/query_critic_batch/source_accuracy/subtask_optimizations）
 python3 -m pytest tests/ -v
 ```
 
-预期输出：`199 passed in <20s`。这是改动前的安全网——若全量测试出现 FAILED，说明改动破坏了既有行为，必须回滚或修复后再继续。
+预期输出：`206 passed in <20s`。这是改动前的安全网——若全量测试出现 FAILED，说明改动破坏了既有行为，必须回滚或修复后再继续。
 
 ### 单题评测（固定样本）
 
@@ -580,6 +581,61 @@ python3 run_browsecomp_fixed_sample.py \
   --max-executor-searches 35 \
   --max-total-searches 250
 ```
+
+### 快速并发评测（提速测试）
+
+完整预算（`iter10/search250`）单题约 5–20 分钟。快速预算 + subtask 并发可压到 **3–5 分钟/题**，预算缩到 1/6，准确率基本持平（实测 10 题：完整 44.4% / 快速+并发 40%，净同题 4/4 持平）。
+
+```bash
+# 单题快速并发评测（pos5 示例）
+# 两层并发：题内 subtask 并发（EXECUTOR_SUBTASK_CONCURRENCY）+ 不开题间并发（max-workers 1）
+EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
+  --seed 123 --sample-size 10 --positions 5 \
+  --output results/seed123_pos5_fast.json \
+  --trajectory-dir logs/trajectories_pos5_fast \
+  --max-iterations 5 --max-crawl-calls 20 \
+  --max-planner-searches 8 --max-executor-searches 20 \
+  --max-total-searches 40 --max-workers 1
+```
+
+```bash
+# 多题批量快速并发评测（positions 1-10）
+# 两层并发叠加：题内 subtask（SUBTASK_CONCURRENCY=2）+ 题间（max-workers 3）
+# 实测 10 题 31.5 分钟、40% 准确率、19 个并发批次（14×batch=3 + 5×batch=2）
+EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
+  --seed 123 --sample-size 10 --positions 1-10 \
+  --output results/seed123_pos1to10_fast.json \
+  --trajectory-dir logs/trajectories_pos1to10_fast \
+  --max-iterations 5 --max-crawl-calls 20 \
+  --max-planner-searches 8 --max-executor-searches 20 \
+  --max-total-searches 40 --max-workers 3
+```
+
+**预算对比**：
+
+| 参数 | 完整预算 | 快速预算 | 比例 |
+|------|---------|---------|------|
+| `--max-iterations` | 10 | 5 | 1/2 |
+| `--max-crawl-calls` | 60 | 20 | 1/3 |
+| `--max-planner-searches` | 15 | 8 | ~1/2 |
+| `--max-executor-searches` | 35 | 20 | ~1/2 |
+| `--max-total-searches` | 250 | 40 | 1/6 |
+
+**subtask 并发环境变量**：
+
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `EXECUTOR_SUBTASK_CONCURRENCY` | 2 | 题内并发基础值；`=1` 强制串行（零回归对照） |
+| `EXECUTOR_MAX_SUBTASK_CONCURRENCY` | 3 | 题内并发上限；复杂题（长问题 >200 字符 或 ≥4 pending step）自动升到 3 |
+
+**两层并发区分**：
+
+| 并发层 | 控制参数 | 作用域 |
+|--------|----------|--------|
+| 题间并发 | `--max-workers N` | N 个题目同时跑（`run_browsecomp_fixed_sample.py` 的 `ThreadPoolExecutor`） |
+| 题内 subtask 并发 | `EXECUTOR_SUBTASK_CONCURRENCY` | 单题内 2–3 个 planner step 同时执行（pipeline 的 `_run_subtasks_concurrent`） |
+
+> 注意：两层并发会乘积增加 LLM 请求并发度。`max-workers 3 × SUBTASK_CONCURRENCY 2` 峰值约 6 路并发请求，需确认 LLM 端点配额承载。单题测试用 `--max-workers 1` 只开题内并发。
 
 ### 多题批量评测
 

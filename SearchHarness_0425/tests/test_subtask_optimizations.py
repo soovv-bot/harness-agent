@@ -47,6 +47,8 @@ def _make_pipeline(fake_llm, responder=None):
         p.CANDIDATE_VERIFICATION: 0,
         p.FINAL_CHECK: 0,
     }
+    # completed_verification_candidates is also initialized in run(), not __init__
+    p.completed_verification_candidates = []
     return p
 
 
@@ -62,7 +64,7 @@ def _add_candidate(p, name, verification_status="unverified", support=None,
         "verification_status": verification_status,
         "supporting_constraints": support or [],
         "hard_conflicts": hard_conflicts or [],
-        "evidence": evidence,
+        "evidence": evidence or [],
         "unresolved_constraints": unresolved or [],
     }
     if not hard_conflicts:
@@ -241,3 +243,95 @@ class TestShouldAdvanceStageForceAdvance:
         _add_candidate(p, "A")  # only 1 viable < 2
         plan = {"stage_status": "continue"}
         assert p._should_advance_stage(plan, {}) is False
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# P1-E: Candidate rotation in concurrent verification path
+# ════════════════════════════════════════════════════════════════════════════
+
+class TestCandidateRotation:
+    """Regression tests for the concurrent-path rotation fix.
+
+    Root cause: the concurrent batch path incremented active_candidate_rounds
+    but never called _maybe_advance_stage, so _should_rotate_active_candidate
+    never fired — the planner looped on the same candidate for all remaining
+    iterations (pos5: 9 iterations all on "Shaun Murphy", Ding Junhui never
+    verified).
+    """
+
+    def test_should_rotate_after_two_rounds(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 2
+        _add_candidate(p, "Shaun Murphy")
+        plan = {"stage_status": "continue"}
+        assert p._should_rotate_active_candidate(plan, {}) is True
+
+    def test_should_not_rotate_after_one_round(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 1
+        _add_candidate(p, "Shaun Murphy")
+        plan = {"stage_status": "continue"}
+        assert p._should_rotate_active_candidate(plan, {}) is False
+
+    def test_should_rotate_on_hard_conflicts(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 0
+        _add_candidate(p, "Shaun Murphy", hard_conflicts=["not_a_snooker_player"])
+        compact = p.state_store.export_compact_state()
+        plan = {"stage_status": "continue"}
+        assert p._should_rotate_active_candidate(plan, compact) is True
+
+    def test_should_rotate_on_ready_to_advance(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 0
+        _add_candidate(p, "Shaun Murphy")
+        plan = {"stage_status": "ready_to_advance"}
+        assert p._should_rotate_active_candidate(plan, {}) is True
+
+    def test_rotate_moves_to_next_in_queue(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 2
+        _add_candidate(p, "Shaun Murphy")
+        _add_candidate(p, "Ding Junhui")
+        p.verification_queue = ["Ding Junhui"]
+        compact = p.state_store.export_compact_state()
+        rotated = p._rotate_active_candidate(compact)
+        assert rotated is True
+        assert p.active_candidate == "Ding Junhui"
+        assert p.active_candidate_rounds == 0
+
+    def test_rotate_returns_false_when_queue_empty(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 2
+        _add_candidate(p, "Shaun Murphy")
+        p.verification_queue = []
+        compact = p.state_store.export_compact_state()
+        rotated = p._rotate_active_candidate(compact)
+        assert rotated is False
+
+    def test_rotate_skips_completed_candidates(self, fake_llm):
+        p = _make_pipeline(fake_llm)
+        p.workflow_stage = p.CANDIDATE_VERIFICATION
+        p.active_candidate = "Shaun Murphy"
+        p.active_candidate_rounds = 2
+        _add_candidate(p, "Shaun Murphy")
+        _add_candidate(p, "Judd Trump")
+        _add_candidate(p, "Ding Junhui")
+        p.completed_verification_candidates = ["Judd Trump"]
+        p.verification_queue = ["Judd Trump", "Ding Junhui"]
+        compact = p.state_store.export_compact_state()
+        rotated = p._rotate_active_candidate(compact)
+        assert rotated is True
+        assert p.active_candidate == "Ding Junhui"

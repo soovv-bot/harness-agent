@@ -653,9 +653,9 @@ class SearchStateStore:
                 "status": record.get("status", "active"),
                 "verification_status": record.get("verification_status", "unverified"),
                 "confidence": record.get("confidence", "low"),
-                "supporting_constraints": record.get("supporting_constraints", [])[:5],
-                "unresolved_constraints": record.get("unresolved_constraints", [])[:5],
-                "hard_conflicts": record.get("hard_conflicts", [])[:5],
-                "evidence": record.get("evidence", [])[:3],
+                "supporting_constraints": (record.get("supporting_constraints") or [])[:5],
+                "unresolved_constraints": (record.get("unresolved_constraints") or [])[:5],
+                "hard_conflicts": (record.get("hard_conflicts") or [])[:5],
+                "evidence": (record.get("evidence") or [])[:3],
             })
         return exported
