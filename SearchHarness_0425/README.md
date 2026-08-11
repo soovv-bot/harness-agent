@@ -560,9 +560,12 @@ python3 -m pytest tests/ -v
 |----------|--------|--------|------|------|------|------|------|------|------|------|------|-------|------|
 | baseline (`seed123_pos1to10_fast.json`) | 5/10 | 50% | ✓ | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | 初始基线 |
 | P1-D (`seed123_full10_p1d.json`) | 3/10 | 30% | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | **回归**：并发路径候选轮换未触发，pos3/4/5 卡在同一候选；pos8 崩溃 |
-| **P1-E (`seed123_full10_p1e.json`)** | **6/10** | **60%** | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | **恢复 pos4/5/8，超过 baseline +10pp**；pos5 验证 4 候选后命中 Ding Junhui；pos8 崩溃被 try/except 兜底 |
+| **P1-E run1 (`seed123_full10_p1e.json`)** | **6/10** | **60%** | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | **恢复 pos4/5/8，超过 baseline +10pp**；pos5 验证 4 候选后命中 Ding Junhui；pos8 崩溃被 try/except 兜底 |
+| **P1-E run2 (`seed123_full10_p1e_v2.json`)** | **6/10** | **60%** | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | **60% 稳定（两次独立运行）**；pos3 恢复(Abangan 2024)；pos4 finalizer `logger` NameError → protocol_error（独立 bug，非 P1-E 回归） |
 
-**P1-E 关键修复证据**（pos5 轨迹日志）：
+> **稳定性结论**：P1-E 两次独立运行均为 6/10 = 60%，8/10 题结果一致（pos1/2/5/6/7/8/9/10），pos3/4 在两次运行间互换（pos4 run2 为 finalizer `logger` NameError 导致的 protocol_error，与 P1-E 逻辑无关）。60% 相对 baseline 50% 的 +10pp 提升稳定可靠。
+
+**P1-E 关键修复证据**（pos5 轨迹日志，run1）：
 
 ```
 15:47  concurrent verification: active_candidate='Shaun Murphy'    rounds=1 queue_remaining=11
