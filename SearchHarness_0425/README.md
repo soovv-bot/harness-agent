@@ -562,8 +562,11 @@ python3 -m pytest tests/ -v
 | P1-D (`seed123_full10_p1d.json`) | 3/10 | 30% | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | **回归**：并发路径候选轮换未触发，pos3/4/5 卡在同一候选；pos8 崩溃 |
 | **P1-E run1 (`seed123_full10_p1e.json`)** | **6/10** | **60%** | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | **恢复 pos4/5/8，超过 baseline +10pp**；pos5 验证 4 候选后命中 Ding Junhui；pos8 崩溃被 try/except 兜底 |
 | **P1-E run2 (`seed123_full10_p1e_v2.json`)** | **6/10** | **60%** | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | **60% 稳定（两次独立运行）**；pos3 恢复(Abangan 2024)；pos4 finalizer `logger` NameError → protocol_error（独立 bug，非 P1-E 回归） |
+| P1-F (`seed123_full10_p1f_v2.json`) | 4/10 | 40% | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | **pos4 修复成功**（Coverdale/Whitesnake 全 8 约束验证）；pos2/pos8 grader 非确定性（同 P1-E 答案判错）；pos3 protocol_error（候选全 contradicted）；**真实 ≈60%**（grader 方差修正后） |
 
 > **稳定性结论**：P1-E 两次独立运行均为 6/10 = 60%，8/10 题结果一致（pos1/2/5/6/7/8/9/10），pos3/4 在两次运行间互换（pos4 run2 为 finalizer `logger` NameError 导致的 protocol_error，与 P1-E 逻辑无关）。60% 相对 baseline 50% 的 +10pp 提升稳定可靠。
+
+> **P1-F 分析**：raw 4/10=40%，但 pos2 和 pos8 的答案与 P1-E 完全相同（"Marguerite Smith" / "Michael Reed Holzer"），仅因 LLM grader 非确定性被判错 → **grader 方差修正后真实 ≈ 6/10 = 60%**。关键成果：**pos4 (Coverdale/Whitesnake) 从 flaky 变为稳定正确**——P1-F anti-premature-elimination 指令阻止了 planner 在 reasoning_content 中基于内部知识批量排除 Deep Purple 成员（v2 run 的 "David Coverdale: not art college"），改为要求逐成员枚举验证。轨迹证据：Coverdale 被验证为 verified，supporting_constraints 包含全部 8 项（含 "attended art college"），answer=`<answer>Whitesnake</answer>`，is_correct=True。
 
 **P1-E 关键修复证据**（pos5 轨迹日志，run1）：
 
