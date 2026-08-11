@@ -294,6 +294,42 @@ class TestSalvageClearsErrorType:
 
 
 # ════════════════════════════════════════════════════════════════════════════
+# P1-F: finalizer _infer_uncertainty defensive guards
+# ════════════════════════════════════════════════════════════════════════════
+
+class TestFinalizerUncertaintyGuards:
+    """P1-F: _infer_uncertainty crashed with AttributeError when
+    pool_assessment was a string (planner emitted text instead of dict),
+    which cascaded through finalize()'s except block and killed the task.
+    The fix guards plan/latest_snapshot/pool_assessment/findings with
+    isinstance checks."""
+
+    def _make_finalizer(self):
+        from search_finalizer import SearchFinalizer
+        return object.__new__(SearchFinalizer)
+
+    def test_string_pool_assessment(self):
+        f = self._make_finalizer()
+        state = {"current_plan": {"pool_assessment": "insufficient candidates"}}
+        assert isinstance(f._infer_uncertainty(state), str)
+
+    def test_string_current_plan(self):
+        f = self._make_finalizer()
+        state = {"current_plan": "no plan yet"}
+        assert isinstance(f._infer_uncertainty(state), str)
+
+    def test_string_latest_snapshot(self):
+        f = self._make_finalizer()
+        state = {"latest_snapshot": "snapshot text"}
+        assert isinstance(f._infer_uncertainty(state), str)
+
+    def test_string_finding_in_recent_findings(self):
+        f = self._make_finalizer()
+        state = {"recent_findings": ["finding string not dict"]}
+        assert isinstance(f._infer_uncertainty(state), str)
+
+
+# ════════════════════════════════════════════════════════════════════════════
 # P1-D: _should_advance_stage force-advance
 # ════════════════════════════════════════════════════════════════════════════
 
