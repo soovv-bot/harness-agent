@@ -210,6 +210,90 @@ class TestBuildSubtaskPromptCrawlNudge:
 
 
 # ════════════════════════════════════════════════════════════════════════════
+# P1-F: anti-premature-elimination planner prompt (pos4 Coverdale regression)
+# ════════════════════════════════════════════════════════════════════════════
+
+class TestPlannerAntiPrematureElimination:
+    """P1-F: the candidate_generation stage message must instruct the planner
+    not to silently exclude candidates from reasoning (the pos4 v2 root cause:
+    planner reasoned 'David Coverdale: not art college' without a search and
+    never issued a verification subtask, dropping the correct answer)."""
+
+    def _make_planner(self):
+        from planning_agent_v3 import PlanningAgentV3
+        return object.__new__(PlanningAgentV3)
+
+    def test_generation_message_has_anti_elimination_directive(self):
+        planner = self._make_planner()
+        msg = planner._build_workflow_stage_message(
+            "candidate_generation",
+            {"generation_round": 1, "generation_budget": 2, "current_candidate_count": 3},
+        )
+        content = msg["content"]
+        assert "anti-premature-elimination" in content.lower()
+        assert "Do NOT silently exclude" in content
+
+    def test_generation_message_requires_per_member_enumeration(self):
+        planner = self._make_planner()
+        msg = planner._build_workflow_stage_message(
+            "candidate_generation",
+            {"generation_round": 1, "generation_budget": 2, "current_candidate_count": 3},
+        )
+        content = msg["content"]
+        assert "per-member" in content.lower() or "enumerate its members" in content.lower()
+
+    def test_verification_message_unchanged(self):
+        """The anti-elimination directive is only on candidate_generation;
+        candidate_verification message should not carry it."""
+        planner = self._make_planner()
+        msg = planner._build_workflow_stage_message(
+            "candidate_verification",
+            {"viable_candidate_count": 2, "active_candidate": "X",
+             "candidate_verification_round": 1, "verification_queue_remaining": 1},
+        )
+        assert "anti-premature-elimination" not in msg["content"].lower()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# P1-F: salvage clears stale error_type (protocol_error cleanup)
+# ════════════════════════════════════════════════════════════════════════════
+
+class TestSalvageClearsErrorType:
+    """P1-F: when _best_effort_finish salvages a candidate from the pool after
+    the finalizer returned Unknown (e.g. due to a transient LLM NameError), the
+    stale error_type must be cleared so the pipeline reports finished, not
+    protocol_error. The salvaged answer is graded on its own merits."""
+
+    def test_salvage_clears_protocol_error(self, fake_llm):
+        from search_finalizer import FinalizationResult
+        from unittest.mock import MagicMock
+        p = _make_pipeline(fake_llm)
+        _add_candidate(p, "Whitesnake", verification_status="verified", support=["c1"])
+        # Mock finalizer returns Unknown with protocol_error (simulating the
+        # NameError path), then salvage should recover "Whitesnake" and clear
+        # the error_type.
+        fake_final = FinalizationResult(
+            status="best_effort", answer="Unknown", confidence="none",
+            reason="Finalizer LLM failed: name 'logger' is not defined",
+            remaining_uncertainty="", supporting_evidence=[],
+            error_type="protocol_error",
+        )
+        p.finalizer = MagicMock()
+        p.finalizer.finalize.return_value = fake_final
+        # Minimal stubs to keep _best_effort_finish from touching real infra
+        p._looks_solved = lambda state: False
+        p._record_event_for_trajectory = lambda *a, **k: None
+        p._record_candidate_snapshot_for_trajectory = lambda *a, **k: None
+        p.trajectory_recorder = None
+        result = p._best_effort_finish("Q?", {}, 10, {"trigger": "max_iterations_reached"})
+        # Salvaged answer recovered
+        assert "Whitesnake" in result["answer"]
+        # error_type cleared so pipeline_status is finished, not protocol_error
+        assert result["status"] == "finished"
+        assert result["failure_category"] != "protocol_error"
+
+
+# ════════════════════════════════════════════════════════════════════════════
 # P1-D: _should_advance_stage force-advance
 # ════════════════════════════════════════════════════════════════════════════
 
