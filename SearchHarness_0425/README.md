@@ -552,6 +552,29 @@ python3 -m pytest tests/ -v
 
 预期输出：`206 passed in <20s`。这是改动前的安全网——若全量测试出现 FAILED，说明改动破坏了既有行为，必须回滚或修复后再继续。
 
+### subtask 优化项 10 题评测对比（seed=123, k=10, max-workers=2）
+
+下表记录各优化项合入后在固定 10 题样本上的累积表现。每次合入新优化项后重跑此评测，对照前一列定位回归/增益。
+
+| 优化版本 | 正确数 | 准确率 | pos1 | pos2 | pos3 | pos4 | pos5 | pos6 | pos7 | pos8 | pos9 | pos10 | 备注 |
+|----------|--------|--------|------|------|------|------|------|------|------|------|------|-------|------|
+| baseline (`seed123_pos1to10_fast.json`) | 5/10 | 50% | ✓ | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | 初始基线 |
+| P1-D (`seed123_full10_p1d.json`) | 3/10 | 30% | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | **回归**：并发路径候选轮换未触发，pos3/4/5 卡在同一候选；pos8 崩溃 |
+| **P1-E (`seed123_full10_p1e.json`)** | **6/10** | **60%** | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✗ | **恢复 pos4/5/8，超过 baseline +10pp**；pos5 验证 4 候选后命中 Ding Junhui；pos8 崩溃被 try/except 兜底 |
+
+**P1-E 关键修复证据**（pos5 轨迹日志）：
+
+```
+15:47  concurrent verification: active_candidate='Shaun Murphy'    rounds=1 queue_remaining=11
+16:01  concurrent verification: active_candidate='Stuart Bingham' rounds=1 queue_remaining=10   ← 轮换
+16:07  concurrent verification: active_candidate='Judd Trump'      rounds=1 queue_remaining=9     ← 轮换
+16:12  concurrent verification: active_candidate='Judd Trump'      rounds=2 queue_remaining=9
+16:15  concurrent verification: active_candidate='Ding Junhui'    rounds=1 queue_remaining=8    ← 轮换（命中正确答案）
+16:16  concurrent verification: active_candidate='Ding Junhui'    rounds=2 queue_remaining=8   → finished CORRECT
+```
+
+P1-D 时 pos5 在 9 次迭代中始终停留在 "Shaun Murphy"，从未验证 Ding Junhui。P1-E 触发 `_should_rotate_active_candidate`（rounds≥2 / hard_conflicts / ready_to_advance）后正确轮换到 Ding Junhui。
+
 ### 单题评测（固定样本）
 
 固定样本为 seed `123`、k `10`，**1-indexed**（position `1` = 第一题 = Achimota School，position `2-10` 是其余题）。`docs/seed123_k10_manifest.json` 含 gold answer。
