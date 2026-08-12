@@ -518,12 +518,25 @@ def chat_completion_with_structuring(
     # Reasoning models fill the token budget with reasoning. Smaller max_tokens
     # forces the model to be concise and produce content. Try a few sizes.
     #
-    # Guard: skip structurer chain only when BOTH primary and structurer use
-    # minimal effort AND the endpoint already proved it ignores minimal
-    # (primary got large reasoning despite requesting minimal). When primary
-    # used a higher effort (e.g. "high") and starved, the structurer's
-    # "minimal" may still succeed — don't skip.
-    if (_requested_effort_is_minimal(structurer_reasoning_effort_override, model_id)
+    # For models that do NOT honor minimal effort (e.g. GLM-5.2 maps minimal→max),
+    # the skip guard is harmful: it abandons structuring entirely and returns
+    # 0-content, wasting the whole turn. Instead, always attempt structuring
+    # with progressively smaller max_tokens to force concise content output.
+    #
+    # Guard: skip structurer chain only when the model HONORS minimal effort
+    # AND both primary and structurer used minimal AND reasoning exceeded the
+    # threshold (proving the endpoint ignored minimal). When the model does
+    # not honor minimal (minimal_effort_is_honored=False), never skip — try
+    # with smaller budgets instead.
+    _model_honors_minimal = True
+    try:
+        from model_profiles import get_model_profile
+        _model_honors_minimal = get_model_profile(model_id).minimal_effort_is_honored
+    except Exception:
+        pass
+
+    if (_model_honors_minimal
+            and _requested_effort_is_minimal(structurer_reasoning_effort_override, model_id)
             and _requested_effort_is_minimal(reasoning_effort_override, model_id)
             and len(reasoning_content) > _structurer_skip_threshold()):
         logger.warning(
@@ -536,8 +549,14 @@ def chat_completion_with_structuring(
     structurer_max = _get_structurer_max_tokens()
     hint = structurer_format_hint or "Output the result in the format described in the original task."
     structurer_prompt = _build_structurer_prompt(reasoning_content, hint)
-    # Retry with decreasing max_tokens: [structurer_max, structurer_max-1000, structurer_max-1500]
-    for attempt_idx, attempt_max in enumerate((structurer_max, max(1500, structurer_max - 1000), max(1200, structurer_max - 1500))):
+    # For models that ignore minimal effort, use smaller max_tokens to force
+    # content over reasoning. Try: [structurer_max, 1500, 1000, 800].
+    # The smaller budgets force the model to stop reasoning and emit content.
+    if not _model_honors_minimal:
+        attempt_budgets = (structurer_max, 1500, 1000, 800)
+    else:
+        attempt_budgets = (structurer_max, max(1500, structurer_max - 1000), max(1200, structurer_max - 1500))
+    for attempt_idx, attempt_max in enumerate(attempt_budgets):
         structurer_kwargs = build_chat_completion_kwargs(
             model_id=model_id,
             messages=[{"role": "user", "content": structurer_prompt}],
@@ -563,18 +582,70 @@ def chat_completion_with_structuring(
                     return structurer_response
         except Exception:
             pass
-        # Early-break: reaching here means attempt #1 (largest budget) returned
-        # 0 content AND 0 extractable reasoning. Attempts #2/#3 use the same
-        # structurer effort with a SMALLER max_tokens — they cannot recover.
-        # Empirically (2026-08-04) #2/#3 never succeeded when #1 failed (7/7).
-        if attempt_idx == 0:
+        # Early-break: for models that HONOR minimal effort, reaching here means
+        # attempt #1 (largest budget) returned 0 content AND 0 extractable
+        # reasoning. Attempts #2/#3 use the same structurer effort with a SMALLER
+        # max_tokens — they cannot recover. Empirically (2026-08-04) #2/#3 never
+        # succeeded when #1 failed (7/7).
+        # For models that do NOT honor minimal (GLM-5.2): smaller budgets CAN
+        # force content, so don't early-break — try all budgets.
+        if attempt_idx == 0 and _model_honors_minimal:
             logger.warning(
                 f"[Structurer] early-break after #1 (0-content, 0-extracted): "
                 f"#2/#3 same effort + smaller budget won't recover"
             )
             break
 
+    # Last-resort: if all structurer attempts failed, try broader extraction
+    # from the original reasoning_content. Some models write JSON or plain
+    # text answers in reasoning without XML tags. Returning non-empty content
+    # here lets the caller's parser attempt to make sense of it.
+    if not (getattr(response, "content", None) or "").strip():
+        json_extracted = _extract_json_from_reasoning(reasoning_content)
+        if json_extracted:
+            logger.info(
+                f"[Structurer] last-resort JSON extraction from reasoning "
+                f"succeeded ({len(json_extracted)}c) after all structurer "
+                f"attempts failed"
+            )
+            try:
+                response.content = json_extracted
+            except Exception:
+                pass
+
     return response
+
+
+def _extract_json_from_reasoning(reasoning: str) -> str:
+    """Extract a JSON object or array from reasoning_content as a last resort.
+
+    Reasoning models sometimes produce the final JSON output within their
+    reasoning text (e.g. query_critic results). This catches cases where
+    _extract_structured_from_reasoning found no XML tags but the model still
+    wrote valid JSON in reasoning.
+    """
+    if not reasoning:
+        return ""
+    import re
+    # Try to find a JSON array first (query_critic output)
+    arr_match = re.search(r'\[[^\[]*?\{.*?\}[^\]]*?\]', reasoning, re.DOTALL)
+    if arr_match:
+        candidate = arr_match.group(0)
+        try:
+            json.loads(candidate)
+            return candidate
+        except Exception:
+            pass
+    # Try a JSON object
+    obj_match = re.search(r'\{.*\}', reasoning, re.DOTALL)
+    if obj_match:
+        candidate = obj_match.group(0)
+        try:
+            json.loads(candidate)
+            return candidate
+        except Exception:
+            pass
+    return ""
 
 
 def _extract_structured_from_reasoning(reasoning: str, format_hint: str) -> str:
