@@ -802,45 +802,27 @@ too. Failure-safe: any error keeps the original answer.
                     question, candidates, answer_type_hint=type_hint
                 )
                 if cr.winner is None:
-                    # P1: dead-end detection. If contrastive_verify rejected
-                    # all candidates due to type mismatch AND we still have
-                    # iterations, trigger a candidate pool rebuild instead
-                    # of finishing with Unknown. This gives the pipeline a
-                    # second chance to search for the correct entity type.
-                    if (
-                        cr.answer_type
-                        and cr.answer_type != "unknown"
-                        and not getattr(self, "_contrastive_retry_done", False)
-                        and iterations_remaining > 0
-                    ):
-                        self._contrastive_retry_done = True
-                        logger.info(
-                            f"[Pipeline] contrastive_verify rejected all candidates "
-                            f"(answer_type={cr.answer_type!r}); triggering rebuild "
-                            f"instead of Unknown (iterations_left={iterations_remaining})"
-                        )
-                        self._force_pool_rebuild(iteration, cr.answer_type)
-                        return None
-                    # pos6 fix: when answer_type is empty/unknown, the
-                    # contrastive verifier has no type constraint to match
-                    # against, so rejecting all candidates is unreliable.
-                    # Keep the original answer rather than downgrading to
-                    # Unknown — the wrap-up planner already chose this
-                    # answer based on all gathered evidence.
-                    if not cr.answer_type or cr.answer_type == "unknown":
-                        logger.info(
-                            f"[Pipeline] contrastive_verify rejected all candidates "
-                            f"but answer_type is empty/unknown; keeping original "
-                            f"answer {a!r} (not downgrading to Unknown)"
-                        )
-                        # Fall through to Stage 2 grounded verification
-                    else:
-                        logger.info(
-                            f"[Pipeline] contrastive_verify: no candidate matches "
-                            f"required answer_type={cr.answer_type!r}; "
-                            f"downgrading {a!r} -> Unknown"
-                        )
-                        return "Unknown"
+                    # Contrastive verify rejected all candidates. Do NOT
+                    # trigger a pool rebuild — the rebuild is destructive: it
+                    # clears the candidate pool (including the correct
+                    # candidate the planner chose) and the finalizer then
+                    # salvages a wrong candidate from stale message context
+                    # (pos2 regression: planner chose correct "Marguerite
+                    # Smith", contrastive_verify rejected both candidates,
+                    # rebuild cleared the pool, finalizer salvaged wrong
+                    # "Alma Lutz"). Instead keep the planner's answer and fall
+                    # through to Stage 2 grounded verification, which will
+                    # downgrade to Unknown only if fresh web evidence
+                    # refutes the answer. The planner already chose based on
+                    # all gathered evidence; a noisy contrastive verdict
+                    # should not override it.
+                    logger.info(
+                        f"[Pipeline] contrastive_verify rejected all candidates "
+                        f"(answer_type={cr.answer_type!r}); keeping original "
+                        f"planner answer {a!r} (not triggering rebuild — Stage 2 "
+                        f"grounded verification will still refute if wrong)"
+                    )
+                    # Fall through to Stage 2 grounded verification
                 if cr.winner.strip().lower() != a.lower():
                     logger.info(
                         f"[Pipeline] contrastive_verify replaced answer: "
@@ -2547,7 +2529,6 @@ too. Failure-safe: any error keeps the original answer.
                 "university", "institute", "college", "school", "academy",
                 "hospital", "centre", "center", "foundation", "society",
                 "association", "corporation", "company", "press", "library",
-                "polytechnic", "tech", "a&m", "mit", "caltech",
             ]
             name_lower = clean_name.lower()
             # pos6 v17 fix: detect book_title candidates. Book titles typically
@@ -2686,12 +2667,9 @@ too. Failure-safe: any error keeps the original answer.
                 if ct != "unknown" and ct != question_type
             )
             matching = sum(1 for ct in candidate_types if ct == question_type)
-            # If >70% of typed candidates are a different type and very few
-            # or none match (allow 1 accidental match for short names that
-            # happen to satisfy the person regex, e.g. "Virginia Tech"),
-            # the pool is considered type-mismatched.
+            # If >70% of typed candidates are a different type and none match
             typed_count = sum(1 for ct in candidate_types if ct != "unknown")
-            if typed_count >= 3 and matching <= 1 and non_matching / typed_count >= 0.7:
+            if typed_count >= 3 and matching == 0 and non_matching / typed_count >= 0.7:
                 self._pool_health_fired.add("type_mismatch")
                 viable_names = [r.get("name", "") for r in viable_records[:3]]
                 logger.warning(

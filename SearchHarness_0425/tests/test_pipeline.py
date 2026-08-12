@@ -207,18 +207,22 @@ class TestCandidateElimination:
         assert "GammaEntity" in p.state_store.eliminated_candidates
         assert "GammaEntity" not in p.state_store.current_candidates
 
-    def test_eliminated_status_without_conflicts_is_revived(self, fake_llm):
-        # Quirk: passing status="eliminated" with NO hard_conflicts sets
-        # eliminated then the elif branch immediately revives it to active.
-        # The only durable elimination path is via hard_conflicts.
+    def test_eliminated_status_without_conflicts_stays_eliminated(self, fake_llm):
+        # After the pos6 v14 fix: passing status="eliminated" with NO
+        # hard_conflicts now STAYS eliminated (the _explicitly_eliminated
+        # flag prevents the elif branch from reviving it). This was the
+        # root cause of pool health domain monoculture never firing:
+        # executor eliminated Arthur Miller but _merge_candidate_assessment
+        # re-activated it because there were no hard_conflicts, keeping
+        # elimination_rate at 0.
         p = _make_pipeline(fake_llm)
         p.state_store.set_question("Q?")
         p.state_store._merge_candidate_assessment({
             "name": "DeltaEntity", "status": "eliminated", "hard_conflicts": [],
         })
-        # Net effect: revived to active (eliminate then elif-revive in one call).
-        assert "DeltaEntity" in p.state_store.current_candidates
-        assert "DeltaEntity" not in p.state_store.eliminated_candidates
+        # Explicit elimination is now durable even without hard_conflicts.
+        assert "DeltaEntity" not in p.state_store.current_candidates
+        assert "DeltaEntity" in p.state_store.eliminated_candidates
 
 
 class TestFinalizerSkipsEliminated:
