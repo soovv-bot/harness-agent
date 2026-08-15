@@ -18,7 +18,7 @@ Goals:
 From `SearchHarness_0425`:
 
 ```bash
-python3 debug_deepseek_smoke.py --no-proxy
+python3 debug_llm_smoke.py --no-proxy
 python3 debug_serper_smoke.py
 GRADER_MODEL_NAME=deepseek-chat python3 run_browsecomp_fixed_sample.py \
   --seed 123 \

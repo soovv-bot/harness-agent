@@ -658,6 +658,19 @@ def _extract_structured_from_reasoning(reasoning: str, format_hint: str) -> str:
     if not reasoning:
         return ""
 
+    # JSON fallback: if the format hint mentions JSON, or if reasoning
+    # contains a JSON object, extract it. GLM-5.2 reasoning models fill all
+    # tokens with reasoning and leave content empty; the JSON answer is often
+    # present in reasoning_content.
+    import re as _re
+    json_match = _re.search(r'\{[^{}]*"(?:extracted|correct|reason|answer)"[^{}]*\}', reasoning, _re.DOTALL)
+    if json_match:
+        return json_match.group()
+    # Broader JSON search — any complete {...} block
+    json_broad = _re.search(r'\{.*\}', reasoning, _re.DOTALL)
+    if json_broad and ('"correct"' in json_broad.group() or '"extracted"' in json_broad.group()):
+        return json_broad.group()
+
     # Look for complete tag blocks in reasoning_content
     # Use a simple approach: find <tag>...</tag> and extract the content
     for tag_name in ("planning", "findings", "answer"):

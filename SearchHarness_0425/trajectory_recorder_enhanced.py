@@ -17,7 +17,7 @@ debugging. Builds on TrajectoryRecorder with:
    convert_trajectory_to_offseeker_format.py converter.
 
 Usage:
-    recorder = TrajectoryRecorderEnhanced(model_id="GLM-5.2", output_dir="logs/trajectories")
+    recorder = TrajectoryRecorderEnhanced(model_id="<model_name>", output_dir="logs/trajectories")
     recorder.start(question="...", task_index=0, pipeline_config={...})
     recorder.record_planner(messages=planner.messages, iteration=0, plan=plan_dict)
     recorder.record_event("subtask_selected", iteration=0, agent="pipeline", data={...})
@@ -618,6 +618,32 @@ class TrajectoryRecorderEnhanced:
             })
         return log
 
+    @staticmethod
+    def _extract_reasoning_excerpt(
+        assistant_msgs: List[Dict[str, Any]],
+        *,
+        max_chars: int = 2000,
+    ) -> str:
+        """Concatenate reasoning_content from assistant messages, truncated.
+
+        P1-4A: This preserves the model's chain-of-thought in the llm_calls
+        summary so distillation pipelines and log inspection can access the
+        reasoning without scanning the full conversation messages. We join
+        per-message reasoning with a separator and truncate to max_chars.
+        """
+        parts: List[str] = []
+        for m in assistant_msgs:
+            rc = m.get("reasoning_content")
+            if rc:
+                parts.append(str(rc))
+        if not parts:
+            return ""
+        joined = "\n[...]\n".join(parts)
+        if len(joined) <= max_chars:
+            return joined
+        # Keep the head; append an ellipsis marker so truncation is visible.
+        return joined[:max_chars] + "...[truncated]"
+
     def _derive_llm_calls_from_conversations(self) -> List[Dict[str, Any]]:
         """Derive llm_calls from planner/executor conversations.
 
@@ -635,6 +661,10 @@ class TrajectoryRecorderEnhanced:
             reasoning_chars = sum(
                 len(m.get("reasoning_content") or "") for m in assistant_msgs
             )
+            # P1-4A: Save a reasoning excerpt (truncated) so distillation and
+            # log inspection can see the model's chain-of-thought without
+            # digging into the full conversation messages.
+            reasoning_excerpt = self._extract_reasoning_excerpt(assistant_msgs)
             calls.append({
                 "seq": seq,
                 "iteration": t["iteration"],
@@ -644,6 +674,7 @@ class TrajectoryRecorderEnhanced:
                 "assistant_messages": len(assistant_msgs),
                 "content_chars": content_chars,
                 "reasoning_chars": reasoning_chars,
+                "reasoning_excerpt": reasoning_excerpt,
                 "has_tool_calls": any(
                     m.get("tool_calls") for m in assistant_msgs
                 ),
@@ -656,6 +687,7 @@ class TrajectoryRecorderEnhanced:
             reasoning_chars = sum(
                 len(m.get("reasoning_content") or "") for m in assistant_msgs
             )
+            reasoning_excerpt = self._extract_reasoning_excerpt(assistant_msgs)
             calls.append({
                 "seq": seq,
                 "iteration": t["iteration"],
@@ -665,6 +697,7 @@ class TrajectoryRecorderEnhanced:
                 "assistant_messages": len(assistant_msgs),
                 "content_chars": content_chars,
                 "reasoning_chars": reasoning_chars,
+                "reasoning_excerpt": reasoning_excerpt,
                 "has_tool_calls": any(
                     m.get("tool_calls") for m in assistant_msgs
                 ),
@@ -681,6 +714,18 @@ class TrajectoryRecorderEnhanced:
         self._metadata["total_searches"] = len([
             s for s in search_log if s.get("verdict") == "allow"
         ])
+        # Count crawl events: visit_urls observations in pipeline_state or events
+        _crawl_count = len([
+            e for e in self._events
+            if e.get("event_type") == "visit_urls_executed"
+            or (e.get("event_type") == "tool_observation" and e.get("data", {}).get("tool_name") == "visit_urls")
+        ])
+        # Also count from pipeline_state candidate_records if events are empty
+        if _crawl_count == 0 and self._pipeline_state:
+            _ps = self._pipeline_state if isinstance(self._pipeline_state, dict) else {}
+            _state_summary = _ps.get("state_summary") or {}
+            _crawl_count = _state_summary.get("crawl_count", 0) if isinstance(_state_summary, dict) else 0
+        self._metadata["total_crawls"] = _crawl_count
         self._metadata["total_llm_calls"] = len(llm_calls)
         return {
             "metadata": deepcopy(self._metadata),

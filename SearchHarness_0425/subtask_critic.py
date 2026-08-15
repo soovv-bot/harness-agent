@@ -22,7 +22,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 from config import settings
 
@@ -348,15 +348,44 @@ Evaluate and output JSON only (no markdown, no extra text)."""
             and "regardless of other constraints" in lower
         ) or bool(re.search(r"\b(all|any)\s+\w+\s+who\s+\w+", lower)) and "favor recall over precision" in lower
 
-        if verification_pressure >= 2 or list_pressure >= 7 or has_long_example_list or has_named_entity_dump or asks_many_checks or three_part_entry:
-            return SubtaskVerdict(
-                decision=SUGGEST_PIVOT,
-                reason=(
-                    "The proposed candidate-expansion subtask appears to bundle too many entry and verification "
-                    "constraints into one executor task. Rewrite it as a bounded expansion task with one or two "
-                    "searchable entry constraints, and leave the remaining constraints unresolved for later verification."
-                ),
-            )
+        # three_part_entry (who + commas + and) is a structural cue, NOT by
+        # itself a verification sweep. Many legitimate discriminating searches
+        # naturally use "authors whose X were Y, where Z, funded by W" — that
+        # is a targeted rare-entity search, not a verification check. Only
+        # reject it when it ALSO carries verification language (check/verify/
+        # for-each). Pure multi-constraint searches with searchable rare
+        # constraints (acquired, purchased, funded, donors, same last name,
+        # collection, archive, institution) must pass through — they are the
+        # high-discrimination entry points the planner should prioritize.
+        discriminating_signal = bool(re.search(
+            r"\b(acquired|purchased|funded|donors?|same last name|same surname|"
+            r"collection of (works|papers|manuscripts)|archive|institution|"
+            r"between \d{4} and \d{4}|steering committee|grants?)\b",
+            lower,
+        ))
+        if (
+            verification_pressure >= 2
+            or list_pressure >= 7
+            or has_long_example_list
+            or has_named_entity_dump
+            or asks_many_checks
+            or (three_part_entry and (verification_pressure >= 1 or asks_many_checks))
+        ):
+            if three_part_entry and not (verification_pressure >= 1 or asks_many_checks) and discriminating_signal:
+                logger.info(
+                    "[SubtaskCritic] allowing multi-constraint search with discriminating "
+                    "signal (three_part_entry but no verification language) — targeted "
+                    "rare-entity search, not a verification sweep"
+                )
+            else:
+                return SubtaskVerdict(
+                    decision=SUGGEST_PIVOT,
+                    reason=(
+                        "The proposed candidate-expansion subtask appears to bundle too many entry and verification "
+                        "constraints into one executor task. Rewrite it as a bounded expansion task with one or two "
+                        "searchable entry constraints, and leave the remaining constraints unresolved for later verification."
+                    ),
+                )
 
         if unbounded_harvest:
             return SubtaskVerdict(

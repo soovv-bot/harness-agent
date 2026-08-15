@@ -20,7 +20,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 
 
@@ -109,6 +109,16 @@ Important nuances:
 - Repeatedly searching broad lists of the same type without producing a strong candidate CAN still be stagnation.
 - If the current pool is visibly damaged or insufficient, forcing a return to candidate generation can be better than continuing verification.
 
+### Critical: Type Mismatch Detection
+
+Check the harness context for `question_answer_type_hint` and `candidate_type_hints`:
+- If the question asks for type X (e.g., "institution", "year", "place") but ALL candidate_type_hints are a different type (e.g., all "person"), the pool has a TYPE MISMATCH. This is severe stagnation — the correct answer cannot be in the pool.
+- If `elimination_rate` is >= 0.6 and only 1-2 viable candidates remain, the pool is collapsing. If the remaining candidates are all the same type/domain, force a rebuild from a different angle.
+
+### Critical: Domain Monoculture Detection
+
+If all candidates share the same domain, affiliation, or source (e.g., all from the same university, all in the same academic field, all cited from the same paper), and none has been confirmed as the answer after multiple verification rounds, the search is stagnating. The correct answer likely lives in a different domain entirely.
+
 ## Available Harness Actions
 
 Choose exactly one force_action:
@@ -119,6 +129,8 @@ Choose exactly one force_action:
 
 Guidance:
 - Prefer "rebuild_candidate_pool" when the same search frame keeps failing or the pool is damaged or insufficient.
+- Prefer "rebuild_candidate_pool" IMMEDIATELY when a type mismatch is detected (question_answer_type_hint differs from all candidate_type_hints).
+- Prefer "rebuild_candidate_pool" when elimination_rate >= 0.6 and remaining viable candidates share the same domain/type.
 - Prefer "rotate_active_candidate" when verification is over-investing in one candidate while other viable candidates remain.
 - Prefer "none" when the planner is still making meaningful progress.
 - Use "force_final_check" rarely.

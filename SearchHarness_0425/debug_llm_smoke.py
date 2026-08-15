@@ -95,33 +95,27 @@ def _req(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Smoke test DeepSeek (OpenAI-compatible) API connectivity.")
+    parser = argparse.ArgumentParser(description="Smoke test LLM (OpenAI-compatible) API connectivity.")
     parser.add_argument("--no-proxy", action="store_true", help="Clear *_PROXY env vars inside this process.")
     parser.add_argument(
         "--env-file",
         default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env")),
         help="Path to a .env file to load if needed.",
     )
-    parser.add_argument("--base-url", default=os.environ.get("OPENAI_BASE_URL", "").strip() or "https://preview.llm.tenyunc.com/v1")
-    parser.add_argument(
-        "--model",
-        default=(
-            os.environ.get("ENTRY_POINT_MODEL")
-            or os.environ.get("MODEL_NAME")
-            or os.environ.get("MODEL")
-            or "GLM-5.2"
-        ).strip(),
-    )
+    parser.add_argument("--base-url", default=None)
+    parser.add_argument("--model", default=None)
     parser.add_argument("--timeout", type=int, default=30)
+    parser.add_argument("--verify-thinking", action="store_true",
+                        help="Also verify reasoning_effort switch: send one 'minimal' and one default request, "
+                             "compare reasoning_tokens to confirm the thinking switch takes effect at API layer.")
     args = parser.parse_args()
 
-    # Ensure OPENAI_* are available even when running this script standalone.
-    if not (os.environ.get("OPENAI_API_KEY") or "").strip():
-        _load_env_file(args.env_file)
+    # Always load .env (dotenv does not override existing shell env vars by default).
+    _load_env_file(args.env_file)
 
     api_key = (os.environ.get("OPENAI_API_KEY") or "").strip()
-    base_url = args.base_url.rstrip("/")
-    model = args.model
+    base_url = (args.base_url or os.environ.get("OPENAI_BASE_URL") or os.environ.get("API_BASE") or "https://preview.llm.tenyunc.com/v1").strip().rstrip("/")
+    model = (args.model or os.environ.get("ENTRY_POINT_MODEL") or os.environ.get("MODEL_NAME") or os.environ.get("MODEL") or "").strip()
 
     _print_kv("python", sys.version.split()[0])
     _print_kv("platform", f"{platform.system()} {platform.release()}")
@@ -170,7 +164,67 @@ def main() -> int:
     except Exception as e:
         print("ERROR during POST /chat/completions:", repr(e))
 
+    if args.verify_thinking:
+        _verify_thinking(chat_url, headers, model, args.timeout)
+
     return 0
+
+
+def _verify_thinking(chat_url: str, headers: dict, model: str, timeout_s: int) -> None:
+    """Send one 'none' and one default chat request, compare reasoning_tokens.
+
+    Confirms the reasoning_effort switch is honored by the endpoint:
+      - 'none' branch should produce reasoning_tokens == 0 (or absent)
+      - default branch should produce reasoning_tokens > 0 (for reasoning models)
+    """
+    print("\n==> [verify-thinking] comparing reasoning_effort=minimal vs default")
+    base_payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": "Think briefly, then reply with: ok"}],
+        "max_tokens": 64,
+        "temperature": 0,
+    }
+
+    def _extract_reasoning_tokens(body: dict) -> int:
+        try:
+            return int(body.get("usage", {}).get("completion_tokens_details", {}).get("reasoning_tokens", 0))
+        except (TypeError, ValueError):
+            return 0
+
+    results = {}
+    # OpenAI standard: reasoning_effort is a top-level kwarg. No extra_body injection.
+    for label, extra in (("minimal", {"reasoning_effort": "minimal"}),
+                        ("default", {})):
+        payload = dict(base_payload)
+        payload.update(extra)
+        print(f"  [{label}] POST ...")
+        try:
+            resp = _req("POST", chat_url, headers=headers, json_body=payload, timeout_s=timeout_s)
+            body = json.loads(resp.text) if resp.text else {}
+            rt = _extract_reasoning_tokens(body)
+            ct = int(body.get("usage", {}).get("completion_tokens", 0))
+            print(f"  [{label}] status={resp.status_code} reasoning_tokens={rt} completion_tokens={ct}")
+            results[label] = {"status": resp.status_code, "reasoning_tokens": rt, "completion_tokens": ct}
+        except Exception as e:
+            print(f"  [{label}] ERROR: {e!r}")
+            results[label] = {"error": repr(e)}
+
+    # Verdict
+    none_rt = results.get("minimal", {}).get("reasoning_tokens")
+    default_rt = results.get("default", {}).get("reasoning_tokens")
+    if none_rt is not None and default_rt is not None:
+        if none_rt == 0 and default_rt > 0:
+            print("  VERDICT: PASS — reasoning_effort=minimal disables thinking, default enables it")
+        elif none_rt == 0 and default_rt == 0:
+            print("  VERDICT: CHECK — both branches reasoning_tokens=0 (model may not be a reasoning model, "
+                  "or endpoint ignores reasoning_effort)")
+        elif none_rt < default_rt:
+            print(f"  VERDICT: PASS — minimal={none_rt} < default={default_rt} (effort controls reasoning budget)")
+        else:
+            print(f"  VERDICT: CHECK — minimal={none_rt} default={default_rt} (unexpected; endpoint may not honor "
+                  "reasoning_effort)")
+    else:
+        print("  VERDICT: CHECK — one or both branches errored")
 
 
 if __name__ == "__main__":

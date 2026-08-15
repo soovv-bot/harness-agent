@@ -31,7 +31,7 @@ from loguru import logger
 from tqdm import tqdm
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
 
@@ -68,7 +68,7 @@ Output JSON only (no markdown):
 {{"extracted": "the answer extracted from response, or null if none", "correct": true/false, "reason": "brief explanation"}}"""
 
 
-DEFAULT_MODEL_ID = "GLM-5.2"
+DEFAULT_MODEL_ID = ""  # model-agnostic; set MODEL_NAME / ENTRY_POINT_MODEL / MODEL env
 
 
 def resolve_primary_model() -> str:
@@ -118,15 +118,34 @@ class LLMGrader:
             correct_answer=correct_answer,
         )
         try:
+            # Cap output tokens and reasoning effort to prevent reasoning
+            # starvation timeouts (e.g. GLM-5.2 producing 84K chars of reasoning
+            # with 0 content, hitting the 180s stream timeout).
+            # NOTE: use "high" not "low" — GLM-5.2 ignores low/medium/minimal and
+            # falls back to "max" (strongest). "high" is the lightest level it
+            # actually honors.
+            _grader_max_tokens = int(os.getenv("GRADER_MAX_TOKENS", "1024"))
+            _grader_effort = os.getenv("GRADER_REASONING_EFFORT", "high")
             message = chat_completion_with_structuring(
                 self.client,
                 model_id=self.model_id,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.0,
+                max_tokens=_grader_max_tokens,
+                reasoning_effort_override=_grader_effort,
+                structurer_reasoning_effort_override=_grader_effort,
                 structurer_format_hint="Output the result as JSON with fields: correct, reason, extracted.",
             )
             text = getattr(message, "content", None) or ""
             json_match = re.search(r'\{.*\}', text, re.DOTALL)
+            if not json_match:
+                # Fallback: GLM-5.2 fills all tokens with reasoning, leaving
+                # content empty. The JSON answer is often in reasoning_content.
+                reasoning_text = getattr(message, "reasoning_content", None) or ""
+                if reasoning_text:
+                    json_match = re.search(r'\{.*\}', reasoning_text, re.DOTALL)
+                    if json_match:
+                        logger.info("Grader: extracted JSON from reasoning_content (content was empty)")
             if not json_match:
                 logger.error(f"Grader: no JSON in response: {text[:200]}")
                 return {"correct": False, "reasoning": "no JSON", "extracted_answer": ""}
@@ -170,11 +189,20 @@ def extract_answer_from_pipeline(result: Dict[str, Any]) -> str:
         try:
             payload = json.loads(inner)
             ans = payload.get("answer", "")
-            if ans and ans != "Unknown":
-                return ans
+            if ans:
+                # Return the extracted answer field, whether it's "Unknown" or
+                # a real answer. Returning the full JSON blob here would make
+                # the grader see a multi-line JSON string instead of a short
+                # answer, which is what happened for pos3/pos8 regressions
+                # (protocol_error / verification_refuted) where the payload
+                # carried {"answer": "Unknown", "reason": "..."}.
+                return str(ans)
         except json.JSONDecodeError:
             pass
-        # Fallback: raw text inside <answer>
+        # Fallback: raw text inside <answer>. If the inner text itself looks
+        # like a JSON blob we could not parse, return it verbatim (some
+        # finalizer payloads embed the answer as raw text). Otherwise just
+        # return the trimmed text.
         return inner.strip()
 
     # No tags — return raw

@@ -335,7 +335,7 @@ class TestConfig:
         for var in ["MODEL_NAME", "OPENAI_BASE_URL", "OPENAI_API_KEY", "CRAWLER_ENGINE"]:
             monkeypatch.delenv(var, raising=False)
         s = settings()
-        assert s.model_id == "GLM-5.2"
+        assert s.model_id == ""  # model-agnostic: no hardcoded default
         assert s.api_base == ""
         assert s.tools.crawler_engine == "jina"
 

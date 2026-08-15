@@ -96,6 +96,7 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
             model_id=model_id,
             search_budget=max_planner_searches,
             reasoning_effort=executor_reasoning_effort,
+            temperature=float(os.getenv("PLANNER_TEMPERATURE", "0.4") or "0.4"),
         )
         self.executor = SearchAgentV3(
             api_base=api_base,
@@ -108,6 +109,7 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
             search_budget=max_executor_searches,
             enable_query_critic=self.enable_query_critic,
             reasoning_effort=executor_reasoning_effort,
+            temperature=float(os.getenv("EXECUTOR_TEMPERATURE", "0.4") or "0.4"),
         )
         self.finalizer = SearchFinalizer(api_base=api_base, api_key=api_key, model_id=model_id)
         self.subtask_critic = SubtaskCritic(api_base=api_base, api_key=api_key, model_id=model_id)
@@ -133,7 +135,7 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
         # Set EXECUTOR_SUBTASK_CONCURRENCY=1 to force the original serial path.
         self._subtask_concurrency = int(os.getenv("EXECUTOR_SUBTASK_CONCURRENCY", "2") or "2")
         self._max_subtask_concurrency = int(os.getenv("EXECUTOR_MAX_SUBTASK_CONCURRENCY", "3") or "3")
-        self.max_candidate_generation_rounds = 2
+        self.max_candidate_generation_rounds = 3
         self._stage_answer: Optional[str] = None
         self._trajectory_current_iter: Optional[list] = None
         # Default workflow stage so _check_stop / early-stop helpers work even
@@ -823,7 +825,7 @@ too. Failure-safe: any error keeps the original answer.
                         f"grounded verification will still refute if wrong)"
                     )
                     # Fall through to Stage 2 grounded verification
-                if cr.winner.strip().lower() != a.lower():
+                if cr.winner is not None and cr.winner.strip().lower() != a.lower():
                     logger.info(
                         f"[Pipeline] contrastive_verify replaced answer: "
                         f"{a!r} -> {cr.winner!r} (answer_type={cr.answer_type})"
@@ -926,20 +928,41 @@ too. Failure-safe: any error keeps the original answer.
         an active, unevaluated candidate. The salvaged answer still flows
         through ``_verify_planner_answer`` afterwards, so a fallback that is
         refuted by fresh web evidence is correctly downgraded back to Unknown.
+
+        pos6 p1h2 fix: when the question's answer type is known (e.g.
+        'book_title'), STRONGLY prefer candidates whose inferred type matches.
+        Without this, the fallback picks the most-verified candidate of ANY
+        type — e.g. an author ('Barbara Hodgson') when the question asks for a
+        book title — and returns the wrong entity type as the answer. A
+        type-matching candidate always beats a non-matching one regardless of
+        verification score; only when no type-matching candidate exists do we
+        fall back to the original verification-score ranking.
         """
         viable = self._viable_candidate_records()
         if not viable:
             return None
         vorder = {"verified": 0, "partial": 1, "unverified": 2, "contradicted": 3}
 
-        def _score(rec: Dict[str, Any]) -> tuple:
+        qtype = (self._infer_question_answer_type(getattr(self, "_question", "") or "") or "").strip().lower()
+        type_hints = self._infer_candidate_type_hints(viable) if qtype and qtype != "unknown" else []
+        indexed_viable = list(enumerate(viable))
+
+        def _score(rec: Dict[str, Any], idx: int) -> tuple:
             vs = str(rec.get("verification_status") or "unverified").lower()
             support_n = len(rec.get("supporting_constraints") or [])
             has_evidence = 1 if rec.get("evidence") else 0
-            return (vorder.get(vs, 2), -support_n, -has_evidence)
+            # Type-match preference: a candidate whose inferred type matches the
+            # question's answer type ranks ahead of any non-matching candidate.
+            type_match = 0
+            if qtype and qtype != "unknown" and type_hints:
+                ct = type_hints[idx] if idx < len(type_hints) else "unknown"
+                type_match = 0 if ct == qtype else 1
+            return (type_match, vorder.get(vs, 2), -support_n, -has_evidence)
 
-        viable.sort(key=_score)
-        best = viable[0]
+        indexed_viable.sort(key=lambda pair: _score(pair[1], pair[0]))
+        best = indexed_viable[0][1] if indexed_viable else None
+        if best is None:
+            return None
         name = str(best.get("candidate") or best.get("name") or "").strip()
         return name or None
 
@@ -2323,6 +2346,7 @@ too. Failure-safe: any error keeps the original answer.
                 enable_query_critic=self.enable_query_critic,
                 reasoning_effort=self._executor_reasoning_effort,
                 openai_client=shared_client,
+                temperature=self.executor.temperature,
             )
             if _rec is not None and _current_iter is not None:
                 _idx = i
@@ -2692,9 +2716,42 @@ too. Failure-safe: any error keeps the original answer.
                 self.verification_queue = []
                 self.active_candidate = None
                 self.active_candidate_rounds = 0
+                # pos6 v15: clear wrong-type candidate records so the executor
+                # can't keep verifying them and the fallback can't reselect
+                # them. The whole point of the rebuild is a fresh candidate
+                # search of the CORRECT type. Without clearing, the executor
+                # sees the stale wrong-type records and continues verifying
+                # them (pos6 p1h: type mismatch fired at iter 0, planner
+                # ignored the nudge and jumped to candidate_verification, and
+                # the executor kept verifying authors instead of searching
+                # for books).
+                wrong_type_keys = []
+                for key, rec in list(self.state_store.candidate_records.items()):
+                    if not isinstance(rec, dict):
+                        continue
+                    # candidate_type is never persisted on records; infer it
+                    # from the name using the same heuristic as
+                    # _infer_candidate_type_hints so the clear actually fires.
+                    hints = self._infer_candidate_type_hints([rec])
+                    ct = hints[0] if hints else "unknown"
+                    if ct and ct != "unknown" and ct != question_type:
+                        wrong_type_keys.append(key)
+                if wrong_type_keys:
+                    for key in wrong_type_keys:
+                        self.state_store.candidate_records.pop(key, None)
+                    # Also prune them from the current/eliminated lists so the
+                    # compact_state the planner sees is clean.
+                    self.state_store.current_candidates = [
+                        n for n in self.state_store.current_candidates
+                        if self.state_store._candidate_key(n) not in set(wrong_type_keys)
+                    ]
+                    self.state_store.eliminated_candidates = [
+                        n for n in self.state_store.eliminated_candidates
+                        if self.state_store._candidate_key(n) not in set(wrong_type_keys)
+                    ]
                 logger.info(
                     f"[Pipeline] Forced stage: CANDIDATE_GENERATION reset "
-                    f"(type mismatch, iter={iteration})"
+                    f"(type mismatch, iter={iteration}, cleared {len(wrong_type_keys)} wrong-type candidates)"
                 )
                 return {
                     "role": "user",
@@ -2714,6 +2771,16 @@ too. Failure-safe: any error keeps the original answer.
                         f"1. Re-read the original question and identify what TYPE of entity the answer is\n"
                         f"2. Search for '{question_type}' entities matching the question's key constraints\n"
                         f"3. Use different search queries that would surface '{question_type}' results"
+                        + (
+                            f"\n4. The previous candidates were AUTHORS/PERSONS but the answer must be a "
+                            f"BOOK TITLE. For each author previously found as a viable candidate, search "
+                            f"explicitly for that author's published BOOKS (e.g. 'Barbara Hodgson books', "
+                            f"'Barbara Hodgson bibliography', 'books by <author>') and add each book title "
+                            f"as a candidate. A single author may have MULTIPLE books about the same topic — "
+                            f"add ALL of them as separate candidates so they can be compared."
+                            if question_type == "book_title"
+                            else ""
+                        )
                     ),
                 }
 

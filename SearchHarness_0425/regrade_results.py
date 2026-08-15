@@ -39,7 +39,7 @@ from tqdm import tqdm
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
-from deepseek_thinking_compat import build_chat_completion_kwargs  # noqa: E402
+from llm_reasoning_compat import build_chat_completion_kwargs  # noqa: E402
 from openai_client_factory import build_openai_client  # noqa: E402
 
 # Import the grader prompt + LLMGrader from the main eval module to stay in sync.

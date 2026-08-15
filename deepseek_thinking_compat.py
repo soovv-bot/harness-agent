@@ -58,9 +58,15 @@ def build_chat_completion_kwargs(
     messages: list[Any],
     tools: Optional[list[Dict[str, Any]]] = None,
     temperature: Optional[float] = None,
+    reasoning_effort_override: Optional[str] = None,
     **extra: Any,
 ) -> Dict[str, Any]:
-    """Build sanitized chat completion kwargs for DeepSeek thinking compatibility."""
+    """Build sanitized chat completion kwargs for DeepSeek thinking compatibility.
+
+    ``reasoning_effort_override`` (when set) takes precedence over the
+    ``LLM_THINKING_BUDGET_TOKENS`` env-derived effort, allowing per-role control
+    (e.g. executor disables thinking while planner keeps it).
+    """
     effective_model = resolve_effective_model(model_id)
     kwargs: Dict[str, Any] = {
         "model": effective_model,
@@ -93,47 +99,78 @@ def build_chat_completion_kwargs(
     # the model's native control parameter.
     #
     # DeepSeek-reasoner manages its own reasoning internally — skip.
-    # GLM-5.2 (Zhipu/Bigmodel) uses `reasoning_effort`: "low"|"medium"|"high"|"max".
-    #   Verified on preview.llm.tenyunc.com endpoint (2026-08-04):
-    #     "low"  → ~500c reasoning (12x reduction vs uncapped)
-    #     "medium" → ~2600c, always produces content
-    #     "max"  → ~2400c simple / 24k-33k complex prompts (default, uncapped)
-    #   We map LLM_THINKING_BUDGET_TOKENS to reasoning_effort:
-    #     budget <= 1024  -> "low"   (fastest, minimal reasoning — executor default)
-    #     budget <= 4096  -> "medium" (moderate — planner/structurer)
-    #     budget > 4096   -> "max"   (deep, model default)
-    #   Set LLM_THINKING_BUDGET_TOKENS=0 to disable injection (use model default).
+    #
+    # GLM-5.2 (Zhipu/Bigmodel) reasoning_effort — per official Zhipu docs
+    # (docs.bigmodel.cn, 2026-08) + verified on preview.llm.tenyunc.com endpoint
+    # (2026-08-04 controlled experiment, tools enabled, real BrowseComp hard
+    # question, max_tokens=4096):
+    #     "none"     → disables thinking entirely (114s, tool_calls emitted)
+    #     "minimal"  → lightest reasoning (96s, tool_calls emitted) ← fastest
+    #     "low"      → alias, auto-merged to "high" (NOT low!)
+    #     "medium"   → alias, auto-merged to "high" (NOT medium!)
+    #     "high"     → strong reasoning (model default when uncapped)
+    #     "max"      → deepest reasoning (default, complex multi-step)
+    #     "xhigh"    → alias, auto-merged to "max"
+    #   CRITICAL: reasoning_effort MUST be a top-level kwarg on the tenyun
+    #   endpoint. Placing it in extra_body is silently ignored (none/minimal via
+    #   extra_body still took 453s = same as high — endpoint treats absent
+    #   top-level param as high). This was the root cause of executor timeouts.
+    #   We pass BOTH top-level AND extra_body for cross-endpoint compatibility
+    #   (official bigmodel/Together/Dashscope expect extra_body).
+    #
+    # effort selection (override > env budget > default):
+    #   override (explicit per-role)  -> used as-is (e.g. "none" for executor)
+    #   LLM_THINKING_BUDGET_TOKENS=0  -> "none"    (disable thinking entirely)
+    #   budget <= 1024               -> "minimal" (lightest, executor-safe)
+    #   budget <= 4096               -> "high"    (strong; "medium" auto-merges
+    #                                            to "high" per docs, so skip it)
+    #   budget > 4096                -> "max"     (deepest, model default)
     if effective_model not in SUPPORTED_DEEPSEEK_MODELS:
-        budget_raw = (os.getenv(THINKING_BUDGET_ENV) or "").strip()
-        if budget_raw:
-            try:
-                budget = int(budget_raw)
-            except ValueError:
-                budget = 0
+        if reasoning_effort_override:
+            effort = reasoning_effort_override
+            budget = 0
         else:
-            budget = 1024  # default: "low" to prevent reasoning overrun (52% of exec time)
-        if budget > 0:
-            if budget <= 1024:
-                effort = "low"
+            budget_raw = (os.getenv(THINKING_BUDGET_ENV) or "").strip()
+            if budget_raw:
+                try:
+                    budget = int(budget_raw)
+                except ValueError:
+                    budget = 0
+            else:
+                budget = 1024  # default: "minimal" to prevent reasoning overrun
+            if budget <= 0:
+                effort = "none"
+            elif budget <= 1024:
+                effort = "minimal"
             elif budget <= 4096:
-                effort = "medium"
+                effort = "high"  # docs: "medium" auto-merges to "high", so use high directly
             else:
                 effort = "max"
-            existing_extra = kwargs.get("extra_body") or {}
-            if isinstance(existing_extra, dict):
-                if "reasoning_effort" not in existing_extra:
-                    existing_extra["reasoning_effort"] = effort
-                # Also keep thinking dict for DeepSeek-style endpoints that accept it
-                existing_extra.setdefault("thinking", {})
-                if isinstance(existing_extra["thinking"], dict):
-                    existing_extra["thinking"].setdefault("type", "enabled")
+        # Inject reasoning_effort BOTH as a top-level kwarg AND inside extra_body.
+        # - tenyun endpoint (preview.llm.tenyunc.com) only honors the TOP-LEVEL
+        #   param: extra_body alone yields 453s (= high, ignored); top-level
+        #   yields 96-114s (none/minimal honored). Verified 2026-08-04.
+        # - official bigmodel / Together / Dashscope endpoints expect it inside
+        #   extra_body (per Zhipu official docs). Passing both is safe: each
+        #   endpoint picks up whichever it recognizes.
+        kwargs["reasoning_effort"] = effort
+        # Also keep a thinking dict in extra_body for DeepSeek-style endpoints
+        # that accept it; tenyun's thinking dict IS honored (verified: disabled
+        # via extra_body took 115s vs 453s for absent).
+        existing_extra = kwargs.get("extra_body") or {}
+        if not isinstance(existing_extra, dict):
+            existing_extra = {}
+        # Keep reasoning_effort in extra_body too (official bigmodel contract).
+        existing_extra["reasoning_effort"] = effort
+        if effort == "none":
+            existing_extra.setdefault("thinking", {})["type"] = "disabled"
+        else:
+            existing_extra.setdefault("thinking", {})
+            if isinstance(existing_extra["thinking"], dict):
+                existing_extra["thinking"].setdefault("type", "enabled")
+                if budget > 0:
                     existing_extra["thinking"].setdefault("budget_tokens", budget)
-                kwargs["extra_body"] = existing_extra
-            else:
-                kwargs["extra_body"] = {
-                    "reasoning_effort": effort,
-                    "thinking": {"type": "enabled", "budget_tokens": budget},
-                }
+        kwargs["extra_body"] = existing_extra
     return kwargs
 
 
@@ -164,6 +201,38 @@ def _get_structurer_max_tokens() -> int:
     except ValueError:
         pass
     return 3000
+
+
+def _structurer_skip_threshold() -> int:
+    """Reasoning_content char count above which we assume the endpoint ignored
+    reasoning_effort=none and skip the structurer chain entirely.
+
+    Empirically (2026-08-04 run): when none was honored, reasoning maxed at
+    ~4005c; when ignored, reasoning min was ~5683c. 5000 cleanly separates.
+    Override via LLM_STRUCTURER_SKIP_THRESHOLD_CHARS.
+    """
+    raw = (os.getenv("LLM_STRUCTURER_SKIP_THRESHOLD_CHARS") or "").strip()
+    try:
+        val = int(raw)
+        if val > 0:
+            return val
+    except ValueError:
+        pass
+    return 5000
+
+
+def _requested_effort_is_none(reasoning_effort_override: Optional[str]) -> bool:
+    """Mirror build_chat_completion_kwargs effort resolution to detect whether
+    the requested reasoning_effort for THIS call was "none"."""
+    if reasoning_effort_override:
+        return reasoning_effort_override == "none"
+    budget_raw = (os.getenv(THINKING_BUDGET_ENV) or "").strip()
+    if not budget_raw:
+        return False  # default budget=1024 -> "minimal", not none
+    try:
+        return int(budget_raw) <= 0
+    except ValueError:
+        return False
 
 
 def _build_structurer_prompt(reasoning_content: str, hint: str) -> str:
@@ -258,6 +327,28 @@ class _StreamedMessage:
         return d
 
 
+def _stream_timeout_s() -> Optional[float]:
+    """Wall-clock stream timeout. Defaults to LLM_TIMEOUT_S so the configured
+    timeout is actually enforced on streaming responses (httpx per-read timeout
+    never fires while chunks keep arriving, so a runaway reasoning stream would
+    otherwise hang forever — root cause of grader hangs observed 2026-08-04)."""
+    raw = (os.getenv("LLM_STREAM_TIMEOUT_S") or "").strip()
+    if raw:
+        try:
+            v = float(raw)
+            return v if v > 0 else None
+        except ValueError:
+            pass
+    raw = (os.getenv("LLM_TIMEOUT_S") or "").strip()
+    if raw:
+        try:
+            v = float(raw)
+            return v if v > 0 else None
+        except ValueError:
+            pass
+    return None
+
+
 def _stream_completion(
     client: Any,
     kwargs: dict,
@@ -268,6 +359,11 @@ def _stream_completion(
 
     Logs progress every ~10s to eliminate silent periods during long LLM calls.
     Returns a _StreamedMessage that mimics the non-streamed response object.
+
+    A wall-clock stream timeout (``LLM_STREAM_TIMEOUT_S``, default ``LLM_TIMEOUT_S``)
+    closes the stream and raises ``TimeoutError`` when exceeded — guards against
+    endpoints that ignore ``reasoning_effort`` and emit unbounded reasoning with
+    no content, which would otherwise hang the caller indefinitely.
     """
     stream_kwargs = dict(kwargs)
     stream_kwargs["stream"] = True
@@ -276,7 +372,9 @@ def _stream_completion(
     _t0 = time.time()
     _last_log = _t0
     chunk_count = 0
+    stream_timeout = _stream_timeout_s()
 
+    stream = None
     try:
         stream = client.chat.completions.create(**stream_kwargs)
         for chunk in stream:
@@ -288,8 +386,25 @@ def _stream_completion(
 
             # Progress log every 10s
             now = time.time()
+            elapsed = now - _t0
+            # Wall-clock stream timeout: close + raise so callers can degrade.
+            if stream_timeout and elapsed >= stream_timeout:
+                c_len = len(msg.content)
+                r_len = len(msg.reasoning_content)
+                logger.warning(
+                    f"[Stream] {progress_label} TIMEOUT after {elapsed:.0f}s "
+                    f"(limit {stream_timeout:.0f}s) | chunks={chunk_count} "
+                    f"content={c_len}c reasoning={r_len}c — closing stream"
+                )
+                try:
+                    stream.close()
+                except Exception:
+                    pass
+                raise TimeoutError(
+                    f"stream timeout after {elapsed:.0f}s (limit {stream_timeout:.0f}s) "
+                    f"[{progress_label}] chunks={chunk_count} content={c_len}c reasoning={r_len}c"
+                )
             if now - _last_log >= 10.0:
-                elapsed = now - _t0
                 c_len = len(msg.content)
                 r_len = len(msg.reasoning_content)
                 tc_n = len(msg._tool_call_map)
@@ -313,6 +428,12 @@ def _stream_completion(
         elapsed = time.time() - _t0
         logger.error(f"[Stream] {progress_label} failed after {elapsed:.1f}s: {exc}")
         raise
+    finally:
+        if stream is not None:
+            try:
+                stream.close()
+            except Exception:
+                pass
 
 
 def chat_completion_with_structuring(
@@ -324,6 +445,7 @@ def chat_completion_with_structuring(
     temperature: Optional[float] = None,
     max_tokens: Optional[int] = None,
     structurer_format_hint: str = "",
+    reasoning_effort_override: Optional[str] = None,
     **extra: Any,
 ) -> Any:
     """Chat completion with automatic structuring for reasoning-only models.
@@ -340,6 +462,10 @@ def chat_completion_with_structuring(
     large max_tokens so the model's (naturally shorter) reasoning finishes and
     content is emitted.
 
+    ``reasoning_effort_override`` is forwarded to both the primary and
+    structurer calls so per-role control (e.g. executor="none") stays consistent
+    even when the structurer fallback fires.
+
     Returns the response message object. If structuring succeeded, returns the
     structurer's response (with content populated). Otherwise returns the
     original response.
@@ -350,6 +476,7 @@ def chat_completion_with_structuring(
         tools=tools,
         temperature=temperature,
         max_tokens=max_tokens,
+        reasoning_effort_override=reasoning_effort_override,
         **extra,
     )
 
@@ -384,16 +511,32 @@ def chat_completion_with_structuring(
     # Strategy 2: Make structuring call(s) with decreasing max_tokens.
     # Reasoning models fill the token budget with reasoning. Smaller max_tokens
     # forces the model to be concise and produce content. Try a few sizes.
+    #
+    # Guard: if primary requested effort="none" but came back with large
+    # reasoning_content, the endpoint ignored none. The structurer call uses
+    # the same effort and will be ignored too — skip the whole chain to save
+    # ~40-60s of wasted streaming. Empirically (2026-08-04) every structurer
+    # chain starting from a 0-content primary with reasoning>5000c ended
+    # 0-content (7/7).
+    if _requested_effort_is_none(reasoning_effort_override) and len(reasoning_content) > _structurer_skip_threshold():
+        logger.warning(
+            f"[Structurer] skipping chain: primary 0-content but reasoning={len(reasoning_content)}c "
+            f"(>{_structurer_skip_threshold()}c) indicates endpoint ignored reasoning_effort=none; "
+            f"structurer would fail too — returning 0-content for caller degradation"
+        )
+        return response
+
     structurer_max = _get_structurer_max_tokens()
     hint = structurer_format_hint or "Output the result in the format described in the original task."
     structurer_prompt = _build_structurer_prompt(reasoning_content, hint)
-    # Retry with decreasing max_tokens: [3000, 2000, 1500]
+    # Retry with decreasing max_tokens: [structurer_max, structurer_max-1000, structurer_max-1500]
     for attempt_idx, attempt_max in enumerate((structurer_max, max(1500, structurer_max - 1000), max(1200, structurer_max - 1500))):
         structurer_kwargs = build_chat_completion_kwargs(
             model_id=model_id,
             messages=[{"role": "user", "content": structurer_prompt}],
             temperature=0.3,
             max_tokens=attempt_max,
+            reasoning_effort_override=reasoning_effort_override,
         )
         try:
             if _is_streaming_enabled():
@@ -413,6 +556,16 @@ def chat_completion_with_structuring(
                     return structurer_response
         except Exception:
             pass
+        # Early-break: reaching here means attempt #1 (largest budget) returned
+        # 0 content AND 0 extractable reasoning. Attempts #2/#3 use the same
+        # ignored effort with a SMALLER max_tokens — they cannot recover.
+        # Empirically (2026-08-04) #2/#3 never succeeded when #1 failed (7/7).
+        if attempt_idx == 0:
+            logger.warning(
+                f"[Structurer] early-break after #1 (0-content, 0-extracted): "
+                f"#2/#3 same effort + smaller budget won't recover"
+            )
+            break
 
     return response
 

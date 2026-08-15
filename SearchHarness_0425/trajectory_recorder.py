@@ -5,7 +5,7 @@ state and metadata. Output format is compatible with the existing
 convert_trajectory_to_offseeker_format.py converter.
 
 Usage:
-    recorder = TrajectoryRecorder(model_id="GLM-5.2", output_dir="logs/trajectories")
+    recorder = TrajectoryRecorder(model_id="<model_name>", output_dir="logs/trajectories")
     recorder.start(question="...", task_index=0, pipeline_config={...})
     recorder.record_planner(messages=planner.messages, iteration=0)
     recorder.record_executor(messages=executor.messages, iteration=0)

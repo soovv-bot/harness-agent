@@ -40,7 +40,7 @@ def main() -> int:
 
     api_base = os.getenv("OPENAI_BASE_URL", "")
     api_key = os.getenv("OPENAI_API_KEY", "")
-    model_id = os.getenv("MODEL_NAME", "GLM-5.2")
+    model_id = os.getenv("MODEL_NAME", "")
     executor_model_id = os.getenv("EXECUTOR_MODEL_NAME") or model_id
     if not api_base or not api_key:
         print("ERROR: OPENAI_BASE_URL / OPENAI_API_KEY not set in .env", flush=True)
@@ -54,6 +54,10 @@ def main() -> int:
     print(f"[smoke] model={model_id} executor={executor_model_id}", flush=True)
     print(f"[smoke] api_base={api_base}", flush=True)
     print(f"[smoke] question={args.question!r}", flush=True)
+    # Surface the thinking-mode config so smoke output self-documents the run.
+    executor_thinking = (os.getenv("EXECUTOR_THINKING") or "<unset>").strip()
+    thinking_budget = (os.getenv("LLM_THINKING_BUDGET_TOKENS") or "<unset>").strip()
+    print(f"[smoke] EXECUTOR_THINKING={executor_thinking!r} LLM_THINKING_BUDGET_TOKENS={thinking_budget!r}", flush=True)
 
     pipeline = SearchHarnessPipelineV4(
         api_base=api_base, api_key=api_key, model_id=model_id,

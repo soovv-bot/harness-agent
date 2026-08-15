@@ -29,7 +29,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 from config import settings
 
@@ -128,6 +128,10 @@ Decision criteria:
 
 The original question may span multiple domains (e.g., aviation, music, sports, geography). A query that shifts to a different domain from previous searches is **not** redundant — it may be a necessary step in a multi-hop reasoning chain. Do not reject a query simply because it explores a different topic than prior searches. Evaluate whether the query is relevant to the **current subtask** and the **original question**, not just whether it matches previous search topics.
 
+## Important: Recall over precision in candidate generation
+
+In the candidate_generation phase, prefer **allow** or **allow_with_warning** over **reject_as_redundant** when a query introduces any new entity name, constraint angle, or source type — even if it shares words with prior queries. Rejecting a query here means the correct answer may never be found. Only reject when a query is an exact or near-exact word-for-word repeat of a previous search.
+
 ## History
 
 {history}
@@ -155,6 +159,10 @@ Decision criteria (same as single-query):
 ## Important: Multi-hop questions require cross-domain searches
 
 The original question may span multiple domains. A query that shifts to a different domain from previous searches is **not** redundant — it may be a necessary step in a multi-hop reasoning chain. Evaluate whether each query is relevant to the **current subtask** and the **original question**, not just whether it matches previous search topics.
+
+## Important: Recall over precision in candidate generation
+
+In the candidate_generation phase, the goal is to cast a wide net and discover as many plausible candidates as possible. Prefer **allow** or **allow_with_warning** over **reject_as_redundant** when a query introduces any new entity name, constraint angle, or source type — even if it shares words with prior queries. Rejecting a query here means the correct answer may never be found. Only reject when a query is an exact or near-exact word-for-word repeat of a previous search.
 
 ## Original Question
 
@@ -193,8 +201,10 @@ Output a JSON array only (no markdown, no extra text). The array MUST have exact
         self._cache_max_size = 200
         # P0: fuzzy cache threshold (Jaccard) — only rejective verdicts reused
         self.FUZZY_CACHE_JACCARD = 0.85
-        # P1: early-reject threshold (Jaccard) — skip LLM for near-duplicates
-        self.EARLY_REJECT_JACCARD = 0.75
+        # P1: early-reject threshold (Jaccard) — skip LLM for near-duplicates.
+        # Raised from 0.75 to 0.80 to reduce false rejections of queries that
+        # share common words but target different entities (improves recall).
+        self.EARLY_REJECT_JACCARD = 0.80
 
     def _cache_key(self, query: str, phase: str) -> str:
         """Build a cache key from normalized query + phase."""

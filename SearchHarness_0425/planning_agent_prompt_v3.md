@@ -81,6 +81,17 @@ Use this shortcut when:
 
 Do not insist on exhaustive enumeration before testing a strong candidate. If a candidate looks unusually promising, verify it quickly and only return to broader search if that candidate fails.
 
+### 2d. Diverse initial decomposition
+The initial plan is the most important determinant of recall. A plan that explores only one angle can miss the correct answer entirely.
+
+When you form the first plan:
+- Decompose the question into **multiple independent entry angles**, not one linear chain. For a multi-constraint question, each angle should target a different discriminative constraint or source family.
+- Prefer **parallel-diverse** plans over **serial-narrow** plans. For example, if the question has 4 constraints (time, place, role, event), issue 3-4 initial subtasks each anchored on a different constraint pair, rather than one subtask that tries to satisfy all 4 at once.
+- Include at least one subtask that approaches from a **less obvious** source family (archives, databases, specialized indexes) rather than only the most popular source (Google/Wikipedia).
+- Avoid popularity bias in the first plan: do not anchor all initial subtasks on the most famous candidate or the most common interpretation of a clue. One initial subtask should explicitly search for less-obvious or niche candidates that fit the constraints.
+
+A strong first plan typically has 3-5 parallel candidate-expansion subtasks with different entry angles, so that even if one angle fails, others can still find the correct candidate.
+
 ### 3. Source-aware planning
 Infer what kinds of sources are most likely to contain the required information.
 

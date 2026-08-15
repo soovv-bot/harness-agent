@@ -1,0 +1,63 @@
+# Model Reasoning Profiles
+# ============================================================================
+# Per-model reasoning configuration. Matched by case-insensitive substring
+# against model_id (longest match wins; "default" is the fallback).
+#
+# Edit this file to add/adjust a model — no code changes needed.
+# If this file is missing, built-in defaults in model_profiles.py are used.
+#
+# Fields:
+#   thinking_enabled            : model produces reasoning_content (always-on
+#                                 for reasoning models; false for plain OpenAI)
+#   can_disable_thinking        : whether thinking can be turned off via effort
+#   supported_efforts           : effort levels the endpoint HONORS (others are
+#                                 silently remapped via effort_mapping)
+#   default_effort              : effort used when none is requested
+#   effort_mapping              : {sent_value: actual_value_sent} — remap
+#                                 unsupported values to nearest honored level
+#   preserve_reasoning_history  : pass reasoning_content back in multi-turn
+#                                 assistant messages (Kimi K3 "preserved mode")
+#   minimal_effort_is_honored   : if true, large reasoning_content under a
+#                                 minimal/low request is NORMAL (do NOT skip
+#                                 the structurer chain); if false, it means the
+#                                 endpoint ignored the request (skip it)
+# ============================================================================
+
+profiles:
+  # --- Kimi K3 (Moonshot) ---
+  # Always-on thinking. Only honors low | high | max. minimal/medium are
+  # NOT supported and silently fall back to "max" (strongest) if sent.
+  # Trained in "preserved thinking history" mode → keep reasoning_content.
+  Kimi-K3:
+    thinking_enabled: true
+    can_disable_thinking: false
+    supported_efforts: [low, high, max]
+    default_effort: max
+    effort_mapping:
+      minimal: low      # weakest honored level (planner/critic)
+      medium: high      # round up — low is too weak for "medium" intent
+    preserve_reasoning_history: true
+    minimal_effort_is_honored: true   # "low" is honored → big reasoning is normal
+
+  # --- GLM-5.2 (Zhipu/Bigmodel) ---
+  # Always-on thinking. Only honors max | high. minimal/low/medium fall through
+  # to "max" on the native API. High 0-content rate (~32%) on preview gateway.
+  GLM-5.2:
+    thinking_enabled: true
+    can_disable_thinking: false
+    supported_efforts: [max, high]
+    default_effort: max
+    effort_mapping: {}                # GLM-5.2 ignores minimal/medium → max
+    preserve_reasoning_history: true
+    minimal_effort_is_honored: false  # big reasoning under minimal = ignored
+
+# --- Default profile (standard OpenAI, no reasoning_content) ---
+# Used when model_id doesn't match any profile above.
+default:
+  thinking_enabled: false
+  can_disable_thinking: true
+  supported_efforts: [minimal, low, medium, high]
+  default_effort: minimal
+  effort_mapping: {}
+  preserve_reasoning_history: false
+  minimal_effort_is_honored: true

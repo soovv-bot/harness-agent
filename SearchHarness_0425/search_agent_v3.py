@@ -27,7 +27,7 @@ from search_memory import SearchStateStore
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from query_history import QueryHistoryMemory
-from query_critic import QueryCritic, QueryVerdict
+from query_critic import QueryCritic, QueryVerdict, SUGGEST_PIVOT, _normalize_query
 from search_crawl_controller import SearchCrawlController
 from llm_reasoning_compat import (
     assistant_message_to_dict,
@@ -90,6 +90,9 @@ class SearchAgentV3:
         self.max_turns = _env_int("EXECUTOR_MAX_TURNS", max_turns)
         self.search_budget = search_budget
         self._search_count = 0
+        self._crawl_count = 0
+        self._crawl_nudge_sent = False
+        self._forced_crawl_count = 0
         self._tool_lock = threading.Lock()
         # Authority-consensus early-stop: once a candidate is backed by ≥N
         # *independent* authoritative domains (tier>=4), the subtask is
@@ -122,17 +125,12 @@ class SearchAgentV3:
                 base_prompt = f.read()
 
         self.tool_schemas = self._get_tool_schemas()
-        self.tool_schemas_str = "\n".join(json.dumps(schema, ensure_ascii=False, indent=2) for schema in self.tool_schemas)
         use_simple = os.getenv("EXECUTOR_SIMPLE_PROMPT", "").strip() in {"1", "true", "yes"}
         if use_simple:
-            # The simple prompt already embeds a compact tool description; only append
-            # the minimal findings contract so the model still emits parseable output.
+            # The simple prompt already embeds a compact tool description; the
+            # full function schemas are provided via the API `tools` parameter,
+            # so we don't duplicate them in the system prompt.
             self.system_prompt = base_prompt + f"""
-
-You are provided with function signatures within <tools></tools> XML tags:
-<tools>
-{self.tool_schemas_str}
-</tools>
 
 You must never output <answer>.
 You must output exactly one <findings>...</findings> block before finishing.
@@ -141,11 +139,6 @@ subtask, status, summary, evidence, candidate_updates, source_feedback, suggesti
 """
         else:
             self.system_prompt = base_prompt + f"""
-
-You are provided with function signatures within <tools></tools> XML tags:
-<tools>
-{self.tool_schemas_str}
-</tools>
 
 You must never output <answer>.
 You must output exactly one <findings>...</findings> block before finishing.
@@ -169,6 +162,7 @@ Candidate handling is critical:
 - For verification subtasks, be stricter: collect direct evidence, update conflicts, and only mark verification_status "verified" when the candidate satisfies the relevant constraints with evidence.
 - Put any decisive contradiction in hard_conflicts. A candidate should be status "eliminated" only when explicit evidence shows it fails a required constraint.
 - Do not put a candidate in eliminated_candidates just because it is weak, uncertain, or not fully verified. Keep such candidates active with unresolved_constraints.
+- INTERPRETIVE AMBIGUITY (critical): When two or more candidates both plausibly satisfy a question constraint under different interpretations (e.g. "made from a particular flower" could mean directly extracted opium OR derivatives laudanum/morphine), do NOT eliminate one candidate in favor of another based solely on your preferred interpretation of the question wording. Keep BOTH candidates active with verification_status "partial", record the interpretive ambiguity in unresolved_constraints for each, and let the planner/contrastive verifier decide. Eliminating a candidate requires a FACTUAL contradiction (wrong author, wrong date, wrong subject, wrong entity type), not a preference for one reading of an ambiguous phrase over another.
 """
 
         self.client = openai_client or build_openai_client(api_base, api_key)
@@ -802,6 +796,7 @@ Candidate handling is critical:
                 "- Do not reject or skip a candidate based on memory, intuition, or unverified biographical recall. If it meets the subtask entry requirements but another constraint is uncertain or suspected to fail, add it as active with unresolved constraints.\n"
                 "- Do not wait for full verification. If there is no explicit evidence ruling a candidate out, keep it active with unresolved constraints.\n"
                 "- Do only lightweight checks needed to keep the expansion relevant; save strict evidence collection for candidate_verification subtasks.\n"
+                "- Crawl encouragement: after 2+ searches, if the results contain promising source URLs, call visit_urls on 1-2 high-value URLs to read the actual page content. Page content often reveals candidates that are not visible in search snippets (e.g. names in article body, lists, footnotes). Snippet-only expansion misses candidates.\n"
             )
         elif subtask_type == "candidate_verification":
             prompt += (
@@ -833,6 +828,9 @@ Candidate handling is critical:
             {"role": "user", "content": self.build_subtask_prompt(question, overall_plan, subtask, executor_state=executor_state)},
         ]
         self._search_count = 0  # Reset per subtask
+        self._crawl_count = 0  # Reset per subtask
+        self._crawl_nudge_sent = False
+        self._forced_crawl_count = 0
         self._budget_exhausted = False
         self._candidate_tool_updates = self._empty_candidate_tool_updates()
         self._infra_retry_count = 0  # P0-B: reset infra retry counter per subtask
@@ -878,6 +876,39 @@ Candidate handling is critical:
                 )
                 logger.info(f"[Executor] LLM turn={turn+1} done in {time.time()-_t0:.1f}s")
                 response_dict = assistant_message_to_dict(response)
+                # Sanitize tool_call arguments: GLM-5.2 sometimes emits
+                # malformed JSON in tool_call.function.arguments (truncated
+                # strings, unescaped quotes). The API rejects these with a
+                # 400 error on the NEXT turn, crashing the subtask. Repair or
+                # replace invalid arguments before storing the message.
+                _tc_list = response_dict.get("tool_calls") or []
+                for _tc in _tc_list:
+                    if isinstance(_tc, dict) and isinstance(_tc.get("function"), dict):
+                        _args = _tc["function"].get("arguments")
+                        if isinstance(_args, str) and _args:
+                            try:
+                                json.loads(_args)
+                            except (json.JSONDecodeError, ValueError):
+                                logger.warning(
+                                    f"[Executor] sanitizing invalid tool_call arguments "
+                                    f"for {_tc['function'].get('name','?')}: "
+                                    f"{_args[:80]!r}"
+                                )
+                                # Try simple repairs: add closing brace/bracket
+                                _repaired = _args
+                                for _suffix in ["}", "]", "}}", "]}"]:
+                                    try:
+                                        json.loads(_repaired + _suffix)
+                                        _repaired = _repaired + _suffix
+                                        break
+                                    except (json.JSONDecodeError, ValueError):
+                                        continue
+                                try:
+                                    json.loads(_repaired)
+                                    _tc["function"]["arguments"] = _repaired
+                                except (json.JSONDecodeError, ValueError):
+                                    # Last resort: empty args (tool will use defaults)
+                                    _tc["function"]["arguments"] = "{}"
                 self.messages.append(response_dict)
                 content = response.content or ""
                 allow_dsml_recovery = malformed_findings_reminders > 0
@@ -922,6 +953,82 @@ Candidate handling is critical:
                 tool_messages = self._execute_tool_calls_parallel(response.tool_calls, phase, subtask)
                 self.messages.extend(tool_messages)
                 self._micro_compact_tool_messages()
+
+                # Crawl nudge / forced crawl: GLM-5.2 tends to keep searching
+                # instead of crawling, leaving subtasks with crawls=0 (only
+                # Serper snippets, no page content). A passive nudge message is
+                # ignored. Instead, ONCE per subtask (after ~3 searches with
+                # 0 crawls), directly execute visit_urls on the most promising
+                # pending URLs and inject the result so the LLM has real page
+                # content to extract candidates from.
+                #
+                # NOTE: We do NOT crawl periodically. Repeated crawl injections
+                # (1) add latency that causes timeout/unfinished subtasks, and
+                # (2) inject user messages that disrupt LLM conversation flow
+                # and cause answer regressions. A single early crawl is enough
+                # to give the LLM page content to work with.
+                _pu_len = len(self.state_store.pending_urls) if self.state_store.pending_urls else 0
+                logger.debug(f"[CrawlNudge] subtask_search={self._search_count} crawls={self._crawl_count} pending_urls={_pu_len} nudge_sent={self._crawl_nudge_sent} wrapup={disable_tools_for_wrapup}")
+                if (
+                    not disable_tools_for_wrapup
+                    and not self._crawl_nudge_sent
+                    and self._search_count >= 3
+                    and self._crawl_count == 0
+                    and self.state_store.pending_urls
+                ):
+                    self._crawl_nudge_sent = True
+                    _nudge_urls = [u for u in list(self.state_store.pending_urls)[:2] if u]
+                    if _nudge_urls:
+                        try:
+                            from tools.search_tools import visit_urls as _visit_urls_fn
+                            _t_fc = time.time()
+                            logger.warning(f"[ForcedCrawl] auto-crawling {len(_nudge_urls)} URLs: {_nudge_urls}")
+                            _fc_results = _visit_urls_fn(_nudge_urls, self._current_question or "")
+                            _fc_result = "\n".join(_fc_results) if isinstance(_fc_results, list) else str(_fc_results)
+                            _fc_lat = (time.time() - _t_fc) * 1000.0
+                            logger.warning(f"[ForcedCrawl] done in {_fc_lat/1000:.1f}s result_len={len(_fc_result)}")
+                            with self._tool_lock:
+                                self._crawl_count += 1
+                                self._forced_crawl_count += 1
+                                self.state_store.register_tool_observation(
+                                    "visit_urls", {"urls": _nudge_urls}, _fc_result
+                                )
+                            if self._event_callback:
+                                try:
+                                    self._event_callback("visit_urls_executed", {
+                                        "urls": _nudge_urls,
+                                        "query": (self._current_question or "")[:120],
+                                        "result_len": len(_fc_result),
+                                        "phase": "forced_crawl",
+                                        "subtask": subtask.get("text", "")[:120] if isinstance(subtask, dict) else str(subtask)[:120],
+                                    })
+                                except Exception:
+                                    pass
+                            _excerpt_chars = int(os.getenv("EXECUTOR_VISIT_URLS_EXCERPT_CHARS", "2000"))
+                            self.messages.append({
+                                "role": "user",
+                                "content": (
+                                    "You have performed several searches but have not yet visited any page. "
+                                    "Search snippets are often incomplete and miss key details. "
+                                    f"I have automatically fetched the page content for {_nudge_urls} so you can read it below. "
+                                    "Use this page evidence to verify candidates and discover entities not visible in snippets. "
+                                    f"Page content excerpt:\n{_fc_result[:_excerpt_chars]}"
+                                ),
+                            })
+                        except Exception as _fc_e:
+                            logger.error(f"[ForcedCrawl] failed: {_fc_e}")
+                            # On failure, still mark as attempted to avoid retry storm
+                            with self._tool_lock:
+                                self._forced_crawl_count += 1
+                            self.messages.append({
+                                "role": "user",
+                                "content": (
+                                    "You have performed several searches but have not yet visited any page. "
+                                    "Search snippets are often incomplete and miss key details. "
+                                    f"Please call visit_urls on one of these promising URLs to read the actual page content: {_nudge_urls}. "
+                                    "Page evidence is essential to verify candidates and discover entities not visible in snippets."
+                                ),
+                            })
 
                 # After tool results, check if budget was exhausted — nudge agent to wrap up
                 if self._budget_exhausted:
@@ -1005,6 +1112,41 @@ Candidate handling is critical:
                     time.sleep(_backoff)
                     continue
                 logger.error(f"[Executor] Error in conversation loop: {e}")
+                # 400 errors from invalid tool_call JSON: try to recover by
+                # removing the last assistant message (which has bad tool_calls)
+                # and asking the LLM to output findings directly instead of
+                # crashing the subtask with empty findings.
+                _err_str = str(e)
+                if "400" in _err_str and ("valid JSON" in _err_str or "arguments" in _err_str):
+                    logger.warning("[Executor] 400 invalid-JSON error; attempting recovery by removing bad assistant message")
+                    # Remove last assistant message with tool_calls
+                    for _i in range(len(self.messages) - 1, -1, -1):
+                        _m = self.messages[_i]
+                        if isinstance(_m, dict) and _m.get("role") == "assistant" and _m.get("tool_calls"):
+                            self.messages.pop(_i)
+                            # Also remove any trailing tool result messages for those call_ids
+                            _bad_ids = set()
+                            for _tc in (_m.get("tool_calls") or []):
+                                if isinstance(_tc, dict):
+                                    _bad_ids.add(_tc.get("id"))
+                            while self.messages and isinstance(self.messages[-1], dict) \
+                                    and self.messages[-1].get("role") == "tool" \
+                                    and self.messages[-1].get("tool_call_id") in _bad_ids:
+                                self.messages.pop()
+                            break
+                    # Inject a wrap-up request and retry the turn
+                    self.messages.append({
+                        "role": "user",
+                        "content": (
+                            "A previous tool call had malformed arguments and was removed. "
+                            "Please output your findings now in a <findings>...</findings> block "
+                            "with valid JSON. Include subtask, status, summary, evidence, "
+                            "candidate_updates, source_feedback, and suggestion_for_planner. "
+                            "Do NOT make any more tool calls."
+                        ),
+                    })
+                    disable_tools_for_wrapup = True
+                    continue
                 metadata.update({"finished_at": datetime.now().isoformat(), "status": "error", "error": str(e)})
                 return {"findings": None, "trajectory": self.messages, "metadata": metadata}
 
@@ -1199,12 +1341,29 @@ Candidate handling is critical:
                         for _ in validated
                     ]
             # Phase 3: apply verdicts to build allowed list + feedback.
+            pivot_queries: List[str] = []  # accumulate alternative_queries from suggest_pivot
             for q, verdict in zip(validated, batch_verdicts):
                 fb = verdict.to_dict()
                 fb["query"] = q  # enrich trajectory feedback with the query string
                 critic_feedback.append(fb)
                 if verdict.is_allowed:
                     allowed_queries.append(q)
+                elif verdict.decision == SUGGEST_PIVOT and verdict.alternative_queries:
+                    # Use critic-suggested pivots instead of the rejected query
+                    pivot_queries.extend(verdict.alternative_queries[:2])
+            # If all queries were rejected but the critic suggested pivots,
+            # use the pivots instead of blocking. This prevents dead-ends where
+            # the executor keeps proposing the same failed pattern and the
+            # critic blocks every search, ending the subtask with no results.
+            if not allowed_queries and pivot_queries:
+                # Dedupe while preserving order
+                seen = set()
+                for pq in pivot_queries:
+                    nq = _normalize_query(pq)
+                    if nq and nq not in seen:
+                        seen.add(nq)
+                        allowed_queries.append(pq)
+                logger.info(f"[Executor] all queries rejected, using {len(allowed_queries)} pivot suggestions: {allowed_queries[:3]}")
             if budget_hit:
                 with self._tool_lock:
                     self._budget_exhausted = True
@@ -1293,10 +1452,28 @@ Candidate handling is critical:
             crawled_urls = urls
             # State mutation under lock
             with self._tool_lock:
+                self._crawl_count += 1
                 if self.query_memory.records:
                     self.query_memory.update_last_record(led_to_crawl=True, crawl_urls=crawled_urls)
                 self.state_store.register_tool_observation("visit_urls", arguments, result)
-            return json.dumps({"controller_verdict": verdict.to_dict(), "result": result, "summary": self._summarize_tool_result(result)}, ensure_ascii=False)
+            if self._event_callback:
+                try:
+                    self._event_callback("visit_urls_executed", {
+                        "urls": crawled_urls,
+                        "query": query[:120],
+                        "result_len": len(result),
+                        "phase": phase,
+                        "subtask": subtask.get("text", "")[:120] if isinstance(subtask, dict) else str(subtask)[:120],
+                    })
+                except Exception:
+                    pass
+            # Return a compact excerpt (not the full page) in the tool message
+            # to keep the conversation context small across turns. The full
+            # content is already persisted in state_store above. The excerpt
+            # is large enough for the LLM to extract evidence quotes without
+            # re-sending 50K+ chars every turn until micro-compaction kicks in.
+            _excerpt_chars = int(os.getenv("EXECUTOR_VISIT_URLS_EXCERPT_CHARS", "2000"))
+            return json.dumps({"controller_verdict": verdict.to_dict(), "result_excerpt": result[:_excerpt_chars], "summary": self._summarize_tool_result(result)}, ensure_ascii=False)
 
         if func_name == "execute_code":
             result = self.tool_processor.tools[func_name](arguments)

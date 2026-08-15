@@ -245,8 +245,9 @@ class TestFinalizerSkipsEliminated:
             "hard_conflicts": ["contradicts constraint X"],
         })
         compact = store.export_compact_state()
-        prompt = f._build_prompt(question="Who is the answer?", compact_state=compact,
+        result = f._build_prompt(question="Who is the answer?", compact_state=compact,
                                   budget_status={"trigger": "max_iterations_reached"}, mode="best_effort")
+        prompt = result[0] if isinstance(result, tuple) else result
         # The "Answer:" line must name the active candidate, not the eliminated one.
         assert "Answer: ActiveOne" in prompt
         assert "Answer: BadOne" not in prompt
@@ -260,8 +261,9 @@ class TestFinalizerSkipsEliminated:
             "name": "OnlyBad", "status": "active", "hard_conflicts": ["conflict"],
         })
         compact = store.export_compact_state()
-        prompt = f._build_prompt(question="Q?", compact_state=compact,
+        result = f._build_prompt(question="Q?", compact_state=compact,
                                   budget_status={"trigger": "max_iterations_reached"}, mode="best_effort")
+        prompt = result[0] if isinstance(result, tuple) else result
         assert "Answer: Unknown" in prompt
 
 

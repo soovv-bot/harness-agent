@@ -2,9 +2,10 @@
 Central configuration for SearchHarness.
 
 Consolidates the previously scattered os.getenv calls and hardcoded
-"GLM-5.2" defaults (9 occurrences across 8 files) into a single
-dataclass-based config. Existing code reads via `settings()` for new
-refactors; legacy os.getenv calls remain for backward compatibility
+model-name defaults (9 occurrences across 8 files) into a single
+dataclass-based config. No model name is hardcoded: MODEL_NAME must be
+set via env (empty default). Existing code reads via `settings()` for
+new refactors; legacy os.getenv calls remain for backward compatibility
 but should migrate over time.
 
 Usage:
@@ -50,6 +51,7 @@ class LLMConfig:
     api_key: str
     model_id: str
     executor_model_id: str
+    executor_reasoning_effort: str
     timeout_s: int
     thinking_budget_tokens: int
 
@@ -109,8 +111,12 @@ class Settings:
     def executor_model_id(self) -> str:
         return self.llm.executor_model_id or self.llm.model_id
 
+    @property
+    def executor_reasoning_effort(self) -> str:
+        return self.llm.executor_reasoning_effort
 
-_DEFAULT_MODEL = "GLM-5.2"
+
+_DEFAULT_MODEL = ""  # model-agnostic; set MODEL_NAME env to select the model
 
 
 def settings() -> Settings:
@@ -124,6 +130,7 @@ def settings() -> Settings:
         api_key=_env("OPENAI_API_KEY"),
         model_id=_env("MODEL_NAME", _DEFAULT_MODEL) or _DEFAULT_MODEL,
         executor_model_id=_env("EXECUTOR_MODEL_NAME", "") or _env("MODEL_NAME", _DEFAULT_MODEL),
+        executor_reasoning_effort=_env("EXECUTOR_THINKING", ""),
         timeout_s=_env_int("LLM_TIMEOUT_S", 600),
         thinking_budget_tokens=_env_int("LLM_THINKING_BUDGET_TOKENS", 1000),
     )

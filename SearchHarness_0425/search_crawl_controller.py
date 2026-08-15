@@ -29,7 +29,7 @@ root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)
 
-from deepseek_thinking_compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 from config import settings
 

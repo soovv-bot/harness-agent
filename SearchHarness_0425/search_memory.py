@@ -552,17 +552,61 @@ class SearchStateStore:
         if reason:
             self._merge_unique_list(record["hard_conflicts"], [reason], limit=6)
 
+    _INTERPRETIVE_CONFLICT_PATTERNS = (
+        "question asks about",
+        "question means",
+        "question refers to",
+        "question implies",
+        "one step removed",
+        "derivative of",
+        "derivatives of",
+        "not directly from",
+        "preference for",
+        "interpretation of",
+        "reading of",
+        "could mean",
+        "may mean",
+        "ambiguous",
+    )
+
+    @classmethod
+    def _is_interpretive_conflict(cls, hard_conflict: str) -> bool:
+        """Detect whether a hard_conflict is an interpretive reading of the
+        question wording (e.g. 'question asks about X, but this candidate is
+        a derivative of X') rather than a factual contradiction (wrong author,
+        wrong date, wrong entity type). Interpretive conflicts should NOT
+        eliminate a candidate outright — they should keep it partial so the
+        contrastive verifier can decide between competing interpretations.
+        """
+        if not hard_conflict:
+            return False
+        text = str(hard_conflict).lower()
+        for pat in cls._INTERPRETIVE_CONFLICT_PATTERNS:
+            if pat in text:
+                return True
+        return False
+
     def _merge_candidate_assessment(self, assessment: Dict[str, Any]) -> None:
         name = self._candidate_name(assessment)
         if not name:
             return
         record = self._ensure_candidate_record(name)
         status = str(assessment.get("status", "")).strip().lower()
+        _explicitly_eliminated = False
         if status in {"active", "viable", "promising", "leading"}:
             record["status"] = "active"
             self._promote_candidate(name)
         elif status in {"eliminated", "ruled_out", "rejected"}:
-            self._eliminate_candidate(name, reason="")
+            # Set the record status to "eliminated" immediately so the
+            # final re-activation check below doesn't undo the elimination
+            # (pos6 v14 root cause: executor eliminated Arthur Miller but
+            # _merge_candidate_assessment re-activated it because there
+            # were no hard_conflicts, keeping elimination_rate at 0 and
+            # preventing the pool health domain monoculture check from
+            # firing).
+            record["status"] = "eliminated"
+            _explicitly_eliminated = True
+            self._eliminate_candidate(name, reason=str(assessment.get("elimination_reason", ""))[:200])
 
         self._merge_unique_list(record["supporting_constraints"], assessment.get("supporting_constraints", []) or [])
         self._merge_unique_list(record["unresolved_constraints"], assessment.get("unresolved_constraints", []) or [])
@@ -576,9 +620,49 @@ class SearchStateStore:
             record["confidence"] = confidence
 
         if record["hard_conflicts"]:
+            # pos6 v15 root cause: executor eliminated the gold candidate
+            # "In the Arms of Morpheus" based on an INTERPRETIVE hard_conflict
+            # ("question asks about 'made from a particular flower' - opium is
+            # directly made from the poppy, laudanum/morphine are derivatives
+            # one step removed from the flower"). This is a preference for one
+            # reading of an ambiguous question phrase over another, not a
+            # factual contradiction. When ALL hard_conflicts are interpretive
+            # (regardless of whether the executor also set status="eliminated"),
+            # keep the candidate active with verification_status="partial" so
+            # the contrastive verifier can decide between the competing
+            # interpretations. Only factual hard_conflicts (wrong author, wrong
+            # date, wrong entity type) trigger elimination here.
+            all_interpretive = bool(record["hard_conflicts"]) and all(
+                self._is_interpretive_conflict(hc)
+                for hc in record["hard_conflicts"]
+                if isinstance(hc, str) and hc.strip()
+            )
+            if all_interpretive:
+                # Interpretive-only conflict: keep candidate alive, demote to
+                # partial, and surface the interpretive conflict as an
+                # unresolved constraint so the wrap-up / contrastive verifier
+                # sees the ambiguity and can decide between interpretations.
+                record["status"] = "active"
+                if record.get("verification_status") not in {"partial", "unverified"}:
+                    record["verification_status"] = "partial"
+                for hc in record["hard_conflicts"]:
+                    if isinstance(hc, str) and hc.strip():
+                        self._merge_unique_list(
+                            record["unresolved_constraints"],
+                            [f"interpretive ambiguity: {hc[:140]}"],
+                            limit=6,
+                        )
+                self._promote_candidate(name)
+            else:
+                record["status"] = "eliminated"
+                record["verification_status"] = "contradicted"
+                self._eliminate_candidate(name)
+        elif _explicitly_eliminated:
+            # Keep the candidate eliminated — the executor explicitly
+            # ruled it out. Do NOT re-activate even without hard_conflicts.
             record["status"] = "eliminated"
-            record["verification_status"] = "contradicted"
-            self._eliminate_candidate(name)
+            if not record.get("verification_status") or record["verification_status"] == "unverified":
+                record["verification_status"] = "contradicted"
         elif record["status"] == "eliminated":
             record["status"] = "active"
             if record.get("verification_status") == "contradicted":
@@ -603,13 +687,22 @@ class SearchStateStore:
             name = record.get("name", "")
             if not name:
                 continue
-            if record.get("hard_conflicts"):
+            # pos6 v15: only FACTUAL hard_conflicts cause elimination here.
+            # Interpretive-only hard_conflicts (preference for one reading of
+            # an ambiguous phrase) keep the candidate active with partial
+            # status — _merge_candidate_assessment already made this call.
+            hcs = record.get("hard_conflicts") or []
+            if hcs and not all(
+                self._is_interpretive_conflict(hc)
+                for hc in hcs
+                if isinstance(hc, str) and hc.strip()
+            ):
                 record["status"] = "eliminated"
                 record["verification_status"] = "contradicted"
-            elif record.get("status") == "eliminated":
-                record["status"] = "active"
-                if record.get("verification_status") == "contradicted":
-                    record["verification_status"] = "partial"
+            # pos6 v14 fix: do NOT re-activate candidates that the executor
+            # explicitly eliminated (status="eliminated" + verification_status
+            # ="contradicted"). Previously, candidates without hard_conflicts
+            # were re-activated here even after the executor ruled them out.
             if self._is_confirmed_wrong_record(record):
                 if name not in eliminated:
                     eliminated.append(name)
@@ -620,9 +713,24 @@ class SearchStateStore:
         self.eliminated_candidates = eliminated
 
     def _is_confirmed_wrong_record(self, record: Dict[str, Any]) -> bool:
-        return bool(record.get("hard_conflicts")) and (
+        # pos6 v14 fix: a candidate is confirmed wrong if it has hard_conflicts
+        # OR if the executor explicitly eliminated it (status="eliminated" with
+        # verification_status="contradicted"). Previously, only hard_conflicts
+        # counted, so executor-eliminated candidates without hard_conflicts
+        # were never truly eliminated from the pool.
+        # pos6 v15: interpretive-only hard_conflicts (preference for one
+        # reading of an ambiguous phrase) do NOT confirm wrong — the
+        # candidate stays active for the contrastive verifier to decide.
+        hcs = record.get("hard_conflicts") or []
+        if hcs and not all(
+            self._is_interpretive_conflict(hc)
+            for hc in hcs
+            if isinstance(hc, str) and hc.strip()
+        ):
+            return True
+        return (
             record.get("status") == "eliminated"
-            or record.get("verification_status") == "contradicted"
+            and record.get("verification_status") == "contradicted"
         )
 
     def _export_confirmed_wrong_candidates(self) -> List[Dict[str, Any]]:
@@ -653,8 +761,8 @@ class SearchStateStore:
                 "status": record.get("status", "active"),
                 "verification_status": record.get("verification_status", "unverified"),
                 "confidence": record.get("confidence", "low"),
-                "supporting_constraints": (record.get("supporting_constraints") or [])[:5],
-                "unresolved_constraints": (record.get("unresolved_constraints") or [])[:5],
+                "supporting_constraints": (record.get("supporting_constraints") or [])[:10],
+                "unresolved_constraints": (record.get("unresolved_constraints") or [])[:10],
                 "hard_conflicts": (record.get("hard_conflicts") or [])[:5],
                 "evidence": (record.get("evidence") or [])[:3],
             })

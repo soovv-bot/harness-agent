@@ -92,7 +92,7 @@ class SearchFinalizer:
         budget_status: Dict[str, Any],
         mode: str = "best_effort",
     ) -> FinalizationResult:
-        prompt = self._build_prompt(question, compact_state, budget_status, mode)
+        prompt, rule_best_answer, candidate_names = self._build_prompt(question, compact_state, budget_status, mode)
         try:
             message = chat_completion_with_structuring(
                 self.client,
@@ -127,9 +127,34 @@ class SearchFinalizer:
                         parse_error = f"reasoning_content parse failed: {exc}"
 
             if payload is not None:
+                llm_answer = (payload.get("answer") or "Unknown").strip()
+                # Guard against finalizer hallucination: if the LLM ignored the
+                # "copy JSON" instruction and emitted a free-form answer not in
+                # the candidate pool, fall back to the rule-selected best_answer.
+                # This prevents answers that never appeared in the trajectory
+                # (e.g. pos2 "Joseph G. Rosa" which occurred 0 times).
+                if (
+                    llm_answer
+                    and llm_answer.lower() not in {"unknown", "none", "null", ""}
+                    and candidate_names
+                    and not self._answer_matches_candidates(llm_answer, candidate_names)
+                ):
+                    logger.warning(
+                        f"Finalizer hallucination guard: LLM answer "
+                        f"{llm_answer!r} not in candidate pool "
+                        f"{candidate_names[:5]}; falling back to rule answer "
+                        f"{rule_best_answer!r}"
+                    )
+                    llm_answer = rule_best_answer
+                    payload["answer"] = llm_answer
+                    payload["reason"] = (
+                        payload.get("reason", "")
+                        + " [hallucination guard: LLM answer not in candidate pool, "
+                        "reverted to rule-selected best answer]"
+                    )
                 result = FinalizationResult(
                     status=payload.get("status", "best_effort"),
-                    answer=payload.get("answer", "Unknown") or "Unknown",
+                    answer=llm_answer or "Unknown",
                     confidence=payload.get("confidence", "low"),
                     reason=payload.get("reason", self._budget_reason(budget_status)),
                     remaining_uncertainty=payload.get(
@@ -289,7 +314,7 @@ class SearchFinalizer:
         self,
         compact_state: Dict[str, Any],
         current_answer: str,
-        top_n: int = 3,
+        top_n: int = 5,
     ) -> List[Dict[str, str]]:
         """Collect top-N candidates with evidence for contrastive verification.
 
@@ -312,11 +337,18 @@ class SearchFinalizer:
                 str(e.get("observation", "")) if isinstance(e, dict) else str(e)
                 for e in ev_list[:3]
             )
+            sup_constraints = record.get("supporting_constraints") or []
+            unr_constraints = record.get("unresolved_constraints") or []
             viable.append(
                 {
                     "name": name,
-                    "support": len(record.get("supporting_constraints") or []),
+                    "support": len(sup_constraints),
                     "evidence": ev_text,
+                    "supporting_constraints": sup_constraints[:8],
+                    "unresolved_constraints": unr_constraints[:8],
+                    "verification_status": str(
+                        record.get("verification_status") or "unverified"
+                    ),
                 }
             )
         # Add current_candidates not already present.
@@ -328,14 +360,31 @@ class SearchFinalizer:
                 name = str(cand.get("candidate") or cand.get("name") or "").strip()
             if name and name.lower() not in {"unknown", "none", "null"}:
                 if not any(v["name"].lower() == name.lower() for v in viable):
-                    viable.append({"name": name, "support": 0, "evidence": ""})
+                    viable.append({
+                        "name": name, "support": 0, "evidence": "",
+                        "supporting_constraints": [], "unresolved_constraints": [],
+                        "verification_status": "unverified",
+                    })
         # Ensure the finalizer's chosen answer is in the pool.
         if current_answer and current_answer.lower() not in {"unknown", "none", "null"}:
             if not any(v["name"].lower() == current_answer.lower() for v in viable):
-                viable.append({"name": current_answer, "support": 0, "evidence": ""})
+                viable.append({
+                    "name": current_answer, "support": 0, "evidence": "",
+                    "supporting_constraints": [], "unresolved_constraints": [],
+                    "verification_status": "unverified",
+                })
         # Sort by support desc, take top_n.
         viable.sort(key=lambda v: -v["support"])
-        return [{"name": v["name"], "evidence": v["evidence"]} for v in viable[:top_n]]
+        return [
+            {
+                "name": v["name"],
+                "evidence": v["evidence"],
+                "supporting_constraints": v.get("supporting_constraints", []),
+                "unresolved_constraints": v.get("unresolved_constraints", []),
+                "verification_status": v.get("verification_status", "unverified"),
+            }
+            for v in viable[:top_n]
+        ]
 
     def _pick_candidate_record(
         self,
@@ -354,15 +403,14 @@ class SearchFinalizer:
                 return record
         return None
 
-    def _build_prompt(
+    def _collect_viable_candidates(
         self,
-        question: str,
         compact_state: Dict[str, Any],
-        budget_status: Dict[str, Any],
-        mode: str,
-    ) -> str:
-        # Keep the prompt compact to avoid inducing long reasoning in reasoning-capable models.
-        # Only surface the question and the strongest candidates.
+    ) -> List[Dict[str, Any]]:
+        """Collect unique viable (non-eliminated) candidates from compact_state.
+
+        Returns a list of {"name": str, "status": "active"} dicts, deduplicated.
+        """
         candidates = []
         for record in (compact_state.get("candidate_records") or []):
             if isinstance(record, dict):
@@ -380,28 +428,69 @@ class SearchFinalizer:
                 name = str(cand.get("candidate") or cand.get("name") or "").strip()
                 if name and name.lower() not in {"unknown", "none", "null"}:
                     candidates.append({"name": name, "status": "active"})
-        # Deduplicate
+        # Deduplicate preserving order
         seen = set()
-        unique_candidates = []
+        unique = []
         for c in candidates:
             key = c["name"].lower()
             if key not in seen:
                 seen.add(key)
-                unique_candidates.append(c)
-        # Reasoning models are pure reasoning: complex prompts induce long reasoning
-        # that exhausts max_tokens before content is emitted.  The only reliable
-        # way to get content out is to hand the model a complete JSON answer and
-        # ask it to copy it.  We pick the strongest VIABLE candidate (skipping any
-        # marked eliminated due to hard_conflicts) as the answer and build the
-        # full JSON for it.
-        # Plan B: rank viable candidates by constraint-satisfaction count
-        # (implicit process reward) instead of taking the first one. Candidates
-        # with more satisfied constraints are more likely to be the true answer.
-        viable_candidates = [c for c in unique_candidates if c["status"] != "eliminated"]
-        viable_candidates = self._rank_candidates_by_support(
-            viable_candidates, compact_state
-        )
-        best_answer = viable_candidates[0]["name"] if viable_candidates else "Unknown"
+                unique.append(c)
+        return unique
+
+    def _select_best_answer(
+        self,
+        compact_state: Dict[str, Any],
+    ) -> tuple:
+        """Select the strongest viable candidate as the answer.
+
+        Returns (best_answer, viable_candidate_names). Uses Plan B ranking
+        (supporting-constraint count, verification status tiebreaker).
+        """
+        unique_candidates = self._collect_viable_candidates(compact_state)
+        viable = [c for c in unique_candidates if c["status"] != "eliminated"]
+        viable = self._rank_candidates_by_support(viable, compact_state)
+        best_answer = viable[0]["name"] if viable else "Unknown"
+        names = [c["name"] for c in viable]
+        return best_answer, names
+
+    @staticmethod
+    def _answer_matches_candidates(answer: str, candidate_names: List[str]) -> bool:
+        """Check if the LLM-returned answer matches any candidate (fuzzy).
+
+        Guards against finalizer hallucination: if the model ignores the
+        "copy JSON" instruction and emits a free-form answer not in the
+        candidate pool, the caller should fall back to the rule-selected
+        best_answer instead.
+        """
+        if not answer:
+            return False
+        a_norm = re.sub(r"[^a-z0-9]", "", answer.lower())
+        if not a_norm:
+            return False
+        for name in candidate_names:
+            n_norm = re.sub(r"[^a-z0-9]", "", (name or "").lower())
+            if not n_norm:
+                continue
+            # exact normalized match, or one contains the other (covers short
+            # answers like "a cigarette" vs "cigarette")
+            if a_norm == n_norm or a_norm in n_norm or n_norm in a_norm:
+                return True
+        return False
+
+    def _build_prompt(
+        self,
+        question: str,
+        compact_state: Dict[str, Any],
+        budget_status: Dict[str, Any],
+        mode: str,
+    ) -> tuple:
+        """Build the finalizer prompt.
+
+        Returns (prompt, best_answer, candidate_names) so the caller can
+        validate the LLM-returned answer against the candidate pool.
+        """
+        best_answer, candidate_names = self._select_best_answer(compact_state)
         answer_json = json.dumps(
             {
                 "status": "solved" if best_answer != "Unknown" else "best_effort",
@@ -413,11 +502,12 @@ class SearchFinalizer:
             },
             ensure_ascii=False,
         )
-        return (
+        prompt = (
             f"Question: {question}\n\n"
             f"Answer: {best_answer}\n\n"
             f"Output: {answer_json}"
         )
+        return prompt, best_answer, candidate_names
 
     def _parse_payload(self, text: str) -> Dict[str, Any]:
         match = re.search(r"\{.*\}", text, re.DOTALL)
@@ -437,58 +527,67 @@ class SearchFinalizer:
 
         Uses ``candidate_records.supporting_constraints`` as a lightweight
         process reward. Falls back to original order when no records exist.
-        Verification status is a tiebreaker: verified > partial > unverified.
+
+        Ranking factors (in order):
+        1. Supporting-constraint count (more = stronger evidence)
+        2. Negative signals in unresolved constraints (fewer = better):
+           detects phrases like "does not match" that indicate active
+           disqualification evidence, not just unverified questions
+        3. Unresolved-constraint count (fewer = more complete verification)
+        4. Verification status: verified > partial > unverified > contradicted
+        5. Source diversity (more independent URLs = better)
         """
         records = {str(r.get("candidate") or r.get("name") or "").strip().lower(): r
                    for r in (compact_state.get("candidate_records") or [])
                    if isinstance(r, dict)}
         vorder = {"verified": 0, "partial": 1, "unverified": 2, "contradicted": 3}
+        _NEGATIVE_PATTERNS = [
+            "does not match", "doesn't match", "not consistent",
+            "contradicts", "does not fit", "not compatible",
+            "no evidence", "not found", "no match", "ruled out",
+        ]
+
+        def _unique_sources(rec: Dict[str, Any]) -> int:
+            ev = rec.get("evidence") or []
+            sources = set()
+            for e in ev:
+                if not isinstance(e, dict):
+                    continue
+                s = str(e.get("source_url") or e.get("source") or "").strip()
+                if s:
+                    sources.add(s)
+            return len(sources)
+
+        def _negative_signals(rec: Dict[str, Any]) -> int:
+            count = 0
+            for u in (rec.get("unresolved_constraints") or []):
+                u_lower = str(u).lower()
+                if any(neg in u_lower for neg in _NEGATIVE_PATTERNS):
+                    count += 1
+            return count
 
         def score(c: Dict[str, Any]) -> tuple:
             name = str(c.get("name", "")).strip().lower()
             rec = records.get(name, {})
             support_n = len(rec.get("supporting_constraints") or [])
+            unique_sources = _unique_sources(rec)
             vs = str(rec.get("verification_status") or "unverified").lower()
-            return (-support_n, vorder.get(vs, 2))
+            unresolved_n = len(rec.get("unresolved_constraints") or [])
+            neg_signals = _negative_signals(rec)
+            return (
+                -support_n, neg_signals, unresolved_n,
+                vorder.get(vs, 2), -unique_sources,
+            )
 
         return sorted(candidates, key=score)
 
     def _local_fallback_answer(self, compact_state: Dict[str, Any]) -> str:
         """Derive a best-guess answer from compact_state when the LLM output is unparseable.
 
-        Prefers the strongest candidate in candidate_records / current_candidates.
-        Returns \"Unknown\" when no candidate is available.
+        Delegates to _select_best_answer for consistency with _build_prompt.
         """
-        candidate_records = compact_state.get("candidate_records") or []
-        current_candidates = compact_state.get("current_candidates") or []
-        pool: List[str] = []
-        for record in candidate_records:
-            if isinstance(record, dict):
-                name = str(record.get("candidate") or record.get("name") or "").strip()
-                if name and name.lower() not in {"unknown", "none", "null"}:
-                    hard_conflicts = record.get("hard_conflicts") or []
-                    if not hard_conflicts:
-                        pool.append(name)
-        for cand in current_candidates:
-            if isinstance(cand, str):
-                name = cand.strip()
-                if name and name.lower() not in {"unknown", "none", "null"}:
-                    pool.append(name)
-            elif isinstance(cand, dict):
-                name = str(cand.get("candidate") or cand.get("name") or "").strip()
-                if name and name.lower() not in {"unknown", "none", "null"}:
-                    pool.append(name)
-        if pool:
-            # Deduplicate while preserving order.
-            seen = set()
-            unique = []
-            for name in pool:
-                key = name.lower()
-                if key not in seen:
-                    seen.add(key)
-                    unique.append(name)
-            return unique[0]
-        return "Unknown"
+        best_answer, _ = self._select_best_answer(compact_state)
+        return best_answer
 
     def _normalize_evidence(self, evidence: Any) -> List[Dict[str, Any]]:
         if not isinstance(evidence, list):
