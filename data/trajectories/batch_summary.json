@@ -1,25 +1,25 @@
 {
-  "timestamp": "2026-03-09T13:45:49.701006",
-  "trajectory_dir": "data\\trajectories\\deepseek-chat",
-  "total_tasks": 1000,
-  "previously_completed": 300,
-  "newly_completed": 434,
-  "failed": 266,
-  "answer_matches": 592,
-  "success_rate": 73.4,
-  "match_rate": 59.199999999999996,
+  "timestamp": "2026-08-18T18:22:02.471886",
+  "trajectory_dir": "data/trajectories/Kimi-K3",
+  "total_tasks": 50,
+  "previously_completed": 0,
+  "newly_completed": 38,
+  "failed": 12,
+  "answer_matches": 0,
+  "success_rate": 76.0,
+  "match_rate": 0.0,
   "domains": {
-    "historical": 123,
-    "biography": 84,
-    "arts": 117,
-    "science": 119,
-    "culture_traditions": 121,
-    "business": 73,
-    "academia": 121,
-    "geographical": 126,
-    "sports": 116
+    "historical": 6,
+    "biography": 8,
+    "arts": 7,
+    "science": 9,
+    "culture_traditions": 8,
+    "business": 7,
+    "academia": 2,
+    "geographical": 2,
+    "sports": 1
   },
   "difficulties": {
-    "medium": 1000
+    "medium": 50
   }
 }
