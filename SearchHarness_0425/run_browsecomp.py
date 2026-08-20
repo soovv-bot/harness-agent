@@ -330,6 +330,10 @@ def run_evaluation(
 ):
     from search_harness_pipeline_v4 import SearchHarnessPipelineV4
     from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
+    from llm_usage import get_tracker
+
+    tracker = get_tracker()
+    tracker.reset()
 
     # Load dataset
     logger.info("Loading BrowseComp dataset...")
@@ -442,6 +446,7 @@ def run_evaluation(
 
     # Save results
     if output_file:
+        usage_snapshot = tracker.snapshot()
         output_data = {
             "timestamp": datetime.now().isoformat(),
             "model_id": model_id,
@@ -450,9 +455,13 @@ def run_evaluation(
             "correct_count": correct,
             "accuracy": accuracy,
             "total_elapsed_seconds": round(total_elapsed, 1),
+            "llm_usage": usage_snapshot,
             "pipeline_config": pipeline_kwargs,
             "results": results,
         }
+        u = usage_snapshot["total"]
+        cost_str = f", cost≈${u['cost_usd']:.4f}" if usage_snapshot.get("pricing_known") else ""
+        print(f"LLM usage: {u['calls']} calls, {u['total_tokens']} tokens{cost_str}")
         p = Path(output_file)
         p.parent.mkdir(parents=True, exist_ok=True)
         with open(p, "w", encoding="utf-8") as f:
