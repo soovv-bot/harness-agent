@@ -47,6 +47,9 @@ LLM_CLIENT_CONSUMERS = [
     "search_finalizer",
     "planning_direction_critic",
     "llm_client",
+    # pipeline 自身也在 L28 `from openai_client_factory import build_openai_client`
+    # 并在 L117 直接构建 client；漏挂会导致测试真实建连
+    "search_harness_pipeline_v4",
 ]
 
 

@@ -1,0 +1,33 @@
+name: harness-pytest
+
+on:
+  push:
+    paths:
+      - "SearchHarness_0425/**"
+      - ".github/workflows/harness-pytest.yml"
+  pull_request:
+    paths:
+      - "SearchHarness_0425/**"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SearchHarness_0425
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: SearchHarness_0425/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      # 214 用例为 M0 回归基线；全部由 tests/conftest.py 注入 fake LLM client
+      # 与 stub tools，无需任何 API key / 网络。
+      - name: Run harness test gate
+        run: python -m pytest tests/ -q
