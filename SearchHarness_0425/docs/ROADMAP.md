@@ -53,13 +53,21 @@
 | **M3 · 严谨与安全（第 7–8 周）** | ① 代码执行沙箱（docker/e2b，断网选项）；② 统计：CI/bootstrap + seed 重复方差聚合；③ judge 人工校准基线；④ span 级 tracing（先 OTEL/JSON span 落盘，可选 Langfuse） | T7(沙箱), T9, T10 | 沙箱内执行无宿主文件系统写权限；两份独立 run 报告附置信区间 |
 | **M4+ · 扩展与收口（后续）** | async 化与并发治理、guardrails、prompt registry（T12）、分布式；docs/ 数据文件随代码迁移 + README 深度瘦身（SP P3 收口） | T8, T7(其余), T11, T12 | 永不阻塞主线，按价值插单 |
 
+**M0 状态（✅ 全部完成，`feat/m0-harness-hardening`）**：
+
+- ✅ tag `m0-baseline`（基线锚点）+ `tools/` vendoring 切断 OffSeeker-main 路径依赖（`e0b9310`）
+- ✅ 最小 CI 门禁 `.github/workflows/pytest-gate.yml` + 补 conftest patch 缺口（`581a834`）
+- ✅ resume：`run_checkpoint.py` sidecar position 粒度断点，`fixed_sample`/`seed_repeats` 支持中断续跑与 `--force`（`804c15d`），模拟演练通过（中断→续跑自动跳过已完成、force 全量重跑）
+- ✅ token/成本计量：`llm_usage.py` 在 `chat_completion_with_structuring` 唯一收口打点（含流式 usage、structurer 调用），结果写入 payload `llm_usage`（`97c0f65`）
+- ✅ 门禁复核：pytest **241 passed**（214 基线 + 27 新增），固定样本入口语法冒烟通过
+
 ## 4. 本轮已完成的整理动作（本分支）
 
 - ✅ 13 份一次性实验报告归档至 `docs/experiments/`（`git mv`，历史保留）
 - ✅ README 全部受影响引用路径已更新（14 处）
 - ✅ 新增本文（总路线）与 `GAP_ANALYSIS.md`（行业对标）
 - ⏳ 数据文件（`browse_comp_test_set.csv`、seed manifests 共 7 个）**暂留** `docs/`：`diagnose_trajectories.py:13` 硬编码引用 `docs/seed123_k10_manifest.json`，迁移需与代码改动同行 → 归入 T11/M4+
-- ⏳ `tools/` 提交、`test/master` 基线厘清 → **M0 第一动作**，不在本分支做
+- ✅ `tools/` 提交、基线厘清——已在 M0 完成（tag `m0-baseline` + vendoring `e0b9310`，见上）
 
 ## 5. 不变量（任何里程碑都不得破坏）
 
