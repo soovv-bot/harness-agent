@@ -23,6 +23,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
+from run_checkpoint import RunCheckpoint
 
 BROWSECOMP_URL = "https://openaipublic.blob.core.windows.net/simple-evals/browse_comp_test_set.csv"
 _HERE = Path(__file__).resolve().parent
@@ -126,9 +127,11 @@ def run_fixed_evaluation(
     max_total_searches: int,
     max_workers: int = 1,
     enable_query_critic: bool = True,
+    resume: bool = True,
 ) -> None:
     from search_harness_pipeline_v4 import SearchHarnessPipelineV4
     from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
+    from llm_usage import get_tracker, usage_tag
 
     print("[run] starting fixed-sample evaluation", flush=True)
     load_dotenv()
@@ -160,8 +163,31 @@ def run_fixed_evaluation(
         "max_crawl_calls": max_crawl_calls,
     }
 
+    tracker = get_tracker()
+    tracker.reset()
+
+    checkpoint = RunCheckpoint.for_output(output_file)
+    skipped_positions: List[int] = []
+    if resume:
+        skipped_positions, pending_positions = checkpoint.positions_to_skip(positions)
+        if skipped_positions:
+            logger.info(
+                f"Resume: skipping {len(skipped_positions)} completed positions {skipped_positions}; "
+                f"running {len(pending_positions)}: {pending_positions}"
+            )
+    else:
+        pending_positions = list(positions)
+        logger.info("Resume disabled (--force): (re)running all requested positions")
+
     results: List[Dict[str, Any]] = []
     results_lock = Lock()
+    # Seed results with checkpointed entries so the final payload covers the
+    # full requested position list even on a resumed run.
+    for pos in skipped_positions:
+        cached = checkpoint.get_result(pos)
+        if cached is not None:
+            cached.setdefault("sample_position", pos)
+            results.append(cached)
     overall_start = time.time()
 
     logger.info(f"Running fixed-sample evaluation for positions={positions} with max_workers={max_workers}")
@@ -189,23 +215,30 @@ def run_fixed_evaluation(
         )
         recorder_model_id = model_id if executor_model_id == model_id else f"{model_id}__exec__{executor_model_id}"
         recorder = TrajectoryRecorderEnhanced(model_id=recorder_model_id, output_dir=trajectory_dir, task_index=sample_position)
-        result = run_single_task(
-            task_index=sample_position,
-            question=question,
-            correct_answer=answer,
-            pipeline=pipeline,
-            grader=grader,
-            pipeline_kwargs=pipeline_kwargs,
-            trajectory_recorder=recorder,
-        )
+        with usage_tag(f"position_{sample_position}"):
+            result = run_single_task(
+                task_index=sample_position,
+                question=question,
+                correct_answer=answer,
+                pipeline=pipeline,
+                grader=grader,
+                pipeline_kwargs=pipeline_kwargs,
+                trajectory_recorder=recorder,
+            )
+            tag_key = f"position_{sample_position}"
+            per_task_usage = tracker.snapshot()["by_tag"].get(tag_key)
+            if per_task_usage:
+                result["llm_usage"] = per_task_usage
+                try:
+                    recorder._metadata["llm_usage"] = per_task_usage
+                except Exception:
+                    pass
         result["sample_position"] = sample_position
+        checkpoint.save_position(sample_position, result)
         return result
 
-    results: List[Dict[str, Any]] = []
-    overall_start = time.time()
-
     if max_workers <= 1:
-        for sample_position in tqdm(positions, desc="Evaluating"):
+        for sample_position in tqdm(pending_positions, desc="Evaluating"):
             print(f"[run] starting position={sample_position}", flush=True)
             result = _worker(sample_position)
             with results_lock:
@@ -215,7 +248,7 @@ def run_fixed_evaluation(
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
                 executor.submit(_worker, sp): sp
-                for sp in positions
+                for sp in pending_positions
             }
             for future in tqdm(as_completed(futures), total=len(futures), desc="Evaluating"):
                 sample_position = futures[future]
@@ -226,20 +259,23 @@ def run_fixed_evaluation(
                     print(f"[run] finished position={sample_position} status={result.get('pipeline_status', 'unknown')}", flush=True)
                 except Exception as e:
                     logger.error(f"Task position={sample_position} failed: {e}")
+                    err_result = {
+                        "sample_position": sample_position,
+                        "task_index": sample_position,
+                        "is_correct": False,
+                        "error": str(e),
+                        "pipeline_status": "error",
+                    }
                     with results_lock:
-                        results.append({
-                            "sample_position": sample_position,
-                            "task_index": sample_position,
-                            "is_correct": False,
-                            "error": str(e),
-                            "pipeline_status": "error",
-                        })
+                        results.append(err_result)
+                    checkpoint.save_position(sample_position, err_result, status="error")
 
     total_elapsed = time.time() - overall_start
     results.sort(key=lambda x: x["sample_position"])
     correct = sum(1 for r in results if r.get("is_correct"))
     total = len(results)
     accuracy = correct / total if total else 0.0
+    usage_snapshot = tracker.snapshot()
 
     payload = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
@@ -254,6 +290,12 @@ def run_fixed_evaluation(
         "correct_count": correct,
         "accuracy": accuracy,
         "total_elapsed_seconds": round(total_elapsed, 1),
+        "resume": {
+            "enabled": resume,
+            "skipped_positions": skipped_positions,
+            "checkpoint_file": str(checkpoint.path),
+        },
+        "llm_usage": usage_snapshot,
         "pipeline_config": {
             "max_iterations": max_iterations,
             "max_crawl_calls": max_crawl_calls,
@@ -284,6 +326,15 @@ def run_fixed_evaluation(
     print(f"Accuracy:       {accuracy:.2%}", flush=True)
     print(f"Total time:     {total_elapsed:.1f}s", flush=True)
     print(f"Max workers:    {max_workers}", flush=True)
+    u = usage_snapshot["total"]
+    cost_str = f", cost≈${u['cost_usd']:.4f}" if usage_snapshot.get("pricing_known") else ""
+    print(
+        f"LLM usage:      {u['calls']} calls, {u['prompt_tokens']} prompt + "
+        f"{u['completion_tokens']} completion tokens{cost_str}",
+        flush=True,
+    )
+    if skipped_positions:
+        print(f"Resumed:        skipped {len(skipped_positions)} completed positions", flush=True)
     print("=" * 60, flush=True)
     for r in results:
         mark = "OK" if r.get("is_correct") else "X "
@@ -306,6 +357,7 @@ def main() -> None:
     parser.add_argument("--max-total-searches", type=int, default=120)
     parser.add_argument("--max-workers", type=int, default=1, help="Number of concurrent workers (1=sequential, >1=parallel)")
     parser.add_argument("--disable-query-critic", action="store_true", help="Allow executor search queries without query critic filtering.")
+    parser.add_argument("--force", action="store_true", help="Ignore the run checkpoint and re-run every requested position (default: resume from checkpoint)")
     args = parser.parse_args()
 
     run_fixed_evaluation(
@@ -321,6 +373,7 @@ def main() -> None:
         max_total_searches=args.max_total_searches,
         max_workers=args.max_workers,
         enable_query_critic=not args.disable_query_critic,
+        resume=not args.force,
     )
 
 
