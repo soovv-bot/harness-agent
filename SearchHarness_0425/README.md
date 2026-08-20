@@ -127,10 +127,14 @@ SearchHarness_0425/
 │   ├── seed123_k10_full.json         # 本地固定子集（seed=123, k=10）
 │   ├── seed123_k10_manifest.json     # 固定子集 manifest（含 gold answer）
 │   ├── seed123_k100_manifest.json    # k=100 manifest
-│   ├── latency_optimization_20260731.md  # 耗时分析与优化方案
-│   ├── smoke_test_2026-07-30.md      # 冒烟测试报告
-│   ├── smoke_test_2026-08-04_refactor_verify.md  # 重构后冒烟验证（思考模式开关）
-│   └── insight_*.md                  # 失败模式分析
+│   ├── ROADMAP.md                    # 统一问题清单与优先级路线图（总入口）
+│   ├── REFACTOR_DESIGN.md            # 代码层模块化改造设计
+│   ├── PROJECT_STRUCTURE_PLAN.md     # 项目结构整理与迁移规划
+│   ├── GAP_ANALYSIS.md               # 行业 harness 对标与能力差距分析
+│   └── experiments/                  # 一次性实验/分析报告（历史快照，共 13 份）
+│       ├── latency_optimization_20260731.md  # 耗时分析与优化方案
+│       ├── kimi_k3_effort_fix_2026-08-05_analysis.md  # effort-mapping 修复验证
+│       └── ...                            # smoke_test_* / insight_* / experiment_compare 等
 ├── results/                           # 评测结果 JSON（gitignore）
 ├── logs/                              # 轨迹与日志（gitignore）
 └── WORKLOG.md                         # 历史工作记录
@@ -447,7 +451,7 @@ EXECUTOR_TOOL_CHOICE=first_turn     # 首轮强制工具调用（6.2× 加速，
 PLANNER_SIMPLE_PROMPT=1             # 简化 planner prompt（3-phase 验证模型）
 ```
 
-实测（pos3，正确答案 Abangan 2024）：**CORRECT ✓，805s，4 轮自然结束**，planner reasoning 均值 900c（修复前 30k+），planner 0-content 0%（修复前 74%）。详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`。
+实测（pos3，正确答案 Abangan 2024）：**CORRECT ✓，805s，4 轮自然结束**，planner reasoning 均值 900c（修复前 30k+），planner 0-content 0%（修复前 74%）。详见 `docs/experiments/kimi_k3_effort_fix_2026-08-05_analysis.md`。
 
 实测（pos4，正确答案 Whitesnake，含 tool-first 优化）：**CORRECT ✓，332s（优化前 2064s，6.2× 加速），1 轮迭代找到答案，8 次搜索**。首轮 `tool_choice=required` 将 reasoning 从数千字符降到 411c，延迟 4.9s。
 
@@ -702,7 +706,7 @@ python3 run_browsecomp.py \
 ## 预算参数配置建议（BrowseComp 评测，实测）
 
 > **核心结论**：预算**不是**准确率的瓶颈——实测搜索次数远低于预算上限，增加预算不提升准确率。真正的杠杆是：
-> 1. **思考强度映射**（Kimi-K3 实测最大收益）：`minimal→low` 重映射后 planner 0-content 74%→0%，reasoning 30k→900c，单题 805s 正确（详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`）。
+> 1. **思考强度映射**（Kimi-K3 实测最大收益）：`minimal→low` 重映射后 planner 0-content 74%→0%，reasoning 30k→900c，单题 805s 正确（详见 `docs/experiments/kimi_k3_effort_fix_2026-08-05_analysis.md`）。
 > 2. **Planner 进入 verification 阶段**（GLM-5.2 时期已修，见下方实测附注）。
 > 3. **候选池 query 质量**（待优化）。
 
@@ -813,7 +817,7 @@ python3 run_browsecomp_fixed_sample.py \
 | Planner 每轮都产出 content | 否 | **是（9/9）** |
 | 单题耗时 | — | **805s，4 轮，CORRECT** ✓ |
 
-详见 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`。
+详见 `docs/experiments/kimi_k3_effort_fix_2026-08-05_analysis.md`。
 
 #### Tool-first 优化实测（2026-08-05，pos4，正确答案 Whitesnake）
 
@@ -861,7 +865,7 @@ python3 run_browsecomp_fixed_sample.py \
 | 重测 | +Planner `reasoning_effort` 修复 | 5/60 | 5/7 | 否 | Ronnie Wood（错） | 920s |
 | 三测 | +simple prompt 加 verification 阶段 | **17/60** | 5/7 | **是** ✅ | Keith Richards（错） | 1520s |
 
-**两个已修 bug**（详见 `docs/budget_test_2026-08-04_analysis.md`）：
+**两个已修 bug**（详见 `docs/experiments/budget_test_2026-08-04_analysis.md`）：
 1. **Planner `reasoning_effort` 缺失**（commit `161003c`）：Planner 未传 `reasoning_effort` → fallback `minimal` → GLM-5.2 忽略 → 0/11 产 plan。修复后 5/7 产 plan。
 2. **simple prompt 只有 candidate_generation 模板**（commit `eb1b251`）：`planning_agent_prompt_simple.md` 无 verification phase → Planner 从不输出 `verification` → 候选永不验证。增强后 pipeline 进入 verification，逐个验证淘汰（Townshend/Davies/Clapton）。
 
@@ -1082,7 +1086,7 @@ python3 verify_source_accuracy.py "你的查询"      # 默认 query 见脚本�
 
 **类型感知验证（假阴性修复）。** 消融实验发现 pos0 假阴性：题目以 "This person..." 开头描述人物，但实际问的是"What was the name of the secondary or senior high school they attended?"（答案类型=学校）。验证器在 400 字符截断下只看到描述部分，误判答案应为"人"，于是 REFUTE 了正确答案 "Achimota School"。
 
-修复三层（详见 `docs/experiment_compare_20260804.md`）：
+修复三层（详见 `docs/experiments/experiment_compare_20260804.md`）：
 1. **问题截断扩展**：`_judge` 从 400→1200 字符、`_build_claim` 从 200→800 字符，确保题目末尾的实际提问不被截断（BrowseComp 题目平均 ~700 字符）。
 2. **类型感知指令**：judge prompt 注入"答案类型 = 题目问什么，非描述什么"的显式指令，要求 REFUTE 必须证明答案类型不符 **或** 约束不满足，而非仅因答案类型 ≠ 题目主语类型就拒绝。
 3. **验证查询优化**：`_build_verification_query` 改用题目**最后一句**（实际提问）的关键词，而非全文前 4 个词，避免描述性前导词污染验证查询。
@@ -1145,7 +1149,7 @@ python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
 
 ## 实验结果：Plan A 自验证消融（2026-08-04）
 
-> 小样本消融，对比 baseline（Plan A 关闭）与 treatment（Plan A 全路径开启）在 BrowseComp 固定样本 pos0-2 上的表现。完整报告见 [`docs/experiment_compare_20260804.md`](docs/experiment_compare_20260804.md)。
+> 小样本消融，对比 baseline（Plan A 关闭）与 treatment（Plan A 全路径开启）在 BrowseComp 固定样本 pos0-2 上的表现。完整报告见 [`docs/experiments/experiment_compare_20260804.md`](docs/experiments/experiment_compare_20260804.md)。
 
 ### 实验设置
 
@@ -1339,7 +1343,7 @@ Pipeline 通过 `event_callback` 钩子将结构化事件推送到录制器。Ex
 
 ### 4. 耗时优化
 
-参见 `docs/latency_optimization_20260731.md`。v4 测试中 2483s 总耗时的瓶颈分布：
+参见 `docs/experiments/latency_optimization_20260731.md`。v4 测试中 2483s 总耗时的瓶颈分布：
 
 | 模块 | 占比 | 说明 |
 |------|------|------|
@@ -1422,7 +1426,7 @@ python convert_trajectory_to_offseeker_format.py \
 Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key，更新 `.env` 中的 `SERPER_API_KEY`。
 
 ### Q3: 单题耗时过长
-默认预算较大（`--max-total-searches` 脚本默认 120，实测推荐档 250）。冒烟/调试时可大幅缩减：`--max-iterations 4 --max-planner-searches 5 --max-executor-searches 10 --max-total-searches 20`。耗时瓶颈与优化方案见 `docs/latency_optimization_20260731.md` 与 `docs/kimi_k3_effort_fix_2026-08-05_analysis.md`（effort-mapping 是最大提速杠杆）。
+默认预算较大（`--max-total-searches` 脚本默认 120，实测推荐档 250）。冒烟/调试时可大幅缩减：`--max-iterations 4 --max-planner-searches 5 --max-executor-searches 10 --max-total-searches 20`。耗时瓶颈与优化方案见 `docs/experiments/latency_optimization_20260731.md` 与 `docs/experiments/kimi_k3_effort_fix_2026-08-05_analysis.md`（effort-mapping 是最大提速杠杆）。
 
 ### Q4: 答案错误但 status 是 `solved`
 这正是 v4 结构化候选状态要解决的问题。检查轨迹中的 `candidate_records`：错误候选是否积累了 `hard_conflicts` 但未被 eliminate，或者 finalizer 在仍有未解决冲突时过早收敛。
@@ -1438,12 +1442,12 @@ Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key�
 ## 相关文档
 
 - `WORKLOG.md` — 历史工作记录与失败模式分析
-- `docs/kimi_k3_effort_fix_2026-08-05_analysis.md` — Kimi-K3 effort-mapping 修复验证（最大提速杠杆）
-- `docs/latency_optimization_20260731.md` — 耗时分析与优化方案
-- `docs/smoke_test_2026-07-30.md` — 冒烟测试报告
-- `docs/insight_candidate_generation_bottleneck.md` — 候选生成瓶颈分析
-- `docs/insight_verification_ordering_failure.md` — 验证排序失败分析
-- `docs/experiment_compare_20260804.md` — Plan A 自验证消融实验报告
+- `docs/experiments/kimi_k3_effort_fix_2026-08-05_analysis.md` — Kimi-K3 effort-mapping 修复验证（最大提速杠杆）
+- `docs/experiments/latency_optimization_20260731.md` — 耗时分析与优化方案
+- `docs/experiments/smoke_test_2026-07-30.md` — 冒烟测试报告
+- `docs/experiments/insight_candidate_generation_bottleneck.md` — 候选生成瓶颈分析
+- `docs/experiments/insight_verification_ordering_failure.md` — 验证排序失败分析
+- `docs/experiments/experiment_compare_20260804.md` — Plan A 自验证消融实验报告
 - `planning_agent_prompt_v3.md` / `search_agent_prompt_v3.md` — v3 通用 prompt
 - `planning_agent_prompt_simple.md` / `search_agent_prompt_simple.md` — 简化 prompt（compact，适配推理模型）
 - 上级目录 `CLAUDE.md` — 整体项目（OffSeeker 蒸馏）说明
