@@ -72,7 +72,14 @@ def llm_chat_completion(
     last_exc: Optional[Exception] = None
     for attempt in range(1, max_retries + 1):
         try:
-            return client.chat.completions.create(model=model, messages=messages, **kwargs)
+            resp = client.chat.completions.create(model=model, messages=messages, **kwargs)
+            try:
+                from llm_usage import record_usage
+
+                record_usage(model, getattr(resp, "usage", None), caller="llm_chat_completion")
+            except Exception:
+                pass  # metering must never break generation
+            return resp
         except Exception as exc:  # noqa: BLE001 — broad on purpose for retry
             last_exc = exc
             # Detect retryable error classes lazily (avoid hard import dep).

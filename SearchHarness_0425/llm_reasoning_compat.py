@@ -269,6 +269,11 @@ def _is_streaming_enabled() -> bool:
     return raw in {"1", "true", "yes", "y", "on"}
 
 
+def _env_false(name: str) -> bool:
+    """True when an env var is explicitly set to a falsy string."""
+    return (os.getenv(name) or "").strip().lower() in {"0", "false", "no", "n", "off"}
+
+
 class _StreamedMessage:
     """Accumulated message from streaming chunks, mimicking the non-streamed response."""
 
@@ -329,6 +334,16 @@ class _StreamedMessage:
         return d
 
 
+def _record_usage_safely(model_id: str, usage: Any, *, caller: str = "") -> None:
+    """Best-effort usage recording — metering must never break generation."""
+    try:
+        from llm_usage import record_usage
+
+        record_usage(model_id, usage, caller=caller)
+    except Exception:
+        pass
+
+
 def _stream_timeout_s() -> Optional[float]:
     """Wall-clock stream timeout. Defaults to LLM_TIMEOUT_S so the configured
     timeout is actually enforced on streaming responses (httpx per-read timeout
@@ -369,18 +384,36 @@ def _stream_completion(
     """
     stream_kwargs = dict(kwargs)
     stream_kwargs["stream"] = True
+    # Ask the gateway to attach token usage on the final chunk (OpenAI-standard
+    # stream_options). Some gateways 400 on unknown params — one retry without
+    # it, and if no usage arrives we fall back to zero-token record so the
+    # call is still counted.
+    want_usage = not _env_false("LLM_STREAM_INCLUDE_USAGE")
+    if want_usage and "stream_options" not in stream_kwargs:
+        stream_kwargs["stream_options"] = {"include_usage": True}
 
     msg = _StreamedMessage()
     _t0 = time.time()
     _last_log = _t0
     chunk_count = 0
     stream_timeout = _stream_timeout_s()
+    stream_usage = None
 
     stream = None
     try:
-        stream = client.chat.completions.create(**stream_kwargs)
+        try:
+            stream = client.chat.completions.create(**stream_kwargs)
+        except Exception as exc:
+            if want_usage and "stream_options" in stream_kwargs and "stream_options" in str(exc).lower():
+                logger.warning(f"[Stream] {progress_label} gateway rejected stream_options; retrying without it")
+                stream_kwargs.pop("stream_options", None)
+                stream = client.chat.completions.create(**stream_kwargs)
+            else:
+                raise
         for chunk in stream:
             chunk_count += 1
+            if getattr(chunk, "usage", None):
+                stream_usage = chunk.usage
             if not chunk.choices:
                 continue
             delta = chunk.choices[0].delta
@@ -425,6 +458,14 @@ def _stream_completion(
             f"[Stream] {progress_label} done in {elapsed:.1f}s | "
             f"content={c_len}c reasoning={r_len}c tool_calls={tc_n}"
         )
+        _record_usage_safely(kwargs.get("model", ""), stream_usage, caller=progress_label)
+        if stream_usage:
+            try:
+                from llm_usage import normalize_usage
+                n = normalize_usage(stream_usage)
+                msg.usage_metadata = n  # surfaced for recorder attribution
+            except Exception:
+                pass
         return msg
     except Exception as exc:
         elapsed = time.time() - _t0
@@ -492,6 +533,12 @@ def chat_completion_with_structuring(
     else:
         completion = client.chat.completions.create(**kwargs)
         response = completion.choices[0].message
+        _record_usage_safely(model_id, getattr(completion, "usage", None), caller="primary")
+        try:
+            from llm_usage import normalize_usage
+            response.usage_metadata = normalize_usage(getattr(completion, "usage", None))
+        except Exception:
+            pass
 
     content = (getattr(response, "content", None) or "").strip()
     reasoning_content = (getattr(response, "reasoning_content", None) or "").strip()
@@ -570,6 +617,8 @@ def chat_completion_with_structuring(
             else:
                 structurer_completion = client.chat.completions.create(**structurer_kwargs)
                 structurer_response = structurer_completion.choices[0].message
+                _record_usage_safely(model_id, getattr(structurer_completion, "usage", None),
+                                     caller=f"structurer#{attempt_idx+1}")
             structurer_content = (getattr(structurer_response, "content", None) or "").strip()
             # Also check if structurer put it in reasoning_content
             structurer_reasoning = (getattr(structurer_response, "reasoning_content", None) or "").strip()

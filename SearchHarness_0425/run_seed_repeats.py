@@ -8,6 +8,48 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
+# Statuses from a previous run that count as finished — anything else is re-run.
+RESUMABLE_BAD_STATUSES = {"unfinished", "error", "infra_error", ""}
+
+
+def _load_existing_result(
+    run_index: int,
+    seed: int,
+    output_dir: Path,
+    trajectory_root: Path,
+) -> Dict[str, object] | None:
+    """Resume support: reuse a previous run's output file if it finished cleanly."""
+    run_output = output_dir / f"seed{seed}_run{run_index:02d}.json"
+    run_trajectory_dir = trajectory_root / f"seed{seed}_run{run_index:02d}"
+    if not run_output.exists():
+        return None
+    try:
+        payload = json.loads(run_output.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    first = (payload.get("results") or [{}])[0]
+    status = first.get("pipeline_status", "") or ""
+    if status.lower() in RESUMABLE_BAD_STATUSES:
+        return None
+    return {
+        "run_index": run_index,
+        "seed": seed,
+        "command": [],
+        "returncode": 0,
+        "elapsed_seconds": 0.0,
+        "output_file": str(run_output),
+        "trajectory_dir": str(run_trajectory_dir),
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "resumed": True,
+        "accuracy": payload.get("accuracy"),
+        "is_correct": first.get("is_correct", False),
+        "extracted_answer": first.get("extracted_answer", ""),
+        "pipeline_status": status,
+        "grader_reasoning": first.get("grader_reasoning", ""),
+        "llm_usage": payload.get("llm_usage"),
+    }
+
 
 def _run_once(
     run_index: int,
@@ -67,6 +109,7 @@ def _run_once(
                 "extracted_answer": first.get("extracted_answer", ""),
                 "pipeline_status": first.get("pipeline_status", ""),
                 "grader_reasoning": first.get("grader_reasoning", ""),
+                "llm_usage": payload.get("llm_usage"),
             }
         )
     else:
@@ -106,6 +149,11 @@ def main():
         default=[],
         help="Extra argument passed through to run_browsecomp.py. Repeat as needed, e.g. --extra-arg=--max-iterations --extra-arg=6",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-run every repetition even if a prior seed{seed}_runNN.json exists (default: resume, skipping finished runs)",
+    )
     args = parser.parse_args()
 
     base_dir = Path(__file__).resolve().parent
@@ -116,6 +164,25 @@ def main():
 
     runs: List[Dict] = []
     overall_start = time.time()
+
+    pending_indexes: List[int] = []
+    if args.force:
+        pending_indexes = list(range(args.repeats))
+    else:
+        for run_index in range(args.repeats):
+            cached = _load_existing_result(run_index, args.seed, output_dir, trajectory_root)
+            if cached is not None:
+                runs.append(cached)
+                mark = "OK" if cached.get("is_correct") else "X "
+                print(
+                    f"[{mark}] run={run_index:02d} resumed (existing output) "
+                    f"status={cached.get('pipeline_status')} "
+                    f"answer={str(cached.get('extracted_answer', ''))[:80]}"
+                )
+            else:
+                pending_indexes.append(run_index)
+        if runs:
+            print(f"Resume: {len(runs)} runs reused, {len(pending_indexes)} to execute: {pending_indexes}")
 
     with ThreadPoolExecutor(max_workers=args.parallelism) as executor:
         futures = {
@@ -128,7 +195,7 @@ def main():
                 trajectory_root,
                 args.extra_arg,
             ): run_index
-            for run_index in range(args.repeats)
+            for run_index in pending_indexes
         }
 
         for future in as_completed(futures):

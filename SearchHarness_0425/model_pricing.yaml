@@ -1,0 +1,27 @@
+# Model pricing (USD per 1M tokens) used by llm_usage for cost estimates.
+# Matching rules mirror model_profiles.yaml: case-insensitive substring match
+# against model_id, longest match wins, "default" is the fallback.
+# Models without an entry report token counts only (no cost).
+#
+# Override via LLM_PRICING_YAML (alternate file) or LLM_PRICING_JSON
+# (inline JSON: {"Kimi-K3": {"input": 2.0, "output": 8.0}}).
+
+pricing:
+  # --- Moonshot Kimi K3 --- (edit to your contracted rates)
+  Kimi-K3:
+    input: 0.60
+    output: 3.00
+
+  # --- Zhipu GLM-5.2 ---
+  GLM-5.2:
+    input: 0.60
+    output: 2.20
+
+  # --- DeepSeek ---
+  deepseek-chat:
+    input: 0.27
+    output: 1.10
+
+  default:
+    input: 0.0
+    output: 0.0
