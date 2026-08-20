@@ -6,8 +6,8 @@ Covers the three 数据源管控 (data-source governance) features added to
   2. 时效性强制约束 — timeliness filter for time-sensitive queries
   3. 去重与同源合并 — cross-domain repost merging
 
-These tests import the real post-processing helpers from
-OffSeeker-main/inference/src/tools/search_tools.py (on sys.path via conftest).
+These tests import the real post-processing helpers from the local
+tools/search_tools.py (SearchHarness_0425/tools/, on sys.path via conftest).
 They are pure/deterministic — no network, no LLM, no Serper calls.
 """
 

@@ -12,11 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-# Add OffSeeker-main to path for imports
-offseeker_path = os.path.join(os.path.dirname(__file__), '..', 'OffSeeker-main')
-offseeker_src_path = os.path.join(offseeker_path, 'inference/src')
-if offseeker_src_path not in sys.path:
-    sys.path.insert(0, offseeker_src_path)
+# tools package is now local: SearchHarness_0425/tools/
 root_path = os.path.dirname(os.path.dirname(__file__))
 if root_path not in sys.path:
     sys.path.insert(0, root_path)

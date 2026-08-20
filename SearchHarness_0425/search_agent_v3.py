@@ -15,11 +15,8 @@ from urllib.parse import urlparse
 
 from loguru import logger
 
-# Add OffSeeker-main to path for imports
-offseeker_path = os.path.join(os.path.dirname(__file__), '..', 'OffSeeker-main')
-offseeker_src_path = os.path.join(offseeker_path, 'inference/src')
-if offseeker_src_path not in sys.path:
-    sys.path.insert(0, offseeker_src_path)
+# tools package is now local: SearchHarness_0425/tools/
+_offseeker_src_path = None  # legacy path removed
 
 from tools.tool_processor import ToolProcessor  # type: ignore
 from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore

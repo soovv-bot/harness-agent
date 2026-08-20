@@ -33,13 +33,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# OffSeeker-main inference/src holds the `tools` package (tool_processor, search_tools).
-# search_agent_v3.py adds this at import time; add it here too so test modules can
-# import `tools.tool_processor` even before search_agent_v3 is imported.
-_OFFSEEKER_SRC = os.path.join(PROJECT_ROOT, "..", "OffSeeker-main", "inference", "src")
-_OFFSEEKER_SRC = os.path.abspath(_OFFSEEKER_SRC)
-if os.path.isdir(_OFFSEEKER_SRC) and _OFFSEEKER_SRC not in sys.path:
-    sys.path.insert(0, _OFFSEEKER_SRC)
+# The `tools` package (tool_processor, search_tools) is now local at
+# SearchHarness_0425/tools/, importable directly since PROJECT_ROOT is on sys.path.
 
 # Consumer modules that do `from openai_client_factory import build_openai_client`
 # and store the imported name in their own namespace. Each must be patched.
@@ -192,7 +187,7 @@ def stub_tool_processor(monkeypatch: pytest.MonkeyPatch) -> Dict[str, Callable[[
     Returns the dict of stub callables so tests can spy on invocations.
     """
     import importlib
-    tool_processor_mod = importlib.import_module("tools.tool_processor")  # OffSeeker-main
+    tool_processor_mod = importlib.import_module("tools.tool_processor")  # local package
     # Patch the bound methods on the class so every ToolProcessor() instance
     # uses the stubs. Each stub returns a JSON string (the executor wraps it).
     calls: Dict[str, List[Dict[str, Any]]] = {"search": [], "visit_urls": [], "search_wiki": []}

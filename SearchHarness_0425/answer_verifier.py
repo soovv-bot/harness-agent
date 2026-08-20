@@ -45,12 +45,7 @@ if root_path in sys.path:
 else:
     sys.path.insert(0, root_path)
 
-offseeker_tools = os.path.join(
-    os.path.dirname(__file__), "..", "OffSeeker-main", "inference", "src"
-)
-if offseeker_tools not in sys.path:
-    sys.path.insert(0, offseeker_tools)
-
+# tools package is now local: SearchHarness_0425/tools/ (no external path needed)
 from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring  # noqa: E402
 from openai_client_factory import build_openai_client  # noqa: E402
 
