@@ -28,6 +28,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
+import results_schema as rs
 from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
@@ -431,18 +432,28 @@ def run_evaluation(
     # Save results
     if output_file:
         usage_snapshot = tracker.snapshot()
-        output_data = {
-            "timestamp": datetime.now().isoformat(),
-            "model_id": model_id,
-            "grader_model_id": grader_model_id,
-            "num_examples": total,
-            "correct_count": correct,
-            "accuracy": accuracy,
-            "total_elapsed_seconds": round(total_elapsed, 1),
-            "llm_usage": usage_snapshot,
-            "pipeline_config": pipeline_kwargs,
-            "results": results,
-        }
+        run_spec = rs.collect_run_spec(
+            benchmark="browsecomp",
+            model_id=model_id,
+            grader_model_id=grader_model_id,
+            pipeline_config=pipeline_kwargs,
+            extra={"seed": seed, "skip": skip, "num_examples_requested": num_examples},
+        )
+        output_data = rs.finalize_payload(
+            run_spec=run_spec,
+            timestamp=datetime.now().isoformat(),
+            results=results,
+            llm_usage=usage_snapshot,
+            metrics={
+                "model_id": model_id,
+                "grader_model_id": grader_model_id,
+                "num_examples": total,
+                "correct_count": correct,
+                "accuracy": accuracy,
+                "total_elapsed_seconds": round(total_elapsed, 1),
+                "pipeline_config": pipeline_kwargs,
+            },
+        )
         u = usage_snapshot["total"]
         cost_str = f", cost≈${u['cost_usd']:.4f}" if usage_snapshot.get("pricing_known") else ""
         print(f"LLM usage: {u['calls']} calls, {u['total_tokens']} tokens{cost_str}")

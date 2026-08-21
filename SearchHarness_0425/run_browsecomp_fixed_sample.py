@@ -22,6 +22,7 @@ from loguru import logger
 from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
+import results_schema as rs
 from run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
 from run_checkpoint import RunCheckpoint
 
@@ -268,34 +269,45 @@ def run_fixed_evaluation(
     accuracy = correct / total if total else 0.0
     usage_snapshot = tracker.snapshot()
 
-    payload = {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "seed": seed,
-        "sample_size": sample_size,
-        "positions": positions,
-        "model_id": model_id,
-        "executor_model_id": executor_model_id,
-        "executor_reasoning_effort": executor_reasoning_effort,
-        "grader_model_id": grader_model_id,
-        "num_examples": total,
-        "correct_count": correct,
-        "accuracy": accuracy,
-        "total_elapsed_seconds": round(total_elapsed, 1),
-        "resume": {
-            "enabled": resume,
-            "skipped_positions": skipped_positions,
-            "checkpoint_file": str(checkpoint.path),
-        },
-        "llm_usage": usage_snapshot,
-        "pipeline_config": {
-            "max_iterations": max_iterations,
-            "max_crawl_calls": max_crawl_calls,
-            "max_planner_searches": max_planner_searches,
-            "max_executor_searches": max_executor_searches,
-            "max_total_searches": max_total_searches,
-        },
-        "results": results,
+    pipeline_config = {
+        "max_iterations": max_iterations,
+        "max_crawl_calls": max_crawl_calls,
+        "max_planner_searches": max_planner_searches,
+        "max_executor_searches": max_executor_searches,
+        "max_total_searches": max_total_searches,
     }
+    run_spec = rs.collect_run_spec(
+        benchmark="browsecomp",
+        model_id=model_id,
+        grader_model_id=grader_model_id,
+        pipeline_config=pipeline_config,
+        extra={"seed": seed, "sample_size": sample_size, "positions": positions},
+    )
+    payload = rs.finalize_payload(
+        run_spec=run_spec,
+        timestamp=time.strftime("%Y-%m-%dT%H:%M:%S"),
+        results=results,
+        llm_usage=usage_snapshot,
+        metrics={
+            "seed": seed,
+            "sample_size": sample_size,
+            "positions": positions,
+            "model_id": model_id,
+            "executor_model_id": executor_model_id,
+            "executor_reasoning_effort": executor_reasoning_effort,
+            "grader_model_id": grader_model_id,
+            "num_examples": total,
+            "correct_count": correct,
+            "accuracy": accuracy,
+            "total_elapsed_seconds": round(total_elapsed, 1),
+            "resume": {
+                "enabled": resume,
+                "skipped_positions": skipped_positions,
+                "checkpoint_file": str(checkpoint.path),
+            },
+            "pipeline_config": pipeline_config,
+        },
+    )
 
     Path(output_file).parent.mkdir(parents=True, exist_ok=True)
     Path(output_file).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

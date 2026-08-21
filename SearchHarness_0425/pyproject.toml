@@ -52,6 +52,7 @@ py-modules = [
     "query_critic",
     "query_history",
     "regrade_results",
+    "results_schema",
     "run_browsecomp",
     "run_browsecomp_fixed_sample",
     "run_checkpoint",
