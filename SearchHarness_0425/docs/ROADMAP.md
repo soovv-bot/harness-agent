@@ -61,11 +61,15 @@
 - ✅ token/成本计量：`llm_usage.py` 在 `chat_completion_with_structuring` 唯一收口打点（含流式 usage、structurer 调用），结果写入 payload `llm_usage`（`97c0f65`）
 - ✅ 门禁复核：pytest **241 passed**（214 基线 + 27 新增），固定样本入口语法冒烟通过
 
-**M1 状态（进行中，`feat/m1-repro`）**：
+**M1 状态（✅ 代码全部完成，`feat/m1-repro`，pytest 292 passed）**：
 
-- ✅ ④ pyproject 化 + sys.path 清零（`788682c`）：15 处 sys.path hack 清除，新建 pyproject.toml（36 py-modules + tools 包），`pip install -e .` 可用，CI 改走 pyproject
-- ✅ ① seed 全链路核查（确认采样层已全用显式 `random.Random(seed)`，agent 层无隐藏随机性）+ LLM/HTTP 磁盘缓存 replay（`dcfe450`）：`disk_cache.py` off/record/replay 三模式（默认 off 零行为变化），唯一 LLM 收口 `chat_completion_with_structuring` 与 serper/crawl/wiki 三处网络面接缓存；`--replay` 入口；命中不计 usage；22 新增用例（pytest **263 passed**）
-- ⏳ 剩余：② benchmark registry + 统一 CLI 入口；③ 统一 results schema + run spec；byte-level 重放演练（需真实 record → replay 对比，剔除 volatile 字段后验一致）
+- ✅ ④ pyproject 化 + sys.path 清零（`788682c`）：15 处 sys.path hack 清除，新建 pyproject.toml，`pip install -e .` 可用，CI 改走 pyproject
+- ✅ ① seed 全链路核查（采样层已全用显式 `random.Random(seed)`）+ LLM/HTTP 磁盘缓存 replay（`dcfe450`）：off/record/replay 三模式（默认 off 零行为变化），唯一 LLM 收口与 serper/crawl/wiki 三处网络面接缓存；`--replay` 入口；命中不计 usage
+- ✅ ② benchmark registry + 统一 CLI（`cccb580`、`c0d3a3b`）：`benchmark_registry.py` 声明式注册 BrowseComp（数据集缓存、canary 解密集中），两 runner 数据集加载统一；`run_benchmark.py browsecomp {sample,fixed,repeats}` 统一入口（参数透传，旧入口不变）
+- ✅ ③ 统一 results schema + run spec（`16bd9b4`）：`results_schema.py` 加性信封（schema_version + run_spec 溯源，遗留键全保留），`strip_volatile` 支撑重放对比
+- ⏳ 人工演练待做：真实 record → replay 的 byte-level 一致性对比（需 API key 跑一次 record，再 `--replay` 复跑并用 `strip_volatile` 对比两 payload）
+
+## 4. 本轮已完成的整理动作（本分支）
 
 ## 4. 本轮已完成的整理动作（本分支）
 
