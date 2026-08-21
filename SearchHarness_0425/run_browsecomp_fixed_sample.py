@@ -17,17 +17,15 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List
 
-import pandas as pd
 from dotenv import load_dotenv
 from loguru import logger
 from tqdm import tqdm
 
+from benchmark_registry import get_benchmark
 from run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
 from run_checkpoint import RunCheckpoint
 
-BROWSECOMP_URL = "https://openaipublic.blob.core.windows.net/simple-evals/browse_comp_test_set.csv"
 _HERE = Path(__file__).resolve().parent
-BROWSECOMP_CACHE = _HERE / "docs" / "browse_comp_test_set.csv"
 LOCAL_FULL_SUBSET = _HERE / "docs" / "seed123_k10_full.json"
 
 
@@ -69,6 +67,7 @@ def _parse_positions(raw: str) -> List[int]:
 
 def _load_fixed_sample(seed: int, sample_size: int) -> List[Dict[str, Any]]:
     logger.info("Loading BrowseComp dataset...")
+    spec = get_benchmark("browsecomp")
     if seed == 123 and sample_size == 10 and LOCAL_FULL_SUBSET.exists():
         logger.info(f"Using local fixed subset: {LOCAL_FULL_SUBSET}")
         subset = json.loads(LOCAL_FULL_SUBSET.read_text(encoding="utf-8"))
@@ -80,15 +79,7 @@ def _load_fixed_sample(seed: int, sample_size: int) -> List[Dict[str, Any]]:
             }
             for item in subset
         ]
-    if BROWSECOMP_CACHE.exists():
-        logger.info(f"Using cached BrowseComp dataset: {BROWSECOMP_CACHE}")
-        df = pd.read_csv(BROWSECOMP_CACHE)
-    else:
-        df = pd.read_csv(BROWSECOMP_URL)
-        BROWSECOMP_CACHE.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(BROWSECOMP_CACHE, index=False)
-        logger.info(f"Cached BrowseComp dataset to: {BROWSECOMP_CACHE}")
-    examples = [row.to_dict() for _, row in df.iterrows()]
+    examples = spec.load_examples()
     rng = random.Random(seed)
     sample = rng.sample(examples, sample_size)
     logger.info(f"Loaded fixed sample of {len(sample)} examples")

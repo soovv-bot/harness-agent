@@ -32,6 +32,7 @@ test = ["pytest"]
 py-modules = [
     "analyze_failed_subtasks",
     "answer_verifier",
+    "benchmark_registry",
     "build_results_from_trajectories",
     "build_seed123_k10_full",
     "config",

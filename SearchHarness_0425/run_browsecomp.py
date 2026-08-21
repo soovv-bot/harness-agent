@@ -10,8 +10,6 @@ Usage:
 """
 
 import argparse
-import base64
-import hashlib
 import json
 import os
 import random
@@ -25,29 +23,20 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Optional
 
-import pandas as pd
 from dotenv import load_dotenv
 from loguru import logger
 from tqdm import tqdm
 
+from benchmark_registry import get_benchmark
 from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm_error_utils import classify_infra_error
 from openai_client_factory import build_openai_client
 
 # ── BrowseComp decrypt ──────────────────────────────────────────────────
+# Back-compat re-exports; the implementations live in benchmark_registry now.
 
-
-def _derive_key(password: str, length: int) -> bytes:
-    hasher = hashlib.sha256()
-    hasher.update(password.encode())
-    key = hasher.digest()
-    return key * (length // len(key)) + key[:length % len(key)]
-
-
-def _decrypt(ciphertext_b64: str, password: str) -> str:
-    encrypted = base64.b64decode(ciphertext_b64)
-    key = _derive_key(password, len(encrypted))
-    return bytes(a ^ b for a, b in zip(encrypted, key)).decode()
+from benchmark_registry import decrypt_field as _decrypt  # noqa: E402,F401
+from benchmark_registry import _derive_key  # noqa: E402,F401
 
 
 # ── Grader ──────────────────────────────────────────────────────────────
@@ -334,12 +323,8 @@ def run_evaluation(
     tracker = get_tracker()
     tracker.reset()
 
-    # Load dataset
-    logger.info("Loading BrowseComp dataset...")
-    df = pd.read_csv(
-        "https://openaipublic.blob.core.windows.net/simple-evals/browse_comp_test_set.csv"
-    )
-    examples = [row.to_dict() for _, row in df.iterrows()]
+    # Load dataset (registry-managed; CSV cached locally after first download)
+    examples = get_benchmark("browsecomp").load_examples()
 
     if num_examples:
         rng = random.Random(seed if seed is not None else 42)
