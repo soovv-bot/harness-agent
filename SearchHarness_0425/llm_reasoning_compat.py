@@ -479,7 +479,7 @@ def _stream_completion(
                 pass
 
 
-def chat_completion_with_structuring(
+def _chat_completion_with_structuring_impl(
     client: Any,
     *,
     model_id: str,
@@ -662,6 +662,67 @@ def chat_completion_with_structuring(
             except Exception:
                 pass
 
+    return response
+
+
+def chat_completion_with_structuring(
+    client: Any,
+    *,
+    model_id: str,
+    messages: list[Any],
+    tools: Optional[list[Dict[str, Any]]] = None,
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    structurer_format_hint: str = "",
+    reasoning_effort_override: Optional[str] = None,
+    structurer_reasoning_effort_override: Optional[str] = "minimal",
+    **extra: Any,
+) -> Any:
+    """Disk-cache wrapper around :func:`_chat_completion_with_structuring_impl`.
+
+    Default (LLM_CACHE_MODE=off) is a pass-through. In ``record`` mode calls
+    are memoised by request-hash; in ``replay`` mode a miss raises
+    ``DiskCacheMissError`` so evals can run offline. Cache hits do NOT feed
+    the usage tracker (no real API spend). Caching must never break the call.
+    """
+    try:
+        import disk_cache as dc
+        enabled = dc.cache_enabled()
+    except Exception:
+        enabled = False
+    if not enabled:
+        return _chat_completion_with_structuring_impl(
+            client, model_id=model_id, messages=messages, tools=tools,
+            temperature=temperature, max_tokens=max_tokens,
+            structurer_format_hint=structurer_format_hint,
+            reasoning_effort_override=reasoning_effort_override,
+            structurer_reasoning_effort_override=structurer_reasoning_effort_override,
+            **extra,
+        )
+
+    key = dc.make_llm_key(build_chat_completion_kwargs(
+        model_id=model_id, messages=messages, tools=tools,
+        temperature=temperature, max_tokens=max_tokens,
+        reasoning_effort_override=reasoning_effort_override, **extra,
+    ))
+    hit = dc.get_entry("llm", key)
+    if hit and hit.get("response") is not None:
+        logger.debug(f"[LLMCache] hit {key[:12]} (model={model_id})")
+        return dc.message_from_cached_dict(hit["response"])
+    dc.miss_or_raise("llm", key, f"chat completion model={model_id}")
+
+    response = _chat_completion_with_structuring_impl(
+        client, model_id=model_id, messages=messages, tools=tools,
+        temperature=temperature, max_tokens=max_tokens,
+        structurer_format_hint=structurer_format_hint,
+        reasoning_effort_override=reasoning_effort_override,
+        structurer_reasoning_effort_override=structurer_reasoning_effort_override,
+        **extra,
+    )
+    try:
+        dc.put_entry("llm", key, {"response": dc.message_to_cached_dict(response), "model": model_id})
+    except Exception:
+        pass
     return response
 
 

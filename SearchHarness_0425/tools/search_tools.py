@@ -300,6 +300,39 @@ def call_llm(
     return "Failed to call LLM API"
 
 
+# ---------------------------------------------------------------------------
+# HTTP disk cache (M1 replay) — record/replay of Serper/crawl/wiki responses.
+# Off by default; see disk_cache.py for modes. Never breaks a call on error.
+# ---------------------------------------------------------------------------
+
+def _http_cache_get(kind: str, *parts: str):
+    """Return (key, text) where key is None when the cache is disabled."""
+    try:
+        import disk_cache as dc
+        if not dc.cache_enabled():
+            return None, None
+        key = dc.make_http_key(kind, *parts)
+        hit = dc.get_entry("http", key)
+        if hit is not None and "text" in hit:
+            return key, hit["text"]
+        dc.miss_or_raise("http", key, f"{kind}: {parts[0][:120]!r}")
+        return key, None
+    except Exception as e:
+        if type(e).__name__ == "DiskCacheMissError":
+            raise
+        return None, None
+
+
+def _http_cache_put(kind: str, key, parts, text: str) -> None:
+    if key is None:
+        return
+    try:
+        import disk_cache as dc
+        dc.put_entry("http", key, {"text": text, "kind": kind, "parts": list(parts)})
+    except Exception:
+        pass
+
+
 def _call_serper_api(query: str) -> str:
     """
     Call Serper API for Google search.
@@ -310,6 +343,10 @@ def _call_serper_api(query: str) -> str:
     Returns:
         Search results as JSON string
     """
+    cache_key, cached = _http_cache_get("serper", query)
+    if cached is not None:
+        return cached
+
     api_key = os.getenv("SERPER_API_KEY")
     if not api_key:
         raise ValueError("SERPER_API_KEY is not set in environment variables")
@@ -330,6 +367,7 @@ def _call_serper_api(query: str) -> str:
         raise RuntimeError(
             f"Serper API {response.status_code}: {response.text[:500]} | query={query[:200]!r}"
         )
+    _http_cache_put("serper", cache_key, (query,), response.text)
     return response.text
 
 
@@ -922,6 +960,17 @@ def _call_trafilatura(url: str) -> str:
 
 
 def _crawl_url(url: str) -> str:
+    """Disk-cache wrapper — keyed by (crawler engine, url) since the engine
+    changes the returned text. Replay-mode misses raise like network errors."""
+    cache_key, cached = _http_cache_get("crawl", os.getenv("CRAWLER_ENGINE", "trafilatura"), url)
+    if cached is not None:
+        return cached
+    result = _crawl_url_uncached(url)
+    _http_cache_put("crawl", cache_key, (url,), result)
+    return result
+
+
+def _crawl_url_uncached(url: str) -> str:
     """
     Crawl the webpage content of the given URL.
     
@@ -1142,6 +1191,16 @@ def visit_urls(urls: List[str], query: str) -> List[str]:
 
 
 def _search_wiki(entity: str) -> str:
+    """Disk-cache wrapper (replay-safe), keyed by entity name."""
+    cache_key, cached = _http_cache_get("wiki", entity)
+    if cached is not None:
+        return cached
+    result = _search_wiki_uncached(entity)
+    _http_cache_put("wiki", cache_key, (entity,), result)
+    return result
+
+
+def _search_wiki_uncached(entity: str) -> str:
     """Search Wikipedia for a single entity."""
     global _WIKI_FAILURE_COUNT, _WIKI_DISABLED
 

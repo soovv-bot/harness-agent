@@ -154,7 +154,15 @@ def main():
         action="store_true",
         help="Re-run every repetition even if a prior seed{seed}_runNN.json exists (default: resume, skipping finished runs)",
     )
+    parser.add_argument(
+        "--replay",
+        action="store_true",
+        help="Offline replay for child runs: export LLM_CACHE_MODE=replay before each subprocess",
+    )
     args = parser.parse_args()
+
+    if args.replay:
+        os.environ["LLM_CACHE_MODE"] = "replay"
 
     base_dir = Path(__file__).resolve().parent
     output_dir = (base_dir / args.output_dir).resolve()

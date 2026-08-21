@@ -484,7 +484,11 @@ def main():
     parser.add_argument("--trajectory-dir", type=str, default="logs/trajectories", help="Directory for trajectory logs")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for example selection")
     parser.add_argument("--skip", type=int, default=0, help="Skip first N examples (for resuming)")
+    parser.add_argument("--replay", action="store_true",
+                        help="Offline replay: LLM/HTTP calls must hit .llm_cache (LLM_CACHE_MODE=replay)")
     args = parser.parse_args()
+    if args.replay:
+        os.environ["LLM_CACHE_MODE"] = "replay"
 
     load_dotenv()
 

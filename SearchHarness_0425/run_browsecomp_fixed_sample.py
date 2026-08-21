@@ -358,7 +358,10 @@ def main() -> None:
     parser.add_argument("--max-workers", type=int, default=1, help="Number of concurrent workers (1=sequential, >1=parallel)")
     parser.add_argument("--disable-query-critic", action="store_true", help="Allow executor search queries without query critic filtering.")
     parser.add_argument("--force", action="store_true", help="Ignore the run checkpoint and re-run every requested position (default: resume from checkpoint)")
+    parser.add_argument("--replay", action="store_true", help="Offline replay: LLM/HTTP calls must hit .llm_cache (LLM_CACHE_MODE=replay)")
     args = parser.parse_args()
+    if args.replay:
+        os.environ["LLM_CACHE_MODE"] = "replay"
 
     run_fixed_evaluation(
         seed=args.seed,

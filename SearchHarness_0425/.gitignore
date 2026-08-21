@@ -90,3 +90,7 @@ tmp_*/
 # (these patterns are exceptions and tracked normally)
 !docs/
 !*.md
+
+# LLM/HTTP disk cache (M1 replay)
+.llm_cache/
+*.egg-info/

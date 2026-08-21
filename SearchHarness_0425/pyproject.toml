@@ -38,6 +38,7 @@ py-modules = [
     "debug_llm_smoke",
     "debug_serper_smoke",
     "diagnose_trajectories",
+    "disk_cache",
     "failure_taxonomy",
     "llm_client",
     "llm_error_utils",
