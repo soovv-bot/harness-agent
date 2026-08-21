@@ -229,9 +229,9 @@ def test_run_contracts_roundtrip():
 
 def test_contract_layer_r1_purity():
     project_modules = {
-        "config", "llm_client", "llm_reasoning_compat", "openai_client_factory",
+        "config", "llm",
         "search_memory", "query_history", "query_critic", "subtask_critic",
-        "search_harness_pipeline_v4", "trajectory",
+        "pipeline", "trajectory",
         "planning_agent_v3", "search_agent_v3",
     }
     # AST-level check: no `import <project_module>` / `from <project_module>` in contract sources.

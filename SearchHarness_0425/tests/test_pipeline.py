@@ -16,7 +16,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
+from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
 from search_memory import SearchStateStore  # noqa: E402
 
 

@@ -57,14 +57,13 @@ py-modules = [
     "search_agent_v3",
     "search_crawl_controller",
     "search_finalizer",
-    "search_harness_pipeline_v4",
     "search_memory",
     "smoke_test_simple",
     "smoke_test_thinking",
     "subtask_critic",
     "verify_source_accuracy",
 ]
-packages = ["tools", "contract", "llm", "trajectory"]
+packages = ["tools", "contract", "llm", "trajectory", "pipeline"]
 
 [tool.setuptools.package-data]
 llm = ["*.yaml"]

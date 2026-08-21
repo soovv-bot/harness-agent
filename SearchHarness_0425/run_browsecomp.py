@@ -317,7 +317,7 @@ def run_evaluation(
     max_executor_searches: int = 30,
     max_total_searches: int = 80,
 ):
-    from search_harness_pipeline_v4 import SearchHarnessPipelineV4
+    from pipeline.orchestrator import SearchHarnessPipelineV4
     from trajectory.recorder import TrajectoryRecorderEnhanced
     from llm_usage import get_tracker
 

@@ -19,7 +19,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
+from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
 from search_agent_v3 import SearchAgentV3  # noqa: E402
 from llm.errors import classify_infra_error  # noqa: E402
 

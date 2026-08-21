@@ -24,7 +24,7 @@ from loguru import logger
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(_REPO_ROOT / ".env")
 
-from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
+from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
 
 
 def main() -> int:

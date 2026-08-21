@@ -1,4 +1,4 @@
-"""Unit tests for subtask concurrent execution in search_harness_pipeline_v4.
+"""Unit tests for subtask concurrent execution in pipeline.orchestrator.
 
 Covers:
   - ``_decide_concurrency`` — default 2, bump to 3 for complex questions,
@@ -17,7 +17,7 @@ import threading
 
 import pytest
 
-import search_harness_pipeline_v4 as pipe  # type: ignore
+import pipeline.orchestrator as pipe  # type: ignore
 
 
 # ── _decide_concurrency ───────────────────────────────────────────────────────

@@ -121,7 +121,7 @@ def run_fixed_evaluation(
     enable_query_critic: bool = True,
     resume: bool = True,
 ) -> None:
-    from search_harness_pipeline_v4 import SearchHarnessPipelineV4
+    from pipeline.orchestrator import SearchHarnessPipelineV4
     from trajectory.recorder import TrajectoryRecorderEnhanced
     from llm_usage import get_tracker, usage_tag
 

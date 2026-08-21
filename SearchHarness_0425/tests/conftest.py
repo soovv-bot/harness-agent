@@ -49,7 +49,7 @@ LLM_CLIENT_CONSUMERS = [
     "llm.client",
     # pipeline 自身也在 L28 `from llm.factory import build_openai_client`
     # 并在 L117 直接构建 client；漏挂会导致测试真实建连
-    "search_harness_pipeline_v4",
+    "pipeline.orchestrator",  # M2 step4a: moved from search_harness_pipeline_v4
 ]
 
 

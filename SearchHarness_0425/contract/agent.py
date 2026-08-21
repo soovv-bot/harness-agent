@@ -3,7 +3,7 @@
 Pure data structures — no project imports (rule R1).
 
 The planner and subtask pipeline currently pass plain dicts (see
-``search_harness_pipeline_v4._subtask_from_step``). These dataclasses define
+``pipeline.orchestrator._subtask_from_step``). These dataclasses define
 the canonical shapes; producers migrate incrementally (RD migration
 discipline), so every class provides a tolerant ``from_dict`` adapter and
 consumers must keep accepting plain dicts until the migration completes.

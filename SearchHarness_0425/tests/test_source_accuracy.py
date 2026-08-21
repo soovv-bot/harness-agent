@@ -466,7 +466,7 @@ class _FakeStateStore:
 
 
 def _make_pipeline_for_authority(records):
-    import search_harness_pipeline_v4 as pipe
+    import pipeline.orchestrator as pipe
     class _Stub:
         state_store = _FakeStateStore(records)
         workflow_stage = "candidate_verification"
