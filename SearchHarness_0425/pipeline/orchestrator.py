@@ -31,6 +31,7 @@ from query_critic import QueryCritic
 from search_crawl_controller import SearchCrawlController
 from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore
 
+from pipeline import finish as _finish
 from pipeline import tracing as _tracing
 
 
@@ -2052,11 +2053,17 @@ too. Failure-safe: any error keeps the original answer.
                 }
         return None
 
-    # RD step4b (tracing module): pure functions extracted to pipeline/tracing.py.
+    # RD step4b: pure helpers extracted into pipeline/{tracing, finish, ...}.
     # Re-bound as class attributes to keep private-name call sites working.
     _record_candidate_snapshot_for_trajectory = _tracing.record_candidate_snapshot_for_trajectory
     _record_event_for_trajectory = _tracing.record_event_for_trajectory
     _record_iteration_summary_for_trajectory = _tracing.record_iteration_summary_for_trajectory
+
+    _finish_with_answer = _finish.finish_with_answer
+    _best_effort_finish = _finish.best_effort_finish
+    _build_wrap_up_state_excerpt = _finish.build_wrap_up_state_excerpt
+    _try_protocol_wrap_up = _finish.try_protocol_wrap_up
+    _looks_solved = _finish.looks_solved
 
     def _best_effort_finish(self, question: str, plan: Dict[str, Any], iteration: int, stop: Dict[str, Any]) -> Dict[str, Any]:
         compact_state = self.state_store.export_compact_state()
