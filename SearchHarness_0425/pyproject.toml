@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "search-harness"
+version = "0.1.0"
+description = "Multi-agent deep research evaluation harness (BrowseComp) with trajectory recording for distillation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "openai>=1.0.0",
+    "requests",
+    "httpx",
+    "beautifulsoup4",
+    "html2text",
+    "trafilatura",
+    "wikipedia-api",
+    "pypdf",
+    "python-dotenv>=1.0.0",
+    "loguru>=0.7.0",
+    "pandas",
+    "tqdm",
+    "PyYAML>=6.0.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+# Flat-layout packages: every top-level .py is an importable module.
+[tool.setuptools]
+py-modules = [
+    "analyze_failed_subtasks",
+    "answer_verifier",
+    "build_results_from_trajectories",
+    "build_seed123_k10_full",
+    "config",
+    "debug_llm_smoke",
+    "debug_serper_smoke",
+    "diagnose_trajectories",
+    "failure_taxonomy",
+    "llm_client",
+    "llm_error_utils",
+    "llm_reasoning_compat",
+    "llm_usage",
+    "model_profiles",
+    "openai_client_factory",
+    "planning_agent_v3",
+    "planning_direction_critic",
+    "query_critic",
+    "query_history",
+    "regrade_results",
+    "run_browsecomp",
+    "run_browsecomp_fixed_sample",
+    "run_checkpoint",
+    "run_seed_repeats",
+    "run_single_verify",
+    "search_agent_v3",
+    "search_crawl_controller",
+    "search_finalizer",
+    "search_harness_pipeline_v4",
+    "search_memory",
+    "smoke_test_simple",
+    "smoke_test_thinking",
+    "subtask_critic",
+    "trajectory_recorder",
+    "trajectory_recorder_enhanced",
+    "verify_source_accuracy",
+]
+packages = ["tools"]

@@ -27,9 +27,6 @@ if _env.exists():
         k, _, v = line.partition("=")
         os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
-# tools package is local: SearchHarness_0425/tools/
-sys.path.insert(0, str(ROOT / "SearchHarness_0425"))
-
 from tools.search_tools import _call_serper_api, _postprocess_serper_results  # type: ignore
 
 

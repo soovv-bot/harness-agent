@@ -12,15 +12,9 @@ Run: pytest tests/test_pipeline.py -v
 
 from __future__ import annotations
 
-import os
-import sys
 from types import SimpleNamespace
 
 import pytest
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
 
 from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
 from search_memory import SearchStateStore  # noqa: E402

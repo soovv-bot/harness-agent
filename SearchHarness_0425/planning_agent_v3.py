@@ -5,17 +5,11 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
 import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from loguru import logger
-
-# tools package is now local: SearchHarness_0425/tools/
-root_path = os.path.dirname(os.path.dirname(__file__))
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
 
 from llm_reasoning_compat import (
     assistant_message_to_dict,

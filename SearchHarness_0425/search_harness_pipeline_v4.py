@@ -27,8 +27,6 @@ from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
 from llm_reasoning_compat import chat_completion_with_structuring
 from openai_client_factory import build_openai_client
 
-import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from query_history import QueryHistoryMemory
 from query_critic import QueryCritic
 from search_crawl_controller import SearchCrawlController

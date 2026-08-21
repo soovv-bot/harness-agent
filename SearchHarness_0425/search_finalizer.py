@@ -5,13 +5,8 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-
-root_path = os.path.dirname(os.path.dirname(__file__))
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
 
 from loguru import logger
 

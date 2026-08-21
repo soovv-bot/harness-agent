@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
 import time
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -22,7 +21,6 @@ from tools.tool_processor import ToolProcessor  # type: ignore
 from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore
 from search_memory import SearchStateStore
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from query_history import QueryHistoryMemory
 from query_critic import QueryCritic, QueryVerdict, SUGGEST_PIVOT, _normalize_query
 from search_crawl_controller import SearchCrawlController

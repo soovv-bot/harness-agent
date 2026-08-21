@@ -16,7 +16,6 @@ import argparse
 import json
 import os
 import random
-import sys
 import time
 from pathlib import Path
 
@@ -27,7 +26,6 @@ from loguru import logger
 _HERE = Path(__file__).resolve().parent
 load_dotenv(_HERE.parent / ".env")
 
-sys.path.insert(0, str(_HERE))
 from run_browsecomp import run_single_task, resolve_primary_model, resolve_grader_config  # noqa: E402
 from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
 from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced  # noqa: E402

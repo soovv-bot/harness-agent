@@ -41,8 +41,6 @@ _HERE = Path(__file__).resolve().parent
 load_dotenv(_HERE.parent / ".env")
 
 # Reuse the grader + extraction logic from run_browsecomp.py
-import sys as _sys
-_sys.path.insert(0, str(_HERE))
 from run_browsecomp import LLMGrader, extract_answer_from_pipeline, _decrypt  # noqa: E402
 
 TRAJ_MODEL_DIR = "GLM-5.2"  # sub-directory inside trajectory-dir

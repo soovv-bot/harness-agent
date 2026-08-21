@@ -18,16 +18,11 @@ Optimizations (2026-07):
 import json
 import os
 import re
-import sys
 from typing import Dict, List, Optional, Tuple
 
 from loguru import logger
 
 from query_history import QueryHistoryMemory, QueryRecord
-
-root_path = os.path.dirname(os.path.dirname(__file__))
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
 
 from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from openai_client_factory import build_openai_client

@@ -38,7 +38,6 @@ from loguru import logger
 from tqdm import tqdm
 
 _HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE.parent))
 from llm_reasoning_compat import build_chat_completion_kwargs  # noqa: E402
 from openai_client_factory import build_openai_client  # noqa: E402
 

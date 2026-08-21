@@ -14,15 +14,7 @@ Covers:
 
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
-
 import pytest
-
-# Ensure project root is on sys.path so `import query_critic` works.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from query_critic import _normalize_query, QueryCritic, QueryVerdict  # noqa: E402
 from query_history import QueryHistoryMemory  # noqa: E402

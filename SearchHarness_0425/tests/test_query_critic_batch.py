@@ -15,15 +15,9 @@ Run: pytest tests/test_query_critic_batch.py -v
 
 from __future__ import annotations
 
-import os
-import sys
 from types import SimpleNamespace
 
 import pytest
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
 
 from query_critic import (  # noqa: E402
     ALLOW,

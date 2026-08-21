@@ -22,10 +22,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: SearchHarness_0425/requirements.txt
+          cache-dependency-path: SearchHarness_0425/pyproject.toml
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest
+        run: pip install -e ".[test]"
 
       # 214 用例为 M0 回归基线；全部由 tests/conftest.py 注入 fake LLM client
       # 与 stub tools，无需任何 API key / 网络。

@@ -33,19 +33,11 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-root_path = os.path.dirname(os.path.dirname(__file__))
-if root_path in sys.path:
-    pass
-else:
-    sys.path.insert(0, root_path)
-
-# tools package is now local: SearchHarness_0425/tools/ (no external path needed)
 from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring  # noqa: E402
 from openai_client_factory import build_openai_client  # noqa: E402
 
