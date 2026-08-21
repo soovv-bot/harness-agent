@@ -28,7 +28,7 @@ load_dotenv(_HERE.parent / ".env")
 
 from run_browsecomp import run_single_task, resolve_primary_model, resolve_grader_config  # noqa: E402
 from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
-from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced  # noqa: E402
+from trajectory.recorder import TrajectoryRecorderEnhanced  # noqa: E402
 
 
 def main() -> int:

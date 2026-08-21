@@ -17,7 +17,7 @@ debugging. Builds on TrajectoryRecorder with:
    convert_trajectory_to_offseeker_format.py converter.
 
 Usage:
-    recorder = TrajectoryRecorderEnhanced(model_id="<model_name>", output_dir="logs/trajectories")
+    recorder = TrajectoryRecorder(model_id="<model_name>", output_dir="logs/trajectories")
     recorder.start(question="...", task_index=0, pipeline_config={...})
     recorder.record_planner(messages=planner.messages, iteration=0, plan=plan_dict)
     recorder.record_event("subtask_selected", iteration=0, agent="pipeline", data={...})
@@ -37,6 +37,8 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
+from contract.trajectory import TrajectoryDoc
+
 
 def _now_ms() -> float:
     """Monotonic-ish timestamp in milliseconds (float)."""
@@ -44,7 +46,7 @@ def _now_ms() -> float:
     return time.time() * 1000.0
 
 
-class TrajectoryRecorderEnhanced:
+class TrajectoryRecorder:
     """Records a single SearchHarness pipeline run as an enriched trajectory."""
 
     def __init__(
@@ -781,7 +783,12 @@ class TrajectoryRecorderEnhanced:
         metadata["updated_at"] = datetime.now().isoformat()
         metadata["planner_turns_recorded"] = len(self._planner_turns)
         metadata["executor_turns_recorded"] = len(self._executor_turns)
-        return self._build_trajectory()
+        payload = self._build_trajectory()
+        # Contract-layer boundary validation (RD §6): never raises — logs once.
+        violations = TrajectoryDoc.validate(payload)
+        if violations:
+            logger.warning(f"[TrajectoryRecorder] schema violations: {violations}")
+        return payload
 
     def _write_json(self, output_path: Path, payload: Dict[str, Any]) -> None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -803,3 +810,7 @@ class TrajectoryRecorderEnhanced:
             return
         payload = self._snapshot_payload(status=status, partial=True)
         self._write_json(self._partial_output_path(), payload)
+
+
+# Backward-compatible alias: the enriched recorder is now the only recorder.
+TrajectoryRecorderEnhanced = TrajectoryRecorder

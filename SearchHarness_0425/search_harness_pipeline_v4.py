@@ -22,8 +22,7 @@ from config import settings
 from search_finalizer import SearchFinalizer
 from subtask_critic import SubtaskCritic
 from planning_direction_critic import DirectionCritic
-from trajectory_recorder import TrajectoryRecorder
-from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
+from trajectory.recorder import TrajectoryRecorder
 from llm.compat import chat_completion_with_structuring
 from llm.factory import build_openai_client
 

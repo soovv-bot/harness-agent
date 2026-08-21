@@ -318,7 +318,7 @@ def run_evaluation(
     max_total_searches: int = 80,
 ):
     from search_harness_pipeline_v4 import SearchHarnessPipelineV4
-    from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
+    from trajectory.recorder import TrajectoryRecorderEnhanced
     from llm_usage import get_tracker
 
     tracker = get_tracker()

@@ -231,15 +231,12 @@ def test_contract_layer_r1_purity():
     project_modules = {
         "config", "llm_client", "llm_reasoning_compat", "openai_client_factory",
         "search_memory", "query_history", "query_critic", "subtask_critic",
-        "search_harness_pipeline_v4", "trajectory_recorder", "trajectory_recorder_enhanced",
+        "search_harness_pipeline_v4", "trajectory",
         "planning_agent_v3", "search_agent_v3",
     }
-    # Every already-imported contract submodule must be free of project deps.
-    for name, module in sys.modules.items():
-        if name == "contract" or name.startswith("contract."):
-            for dep in project_modules:
-                assert dep not in sys.modules or not hasattr(module, dep)
     # AST-level check: no `import <project_module>` / `from <project_module>` in contract sources.
+    # (A sys.modules heuristic is unreliable — e.g. the contract package legitimately
+    # owns a `trajectory` submodule attribute while a top-level `trajectory` package exists.)
     import ast
     contract_dir = Path(__file__).resolve().parent.parent / "contract"
     for py in contract_dir.glob("*.py"):

@@ -122,7 +122,7 @@ def run_fixed_evaluation(
     resume: bool = True,
 ) -> None:
     from search_harness_pipeline_v4 import SearchHarnessPipelineV4
-    from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
+    from trajectory.recorder import TrajectoryRecorderEnhanced
     from llm_usage import get_tracker, usage_tag
 
     print("[run] starting fixed-sample evaluation", flush=True)

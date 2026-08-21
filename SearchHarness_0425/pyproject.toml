@@ -62,11 +62,9 @@ py-modules = [
     "smoke_test_simple",
     "smoke_test_thinking",
     "subtask_critic",
-    "trajectory_recorder",
-    "trajectory_recorder_enhanced",
     "verify_source_accuracy",
 ]
-packages = ["tools", "contract", "llm"]
+packages = ["tools", "contract", "llm", "trajectory"]
 
 [tool.setuptools.package-data]
 llm = ["*.yaml"]

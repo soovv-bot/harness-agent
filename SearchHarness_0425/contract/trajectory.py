@@ -123,7 +123,7 @@ class TrajectoryEvent:
 class TrajectoryDoc:
     """Schema constants + lightweight validation for the trajectory JSON doc.
 
-    The authoritative producer is ``trajectory_recorder_enhanced._build_trajectory``;
+    The authoritative producer is ``trajectory.recorder.TrajectoryRecorder._build_trajectory``;
     this validator is the boundary check (RD §6) and intentionally returns a
     list of human-readable violations instead of raising.
     """
