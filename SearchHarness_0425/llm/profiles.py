@@ -1,6 +1,6 @@
 """Model reasoning profile loader.
 
-Loads per-model reasoning configuration from ``model_profiles.yaml`` and
+Loads per-model reasoning configuration from ``profiles.yaml`` and
 provides a ``ModelProfile`` for any model_id. Replaces the previously
 hardcoded model detection / effort mapping in ``llm_reasoning_compat``.
 
@@ -10,7 +10,7 @@ used. If the YAML file is missing or unreadable, built-in defaults are used
 so the system keeps working.
 
 Usage:
-    from model_profiles import get_model_profile
+    from llm.profiles import get_model_profile
     profile = get_model_profile("Kimi-K3")
     effort = profile.snap_effort("minimal")   # -> "low"
     if profile.minimal_effort_is_honored: ...
@@ -32,7 +32,7 @@ from loguru import logger
 
 
 _DEFAULT_PROFILE_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "model_profiles.yaml"
+    os.path.dirname(os.path.abspath(__file__)), "profiles.yaml"
 )
 
 # Override path via env (e.g. for tests or alternate configs).

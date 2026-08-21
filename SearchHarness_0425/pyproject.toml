@@ -41,12 +41,7 @@ py-modules = [
     "diagnose_trajectories",
     "disk_cache",
     "failure_taxonomy",
-    "llm_client",
-    "llm_error_utils",
-    "llm_reasoning_compat",
     "llm_usage",
-    "model_profiles",
-    "openai_client_factory",
     "planning_agent_v3",
     "planning_direction_critic",
     "query_critic",
@@ -71,4 +66,7 @@ py-modules = [
     "trajectory_recorder_enhanced",
     "verify_source_accuracy",
 ]
-packages = ["tools", "contract"]
+packages = ["tools", "contract", "llm"]
+
+[tool.setuptools.package-data]
+llm = ["*.yaml"]

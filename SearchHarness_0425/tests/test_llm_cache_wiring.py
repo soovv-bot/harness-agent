@@ -12,7 +12,7 @@ from types import SimpleNamespace
 import pytest
 
 import disk_cache as dc
-from llm_reasoning_compat import chat_completion_with_structuring
+from llm.compat import chat_completion_with_structuring
 from llm_usage import UsageTracker
 
 

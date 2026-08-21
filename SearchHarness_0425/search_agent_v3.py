@@ -24,13 +24,13 @@ from search_memory import SearchStateStore
 from query_history import QueryHistoryMemory
 from query_critic import QueryCritic, QueryVerdict, SUGGEST_PIVOT, _normalize_query
 from search_crawl_controller import SearchCrawlController
-from llm_reasoning_compat import (
+from llm.compat import (
     assistant_message_to_dict,
     build_chat_completion_kwargs,
     chat_completion_with_structuring,
 )
-from openai_client_factory import build_openai_client
-from llm_error_utils import classify_infra_error
+from llm.factory import build_openai_client
+from llm.errors import classify_infra_error
 
 
 def _env_int(name: str, default: int) -> int:

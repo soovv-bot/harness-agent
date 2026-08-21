@@ -38,8 +38,8 @@ from loguru import logger
 from tqdm import tqdm
 
 _HERE = Path(__file__).resolve().parent
-from llm_reasoning_compat import build_chat_completion_kwargs  # noqa: E402
-from openai_client_factory import build_openai_client  # noqa: E402
+from llm.compat import build_chat_completion_kwargs  # noqa: E402
+from llm.factory import build_openai_client  # noqa: E402
 
 # Import the grader prompt + LLMGrader from the main eval module to stay in sync.
 from run_browsecomp import GRADER_PROMPT, LLMGrader, resolve_grader_config, resolve_primary_model  # noqa: E402

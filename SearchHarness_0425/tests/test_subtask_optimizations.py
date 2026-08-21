@@ -21,7 +21,7 @@ import pytest
 
 from search_harness_pipeline_v4 import SearchHarnessPipelineV4  # noqa: E402
 from search_agent_v3 import SearchAgentV3  # noqa: E402
-from llm_error_utils import classify_infra_error  # noqa: E402
+from llm.errors import classify_infra_error  # noqa: E402
 
 
 def _make_pipeline(fake_llm, responder=None):

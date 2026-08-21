@@ -7,7 +7,7 @@ provides a thin retry helper around `chat.completions.create` for
 transient errors, so callers don't each reimplement try/except loops.
 
 Usage:
-    from llm_client import get_llm_client, llm_chat_completion
+    from llm.client import get_llm_client, llm_chat_completion
     from config import settings
 
     s = settings()
@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from openai_client_factory import build_openai_client
+from llm.factory import build_openai_client
 
 
 _CLIENT_CACHE: Dict[str, Any] = {}

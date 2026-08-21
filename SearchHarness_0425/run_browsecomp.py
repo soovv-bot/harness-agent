@@ -29,9 +29,9 @@ from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
 import results_schema as rs
-from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
-from llm_error_utils import classify_infra_error
-from openai_client_factory import build_openai_client
+from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm.errors import classify_infra_error
+from llm.factory import build_openai_client
 
 # ── BrowseComp decrypt ──────────────────────────────────────────────────
 # Back-compat re-exports; the implementations live in benchmark_registry now.

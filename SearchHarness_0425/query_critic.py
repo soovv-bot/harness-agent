@@ -24,8 +24,8 @@ from loguru import logger
 
 from query_history import QueryHistoryMemory, QueryRecord
 
-from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
-from openai_client_factory import build_openai_client
+from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm.factory import build_openai_client
 from config import settings
 
 

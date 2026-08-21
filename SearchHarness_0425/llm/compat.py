@@ -53,7 +53,7 @@ Kimi K3 notes
   endpoint silently fall back to ``max`` (the *strongest* reasoning), the
   opposite of what a ``minimal`` request intended.
 - Per-model remapping (``minimal→low``, ``medium→high``) is now data-driven
-  via ``model_profiles.yaml`` (see ``model_profiles.py``). Add/adjust a model
+  via ``profiles.yaml`` (see ``llm/profiles.py``). Add/adjust a model
   there — no code changes needed.
 - **Preserved thinking history**: Kimi K3 was trained to see its prior
   ``reasoning_content`` across turns. ``assistant_message_to_dict`` keeps
@@ -150,9 +150,9 @@ def build_chat_completion_kwargs(
 
     effort = _resolve_effort(reasoning_effort_override)
     if effort:
-        # Per-model remap (e.g. Kimi K3 minimal→low) via model_profiles.yaml.
+        # Per-model remap (e.g. Kimi K3 minimal→low) via profiles.yaml (see llm/profiles.py).
         try:
-            from model_profiles import get_model_profile
+            from llm.profiles import get_model_profile
             effort = get_model_profile(model_id).snap_effort(effort)
         except Exception:
             pass  # fall back to resolved effort if profiles unavailable
@@ -216,13 +216,13 @@ def _requested_effort_is_minimal(reasoning_effort_override: Optional[str], model
     reasoning but came back with a large reasoning_content, the endpoint likely
     ignored reasoning_effort and the structurer chain would also fail.
 
-    Model-aware via model_profiles.yaml: delegates to the profile's
+    Model-aware via profiles.yaml (see llm/profiles.py): delegates to the profile's
     ``is_minimal_request`` (which accounts for whether the model honors
     minimal/low — e.g. Kimi K3 does, so big reasoning is normal, not a skip
     signal). Falls back to the legacy env/budget check if profiles unavailable.
     """
     try:
-        from model_profiles import get_model_profile
+        from llm.profiles import get_model_profile
         return get_model_profile(model_id).is_minimal_request(reasoning_effort_override)
     except Exception:
         pass
@@ -577,7 +577,7 @@ def _chat_completion_with_structuring_impl(
     # with smaller budgets instead.
     _model_honors_minimal = True
     try:
-        from model_profiles import get_model_profile
+        from llm.profiles import get_model_profile
         _model_honors_minimal = get_model_profile(model_id).minimal_effort_is_honored
     except Exception:
         pass

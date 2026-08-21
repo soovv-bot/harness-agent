@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from llm_reasoning_compat import (
+from llm.compat import (
     assistant_message_to_dict,
     build_chat_completion_kwargs,
     chat_completion_with_structuring,
@@ -23,7 +23,7 @@ _PLANNER_FORMAT_HINT = (
     'and status="pending"), and status. Example step: '
     '{"step": 1, "action": "search", "search_query": "...", "reasoning": "...", "status": "pending"}.'
 )
-from openai_client_factory import build_openai_client
+from llm.factory import build_openai_client
 
 
 def _env_int(name: str, default: int) -> int:

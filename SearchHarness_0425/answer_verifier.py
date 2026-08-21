@@ -38,8 +38,8 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring  # noqa: E402
-from openai_client_factory import build_openai_client  # noqa: E402
+from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring  # noqa: E402
+from llm.factory import build_openai_client  # noqa: E402
 
 try:
     from tools.search_tools import search as _serper_search  # type: ignore

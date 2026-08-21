@@ -20,7 +20,7 @@ from query_critic import _normalize_query, QueryCritic, QueryVerdict  # noqa: E4
 from query_history import QueryHistoryMemory  # noqa: E402
 from search_crawl_controller import SearchCrawlController  # noqa: E402
 from config import settings  # noqa: E402
-from llm_client import _is_retryable  # noqa: E402
+from llm.client import _is_retryable  # noqa: E402
 
 
 # ---------------------------------------------------------------------------

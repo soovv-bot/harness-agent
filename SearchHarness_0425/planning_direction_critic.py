@@ -15,8 +15,8 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from llm_reasoning_compat import build_chat_completion_kwargs, chat_completion_with_structuring
-from openai_client_factory import build_openai_client
+from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
+from llm.factory import build_openai_client
 
 
 @dataclass

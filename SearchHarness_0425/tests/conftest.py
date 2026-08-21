@@ -36,7 +36,7 @@ if PROJECT_ROOT not in sys.path:
 # The `tools` package (tool_processor, search_tools) is now local at
 # SearchHarness_0425/tools/, importable directly since PROJECT_ROOT is on sys.path.
 
-# Consumer modules that do `from openai_client_factory import build_openai_client`
+# Consumer modules that do `from llm.factory import build_openai_client`
 # and store the imported name in their own namespace. Each must be patched.
 LLM_CLIENT_CONSUMERS = [
     "planning_agent_v3",
@@ -46,8 +46,8 @@ LLM_CLIENT_CONSUMERS = [
     "search_crawl_controller",
     "search_finalizer",
     "planning_direction_critic",
-    "llm_client",
-    # pipeline 自身也在 L28 `from openai_client_factory import build_openai_client`
+    "llm.client",
+    # pipeline 自身也在 L28 `from llm.factory import build_openai_client`
     # 并在 L117 直接构建 client；漏挂会导致测试真实建连
     "search_harness_pipeline_v4",
 ]

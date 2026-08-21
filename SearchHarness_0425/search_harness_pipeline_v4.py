@@ -24,8 +24,8 @@ from subtask_critic import SubtaskCritic
 from planning_direction_critic import DirectionCritic
 from trajectory_recorder import TrajectoryRecorder
 from trajectory_recorder_enhanced import TrajectoryRecorderEnhanced
-from llm_reasoning_compat import chat_completion_with_structuring
-from openai_client_factory import build_openai_client
+from llm.compat import chat_completion_with_structuring
+from llm.factory import build_openai_client
 
 from query_history import QueryHistoryMemory
 from query_critic import QueryCritic
