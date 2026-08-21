@@ -29,51 +29,15 @@ from openai_client_factory import build_openai_client
 from config import settings
 
 
-# Verdict constants
-ALLOW = "allow"
-ALLOW_WITH_WARNING = "allow_with_warning"
-REJECT_AS_REDUNDANT = "reject_as_redundant"
-SUGGEST_PIVOT = "suggest_pivot"
-
-
-class QueryVerdict:
-    """Structured verdict from the query critic."""
-
-    def __init__(
-        self,
-        decision: str,
-        reason: str,
-        checks: Optional[Dict[str, any]] = None,
-        alternative_queries: Optional[List[str]] = None,
-    ):
-        """
-        Args:
-            decision: One of allow, allow_with_warning, reject_as_redundant, suggest_pivot.
-            reason: Full reasoning explaining the decision.
-            checks: Individual check results for transparency.
-            alternative_queries: If suggest_pivot, suggested alternative queries.
-        """
-        self.decision = decision
-        self.reason = reason
-        self.checks = checks or {}
-        self.alternative_queries = alternative_queries or []
-
-    @property
-    def is_allowed(self) -> bool:
-        return self.decision in (ALLOW, ALLOW_WITH_WARNING)
-
-    def to_dict(self) -> Dict:
-        d = {
-            "decision": self.decision,
-            "reason": self.reason,
-            "checks": self.checks,
-        }
-        if self.alternative_queries:
-            d["alternative_queries"] = self.alternative_queries
-        return d
-
-    def __repr__(self):
-        return f"QueryVerdict({self.decision}, reason='{self.reason[:80]}...')"
+# Verdict constants + QueryVerdict moved to the contract layer (RD §6);
+# re-exported here so existing import paths keep working.
+from contract.candidate import (
+    ALLOW,
+    ALLOW_WITH_WARNING,
+    REJECT_AS_REDUNDANT,
+    SUGGEST_PIVOT,
+    QueryVerdict,
+)
 
 
 def _normalize_query(query: str) -> str:

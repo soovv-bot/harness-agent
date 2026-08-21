@@ -71,4 +71,4 @@ py-modules = [
     "trajectory_recorder_enhanced",
     "verify_source_accuracy",
 ]
-packages = ["tools"]
+packages = ["tools", "contract"]

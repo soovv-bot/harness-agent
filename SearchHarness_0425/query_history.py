@@ -9,82 +9,17 @@ query critique, and planning feedback will be built on top of this.
 """
 
 import json
-import time
 import threading
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
+# QueryRecord moved to the contract layer (RD §6); this alias keeps every
+# existing import path working (`from query_history import QueryRecord`).
+from contract.candidate import QueryRecord
 
-class QueryRecord:
-    """A single query history entry."""
-
-    def __init__(
-        self,
-        query: str,
-        phase: str,
-        subtask: str,
-        results_summary: str = "",
-        new_source_families: Optional[List[str]] = None,
-        new_candidates: Optional[List[str]] = None,
-        result_quality: str = "unknown",
-        led_to_crawl: bool = False,
-        crawl_urls: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ):
-        """
-        Args:
-            query: The search query text that was executed.
-            phase: The planning phase when this query was made
-                (source_identification, candidate_generation, etc.).
-            subtask: The subtask this query was part of.
-            results_summary: Brief summary of what the search returned.
-            new_source_families: List of source families/domains discovered
-                that had not appeared in prior queries.
-            new_candidates: List of candidate entities/answers discovered
-                that had not appeared in prior queries.
-            result_quality: Quality signal — one of:
-                "empty" (no results),
-                "noise" (results irrelevant),
-                "low" (weakly relevant),
-                "medium" (some useful results),
-                "high" (directly useful results),
-                "unknown" (not yet assessed).
-            led_to_crawl: Whether this search led to a valuable crawl action.
-            crawl_urls: URLs that were crawled as a result of this search.
-            metadata: Arbitrary additional metadata.
-        """
-        self.query = query
-        self.phase = phase
-        self.subtask = subtask
-        self.results_summary = results_summary
-        self.new_source_families = new_source_families or []
-        self.new_candidates = new_candidates or []
-        self.result_quality = result_quality
-        self.led_to_crawl = led_to_crawl
-        self.crawl_urls = crawl_urls or []
-        self.metadata = metadata or {}
-
-        self.timestamp = datetime.now().isoformat()
-        self.turn_index: Optional[int] = None
-
-    def to_dict(self) -> Dict:
-        return {
-            "query": self.query,
-            "phase": self.phase,
-            "subtask": self.subtask,
-            "results_summary": self.results_summary,
-            "new_source_families": self.new_source_families,
-            "new_candidates": self.new_candidates,
-            "result_quality": self.result_quality,
-            "led_to_crawl": self.led_to_crawl,
-            "crawl_urls": self.crawl_urls,
-            "metadata": self.metadata,
-            "timestamp": self.timestamp,
-            "turn_index": self.turn_index,
-        }
+__all__ = ["QueryRecord", "QueryHistoryMemory"]
 
 
 class QueryHistoryMemory:

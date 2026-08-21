@@ -43,24 +43,11 @@ def _is_pseudo_candidate(name: str) -> bool:
     return False
 
 
-@dataclass
-class ToolObservation:
-    tool_name: str
-    arguments: Dict[str, Any]
-    raw_result: str
-    compact_summary: str
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+# ToolObservation moved to the contract layer as ToolResult (RD §6);
+# the alias keeps existing import paths and serialized output identical.
+from contract.trajectory import ToolResult
 
-    def to_dict(self, include_raw: bool = True) -> Dict[str, Any]:
-        data = {
-            "tool_name": self.tool_name,
-            "arguments": self.arguments,
-            "compact_summary": self.compact_summary,
-            "created_at": self.created_at,
-        }
-        if include_raw:
-            data["raw_result"] = self.raw_result
-        return data
+ToolObservation = ToolResult
 
 
 @dataclass
