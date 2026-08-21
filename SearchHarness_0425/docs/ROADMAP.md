@@ -61,6 +61,12 @@
 - ✅ token/成本计量：`llm_usage.py` 在 `chat_completion_with_structuring` 唯一收口打点（含流式 usage、structurer 调用），结果写入 payload `llm_usage`（`97c0f65`）
 - ✅ 门禁复核：pytest **241 passed**（214 基线 + 27 新增），固定样本入口语法冒烟通过
 
+**M1 状态（进行中，`feat/m1-repro`）**：
+
+- ✅ ④ pyproject 化 + sys.path 清零（`788682c`）：15 处 sys.path hack 清除，新建 pyproject.toml（36 py-modules + tools 包），`pip install -e .` 可用，CI 改走 pyproject
+- ✅ ① seed 全链路核查（确认采样层已全用显式 `random.Random(seed)`，agent 层无隐藏随机性）+ LLM/HTTP 磁盘缓存 replay（`dcfe450`）：`disk_cache.py` off/record/replay 三模式（默认 off 零行为变化），唯一 LLM 收口 `chat_completion_with_structuring` 与 serper/crawl/wiki 三处网络面接缓存；`--replay` 入口；命中不计 usage；22 新增用例（pytest **263 passed**）
+- ⏳ 剩余：② benchmark registry + 统一 CLI 入口；③ 统一 results schema + run spec；byte-level 重放演练（需真实 record → replay 对比，剔除 volatile 字段后验一致）
+
 ## 4. 本轮已完成的整理动作（本分支）
 
 - ✅ 13 份一次性实验报告归档至 `docs/experiments/`（`git mv`，历史保留）
