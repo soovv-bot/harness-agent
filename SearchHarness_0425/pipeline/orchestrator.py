@@ -33,6 +33,7 @@ from tools.search_tools import authoritative_domains_in, high_weight_sources_in 
 
 from pipeline import feedback as _feedback
 from pipeline import finish as _finish
+from pipeline import stages as _stages
 from pipeline import tracing as _tracing
 
 
@@ -646,100 +647,6 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
             return wrapped
         return self._best_effort_finish(question, plan, max_iterations, stop)
 
-    def _stage_context(self) -> Dict[str, Any]:
-        return {
-            "workflow_stage": self.workflow_stage,
-            "generation_round": self.stage_round_counts.get(self.CANDIDATE_GENERATION, 0) + 1,
-            "generation_budget": self.max_candidate_generation_rounds,
-            "current_candidate_count": len(self.state_store.current_candidates),
-            "viable_candidate_count": len(self._viable_candidate_records()),
-            "active_candidate": self.active_candidate,
-            "candidate_verification_round": self.active_candidate_rounds + 1 if self.active_candidate else 0,
-            "verification_queue_remaining": len(self.verification_queue),
-            "completed_verification_candidates": self.completed_verification_candidates[-10:],
-        }
-
-    def _workflow_stage_from_plan(self, plan: Dict[str, Any]) -> Optional[str]:
-        phase = str(plan.get("phase") or "").strip().lower()
-        if phase in {"source_identification", self.CANDIDATE_GENERATION}:
-            return self.CANDIDATE_GENERATION
-        if phase in {"candidate_narrowing", "verification", self.CANDIDATE_VERIFICATION}:
-            return self.CANDIDATE_VERIFICATION
-        if phase == self.FINAL_CHECK:
-            return self.FINAL_CHECK
-
-        for step in plan.get("steps", []) or []:
-            if not isinstance(step, dict):
-                continue
-            if step.get("status") not in (None, "pending", "in_progress"):
-                continue
-            subtask_type = str(step.get("subtask_type") or step.get("type") or "").strip().lower()
-            if subtask_type == "candidate_expansion":
-                return self.CANDIDATE_GENERATION
-            if subtask_type == "candidate_verification":
-                return self.CANDIDATE_VERIFICATION
-            if subtask_type == "final_check":
-                return self.FINAL_CHECK
-        return None
-
-    def _sync_workflow_stage_from_plan(self, plan: Dict[str, Any]) -> None:
-        target_stage = self._workflow_stage_from_plan(plan)
-        if not target_stage or target_stage == self.workflow_stage:
-            return
-
-        # pos6 fix: enforce monotonic stage progression. The planner must not
-        # skip candidate_verification and jump straight from candidate_generation
-        # to final_check — that bypasses the top-2 verification gate in
-        # _should_advance_stage and lets a weak "partial" candidate be selected
-        # over an unverified-but-stronger sibling (pos6 root cause). If the
-        # planner tries to jump, force it into verification first.
-        stage_order = {
-            self.CANDIDATE_GENERATION: 0,
-            self.CANDIDATE_VERIFICATION: 1,
-            self.FINAL_CHECK: 2,
-        }
-        current_rank = stage_order.get(self.workflow_stage, 0)
-        target_rank = stage_order.get(target_stage, 0)
-        if target_rank > current_rank + 1:
-            logger.info(
-                f"[Pipeline] stage-jump guard: planner tried to jump "
-                f"{self.workflow_stage} -> {target_stage}; forcing "
-                f"{self.CANDIDATE_VERIFICATION} first"
-            )
-            target_stage = self.CANDIDATE_VERIFICATION
-        # pos6 fix: do NOT let the planner skip verification by jumping
-        # from candidate_verification to final_check before ANY verification
-        # subtask has run. Without this, a transition planner that immediately
-        # emits phase=final_check (observed: planner_conv 3 after the
-        # generation->verification force-advance) bypasses the top-2 gate in
-        # _should_advance_stage and lets a single verified-but-weak candidate
-        # (e.g. "Opium") win over 48 unverified siblings (e.g. "In the Arms of
-        # Morpheus"). Require at least one completed verification pass.
-        if (
-            self.workflow_stage == self.CANDIDATE_VERIFICATION
-            and target_stage == self.FINAL_CHECK
-            and not self.completed_verification_candidates
-            and self.active_candidate_rounds == 0
-        ):
-            logger.info(
-                f"[Pipeline] stage-jump guard: planner tried to advance "
-                f"candidate_verification -> final_check before ANY "
-                f"verification subtask ran (completed=[], "
-                f"active_rounds=0) — forcing back to "
-                f"{self.CANDIDATE_VERIFICATION}"
-            )
-            target_stage = self.CANDIDATE_VERIFICATION
-
-        previous_stage = self.workflow_stage
-        self.workflow_stage = target_stage
-        if target_stage == self.CANDIDATE_VERIFICATION:
-            if previous_stage != self.CANDIDATE_VERIFICATION or not (self.active_candidate or self.verification_queue):
-                self._initialize_verification_queue()
-        elif target_stage == self.CANDIDATE_GENERATION:
-            self.active_candidate = None
-            self.active_candidate_rounds = 0
-            self.verification_queue = []
-
     def _consume_stage_answer(self, iterations: int) -> Optional[Dict[str, Any]]:
         if not self._stage_answer:
             return None
@@ -1015,61 +922,6 @@ too. Failure-safe: any error keeps the original answer.
             "status": status,
         }
 
-    def _prepare_plan_for_stage(self, plan: Dict[str, Any]) -> Dict[str, Any]:
-        if not plan:
-            return plan
-        prepared = dict(plan)
-        self._sync_workflow_stage_from_plan(prepared)
-        prepared["workflow_stage"] = self.workflow_stage
-        prepared.setdefault("stage_status", "continue")
-        if self.workflow_stage == self.CANDIDATE_GENERATION:
-            if not prepared.get("phase"):
-                prepared["phase"] = self.CANDIDATE_GENERATION
-            prepared.setdefault("pool_assessment", {
-                "coverage_status": "partial",
-                "gaps": [],
-            })
-        elif self.workflow_stage == self.CANDIDATE_VERIFICATION:
-            if not prepared.get("phase"):
-                prepared["phase"] = "verification"
-            if self.active_candidate:
-                prepared["active_candidate"] = self.active_candidate
-        elif self.workflow_stage == self.FINAL_CHECK:
-            if not prepared.get("phase"):
-                prepared["phase"] = "final_check"
-        self._normalize_plan_steps_for_stage(prepared)
-        return prepared
-
-    def _normalize_plan_steps_for_stage(self, plan: Dict[str, Any]) -> None:
-        steps = plan.get("steps")
-        if not isinstance(steps, list):
-            return
-        if len(steps) > 6:
-            actionable = [
-                step for step in steps
-                if isinstance(step, dict) and step.get("status") in (None, "pending", "in_progress")
-            ]
-            non_actionable = [
-                step for step in steps
-                if not (isinstance(step, dict) and step.get("status") in (None, "pending", "in_progress"))
-            ]
-            plan["steps"] = (actionable + non_actionable)[:6]
-            steps = plan["steps"]
-        default_stage = self._workflow_stage_from_plan(plan) or self.workflow_stage
-        if default_stage == self.CANDIDATE_GENERATION:
-            default_type = "candidate_expansion"
-        elif default_stage == self.CANDIDATE_VERIFICATION:
-            default_type = "candidate_verification"
-        else:
-            default_type = "final_check"
-        for step in steps:
-            if not isinstance(step, dict):
-                continue
-            if step.get("name") and not step.get("subtask"):
-                step["subtask"] = step.get("name")
-            if step.get("status") in (None, "pending", "in_progress") and not step.get("subtask_type"):
-                step["subtask_type"] = default_type
-
     def _all_candidate_records(self) -> List[Dict[str, Any]]:
         return [
             record for record in self.state_store.candidate_records.values()
@@ -1082,65 +934,6 @@ too. Failure-safe: any error keeps the original answer.
             record for record in records
             if isinstance(record, dict) and record.get("status") != "eliminated" and not record.get("hard_conflicts")
         ]
-
-    def _should_advance_stage(self, plan: Dict[str, Any], compact_state: Dict[str, Any]) -> bool:
-        stage_status = (plan.get("stage_status") or "continue").strip().lower()
-        if self.workflow_stage == self.CANDIDATE_GENERATION:
-            if stage_status == "ready_to_advance":
-                return True
-            # Force advance when the generation budget is exhausted but the
-            # planner keeps returning "continue". Without this the planner can
-            # loop on candidate_expansion indefinitely (observed: 8 identical
-            # expansion subtasks, 191 searches, never entering verification),
-            # which starves the verification crawl nudge and leaves the
-            # finalizer to guess. Only force when there are enough viable
-            # candidates to actually verify.
-            gen_round = self.stage_round_counts.get(self.CANDIDATE_GENERATION, 0) + 1
-            viable_n = len(self._viable_candidate_records())
-            # Diagnostic: log why force-advance is/isn't triggering
-            logger.info(
-                f"[Pipeline] _should_advance_stage(gen): gen_round={gen_round} "
-                f"max_rounds={self.max_candidate_generation_rounds} "
-                f"viable_n={viable_n} stage_status={stage_status!r}"
-            )
-            if gen_round > self.max_candidate_generation_rounds and viable_n >= 2:
-                logger.info(
-                    f"[Pipeline] generation budget exhausted "
-                    f"(round {gen_round} > {self.max_candidate_generation_rounds}) "
-                    f"with {viable_n} viable candidates — forcing advance to "
-                    f"verification (planner stage_status={stage_status!r})"
-                )
-                return True
-            return False
-        if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-            viable_records = self._viable_candidate_records()
-            verification_queue_exhausted = not self.active_candidate and not self.verification_queue
-            if not (stage_status == "ready_to_advance" and verification_queue_exhausted and len(viable_records) == 1):
-                return False
-            # Top-2 verification gate (Fix for pos6-style selection errors):
-            # Do NOT advance to final_check if the sole surviving viable
-            # candidate is still only "partial" (unresolved constraints remain)
-            # AND it has not yet exhausted its verification rounds. This forces
-            # one more candidate_verification subtask to either confirm it
-            # (verified) or surface a hard_conflict, preventing a weaker
-            # partial candidate from being selected over an unverified-but-
-            # higher-confidence sibling. The active_candidate_rounds >= 2
-            # guard ensures we never block indefinitely.
-            sole = viable_records[0] if viable_records else None
-            if sole and str(sole.get("verification_status", "")).lower() not in {"verified", "contradicted"}:
-                # Still partial/unverified: block advance unless we have
-                # already spent the full verification round budget on it.
-                if self.active_candidate_rounds < 2:
-                    logger.info(
-                        f"[Pipeline] top-2 gate: sole viable candidate "
-                        f"{sole.get('name', '')!r} is "
-                        f"verification_status={sole.get('verification_status')!r} "
-                        f"(rounds={self.active_candidate_rounds}) — blocking "
-                        f"advance to final_check for one more verification pass"
-                    )
-                    return False
-            return True
-        return False
 
     def _gate_verification_short_circuit(
         self, answer: str, iteration: int
@@ -1220,16 +1013,6 @@ too. Failure-safe: any error keeps the original answer.
                 self.completed_verification_candidates.remove(sname)
             return answer
         return None
-
-    def _advance_stage(self) -> bool:
-        if self.workflow_stage == self.CANDIDATE_GENERATION:
-            self.workflow_stage = self.CANDIDATE_VERIFICATION
-            self._initialize_verification_queue()
-            return True
-        if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-            self.workflow_stage = self.FINAL_CHECK
-            return True
-        return False
 
     def _initialize_verification_queue(self) -> None:
         candidate_records = self._all_candidate_records()
@@ -1387,240 +1170,6 @@ too. Failure-safe: any error keeps the original answer.
             if isinstance(record, dict) and record.get("hard_conflicts")
         ]
         return bool(damaged_records)
-
-    def _build_stage_transition_feedback(self, previous_stage: str, compact_state: Dict[str, Any]) -> Dict[str, str]:
-        if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-            candidates = compact_state.get("current_candidates") or []
-            candidate_records = compact_state.get("candidate_records") or []
-            incomplete_pool = not candidates or len(candidate_records) < 2
-            pool_note = (
-                " The current pool may still be incomplete, so keep track of that uncertainty while you verify."
-                if incomplete_pool else
-                ""
-            )
-            return {
-                "role": "user",
-                "content": (
-                    f"Workflow transition: candidate generation is finished for now. "
-                    f"You are now entering candidate_verification. "
-                    f"Use the current pool as your starting point: {json.dumps(candidates, ensure_ascii=False)}. "
-                    f"The first candidate to verify is: {json.dumps(self.active_candidate, ensure_ascii=False)}. "
-                    f"Verify candidates one by one, record hard conflicts aggressively, and remember that a candidate may be an upstream entity rather than the final answer string. "
-                    f"Do not restart broad candidate generation unless the current pool clearly collapses."
-                    f"{pool_note}"
-                ),
-            }
-        if self.workflow_stage == self.FINAL_CHECK:
-            viable = [r.get("name", "") for r in self._viable_candidate_records()]
-            return {
-                "role": "user",
-                "content": (
-                    f"Workflow transition: candidate verification is sufficiently complete. "
-                    f"You are now entering final_check. "
-                    f"The surviving candidate paths are: {json.dumps(viable, ensure_ascii=False)}. "
-                    f"Do not broaden the pool. Decide whether the surviving path is sufficient for the final answer; if not, explain the exact remaining gap."
-                ),
-            }
-        return {"role": "user", "content": f"Workflow transition from {previous_stage} complete."}
-
-    def _maybe_advance_stage(self, question: str, plan: Dict[str, Any], iteration: int) -> Dict[str, Any]:
-        compact_state = self.state_store.export_compact_state()
-        if self.workflow_stage == self.CANDIDATE_VERIFICATION and self._should_rotate_active_candidate(plan, compact_state):
-            if self._rotate_active_candidate(compact_state):
-                transition_feedback = [{
-                    "role": "user",
-                    "content": (
-                        "Candidate verification loop update: the previous candidate has been checked enough for now. "
-                        f"Switch to the next candidate: {self.active_candidate}. "
-                        "Stay within candidate_verification and focus the next plan on this candidate only."
-                    ),
-                }]
-                _t_pr = time.time()
-                planner_result = self.planner.run(
-                    question=question,
-                    feedback_history=transition_feedback,
-                    compact_state=compact_state,
-                    workflow_stage=self.workflow_stage,
-                    stage_context=self._stage_context(),
-                )
-                if self.trajectory_recorder:
-                    self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration, latency_ms=(time.time() - _t_pr) * 1000.0)
-                if planner_result.get("answer"):
-                    # pos6 v15 fix: apply the top-2 verification gate to answers
-                    # produced during candidate rotation inside _maybe_advance_stage.
-                    # Previously, the planner could commit an answer here (e.g.
-                    # "Opium: A Portrait of the Heavenly Demon") while viable
-                    # unverified siblings remained, bypassing the gate that
-                    # the serial followup and nudge paths already enforce.
-                    if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-                        blocked_answer = self._gate_verification_short_circuit(
-                            planner_result["answer"], iteration
-                        )
-                        if blocked_answer is not None:
-                            # Gate blocked: discard the answer and fall through
-                            # to the rotation subtask below.
-                            pass
-                        else:
-                            self._stage_answer = planner_result["answer"]
-                            return plan
-                    else:
-                        self._stage_answer = planner_result["answer"]
-                        return plan
-                rotated_plan = self._prepare_plan_for_stage(planner_result.get("plan") or plan)
-                self._plan_history.append(rotated_plan)
-                phase_changed = self.state_store.add_plan(rotated_plan)
-                if phase_changed:
-                    self.state_store.create_snapshot()
-                return rotated_plan
-            plan = dict(plan)
-            plan["stage_status"] = "ready_to_advance"
-        if self._should_rebuild_candidate_pool(compact_state):
-            self.workflow_stage = self.CANDIDATE_GENERATION
-            self.stage_round_counts[self.CANDIDATE_GENERATION] = 0
-            self.active_candidate = None
-            self.active_candidate_rounds = 0
-            self.verification_queue = []
-            rebuild_feedback = [{
-                "role": "user",
-                "content": (
-                    "Candidate verification loop update: the current candidate paths have accumulated hard conflicts. "
-                    "Return to candidate_generation and rebuild the pool from alternative interpretations. "
-                    "Do not continue refining the same damaged path."
-                ),
-            }]
-            _t_pr = time.time()
-            planner_result = self.planner.run(
-                question=question,
-                feedback_history=rebuild_feedback,
-                compact_state=compact_state,
-                workflow_stage=self.workflow_stage,
-                stage_context=self._stage_context(),
-            )
-            if self.trajectory_recorder:
-                self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration, latency_ms=(time.time() - _t_pr) * 1000.0)
-            if planner_result.get("answer"):
-                # pos6 v15 fix: apply the top-2 verification gate to answers
-                # produced during pool rebuild inside _maybe_advance_stage.
-                if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-                    blocked_answer = self._gate_verification_short_circuit(
-                        planner_result["answer"], iteration
-                    )
-                    if blocked_answer is not None:
-                        pass
-                    else:
-                        self._stage_answer = planner_result["answer"]
-                        return plan
-                else:
-                    self._stage_answer = planner_result["answer"]
-                    return plan
-            rebuilt_plan = self._prepare_plan_for_stage(planner_result.get("plan") or plan)
-            self._plan_history.append(rebuilt_plan)
-            phase_changed = self.state_store.add_plan(rebuilt_plan)
-            if phase_changed:
-                self.state_store.create_snapshot()
-            return rebuilt_plan
-        # Top-2 verification gate (pos6 fix): if the only thing blocking advance
-        # to final_check is that the sole viable candidate is still "partial",
-        # re-queue it for another verification pass instead of returning a
-        # plan with no actionable subtask (which would deadlock or mis-select).
-        if (
-            self.workflow_stage == self.CANDIDATE_VERIFICATION
-            and not self.active_candidate
-            and not self.verification_queue
-        ):
-            viable_records = self._viable_candidate_records()
-            if len(viable_records) == 1:
-                sole = viable_records[0]
-                sole_vs = str(sole.get("verification_status", "")).lower()
-                if sole_vs not in {"verified", "contradicted"} and self.active_candidate_rounds < 2:
-                    self.active_candidate = str(sole.get("name", "")).strip()
-                    self.active_candidate_rounds = 0
-                    if self.active_candidate in self.completed_verification_candidates:
-                        self.completed_verification_candidates.remove(self.active_candidate)
-                    logger.info(
-                        f"[Pipeline] top-2 gate: re-queuing sole viable "
-                        f"{self.active_candidate!r} (verification_status={sole_vs}) "
-                        f"for one more verification pass"
-                    )
-                    reverify_feedback = [{
-                        "role": "user",
-                        "content": (
-                            f"Top-2 verification gate: the sole surviving viable candidate "
-                            f"{self.active_candidate!r} is still only verification_status="
-                            f"{sole_vs!r} with unresolved constraints. Before finalizing, "
-                            f"run one focused candidate_verification subtask to either "
-                            f"confirm it (mark verification_status=verified with evidence) "
-                            f"or surface a hard_conflict that eliminates it. Do not broaden "
-                            f"the candidate pool; focus only on resolving this candidate."
-                        ),
-                    }]
-                    _t_pr = time.time()
-                    planner_result = self.planner.run(
-                        question=question,
-                        feedback_history=reverify_feedback,
-                        compact_state=compact_state,
-                        workflow_stage=self.workflow_stage,
-                        stage_context=self._stage_context(),
-                    )
-                    if self.trajectory_recorder:
-                        self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration, latency_ms=(time.time() - _t_pr) * 1000.0)
-                    if planner_result.get("answer"):
-                        # pos6 v15 fix: gate re-verify answers too.
-                        if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-                            blocked_answer = self._gate_verification_short_circuit(
-                                planner_result["answer"], iteration
-                            )
-                            if blocked_answer is not None:
-                                pass
-                            else:
-                                self._stage_answer = planner_result["answer"]
-                                return plan
-                        else:
-                            self._stage_answer = planner_result["answer"]
-                            return plan
-                    reverify_plan = self._prepare_plan_for_stage(planner_result.get("plan") or plan)
-                    self._plan_history.append(reverify_plan)
-                    phase_changed = self.state_store.add_plan(reverify_plan)
-                    if phase_changed:
-                        self.state_store.create_snapshot()
-                    return reverify_plan
-        if not self._should_advance_stage(plan, compact_state):
-            return plan
-        previous_stage = self.workflow_stage
-        if not self._advance_stage():
-            return plan
-        transition_feedback = [self._build_stage_transition_feedback(previous_stage, compact_state)]
-        _t_pr = time.time()
-        planner_result = self.planner.run(
-            question=question,
-            feedback_history=transition_feedback,
-            compact_state=compact_state,
-            workflow_stage=self.workflow_stage,
-            stage_context=self._stage_context(),
-        )
-        if self.trajectory_recorder:
-            self.trajectory_recorder.record_planner(messages=self.planner.messages, iteration=iteration, latency_ms=(time.time() - _t_pr) * 1000.0)
-        if planner_result.get("answer"):
-            # pos6 v15 fix: gate stage-transition answers when still in
-            # candidate_verification (the gate is a no-op for final_check).
-            if self.workflow_stage == self.CANDIDATE_VERIFICATION:
-                blocked_answer = self._gate_verification_short_circuit(
-                    planner_result["answer"], iteration
-                )
-                if blocked_answer is not None:
-                    pass
-                else:
-                    self._stage_answer = planner_result["answer"]
-                    return plan
-            else:
-                self._stage_answer = planner_result["answer"]
-                return plan
-        next_plan = self._prepare_plan_for_stage(planner_result.get("plan") or plan)
-        self._plan_history.append(next_plan)
-        phase_changed = self.state_store.add_plan(next_plan)
-        if phase_changed:
-            self.state_store.create_snapshot()
-        return next_plan
 
     def _settle_subtask_with_critic(
         self,
@@ -2065,6 +1614,16 @@ too. Failure-safe: any error keeps the original answer.
     _build_wrap_up_state_excerpt = _finish.build_wrap_up_state_excerpt
     _try_protocol_wrap_up = _finish.try_protocol_wrap_up
     _looks_solved = _finish.looks_solved
+
+    _stage_context = _stages.stage_context
+    _workflow_stage_from_plan = _stages.workflow_stage_from_plan
+    _sync_workflow_stage_from_plan = _stages.sync_workflow_stage_from_plan
+    _prepare_plan_for_stage = _stages.prepare_plan_for_stage
+    _normalize_plan_steps_for_stage = _stages.normalize_plan_steps_for_stage
+    _should_advance_stage = _stages.should_advance_stage
+    _advance_stage = _stages.advance_stage
+    _build_stage_transition_feedback = _stages.build_stage_transition_feedback
+    _maybe_advance_stage = _stages.maybe_advance_stage
 
     _build_stagnation_feedback = _feedback.build_stagnation_feedback
     _build_gap_summary = _feedback.build_gap_summary
