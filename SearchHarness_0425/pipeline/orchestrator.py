@@ -31,6 +31,8 @@ from query_critic import QueryCritic
 from search_crawl_controller import SearchCrawlController
 from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore
 
+from pipeline import tracing as _tracing
+
 
 class SearchHarnessPipelineV4:
     CANDIDATE_GENERATION = "candidate_generation"
@@ -2050,51 +2052,11 @@ too. Failure-safe: any error keeps the original answer.
                 }
         return None
 
-    def _record_candidate_snapshot_for_trajectory(self, iteration: int) -> None:
-        """Snapshot the current candidate pool into the trajectory recorder."""
-        if not self.trajectory_recorder:
-            return
-        records = self._all_candidate_records()
-        try:
-            self.trajectory_recorder.record_candidate_snapshot(
-                iteration=iteration,
-                candidates=records,
-                active_candidate=self.active_candidate,
-            )
-        except Exception as e:
-            logger.debug(f"[Pipeline] candidate snapshot record error: {e}")
-
-    def _record_event_for_trajectory(self, event_type: str, iteration: int, data: Optional[Dict[str, Any]] = None) -> None:
-        """Record a structured event into the trajectory recorder."""
-        if not self.trajectory_recorder:
-            return
-        try:
-            self.trajectory_recorder.record_event(event_type, iteration=iteration, agent="pipeline", data=data or {})
-        except Exception as e:
-            logger.debug(f"[Pipeline] event record error: {e}")
-
-    def _record_iteration_summary_for_trajectory(
-        self,
-        iteration: int,
-        subtask: Optional[Dict[str, Any]],
-        findings: Optional[Dict[str, Any]],
-    ) -> None:
-        """Record an iteration summary into the trajectory recorder."""
-        if not self.trajectory_recorder:
-            return
-        try:
-            cu = (findings or {}).get("candidate_updates", {}) or {}
-            self.trajectory_recorder.record_iteration_summary(
-                iteration=iteration,
-                phase=self.workflow_stage,
-                subtask=(subtask or {}).get("subtask") or (subtask or {}).get("name", ""),
-                searches_this_iter=getattr(self.executor, "_search_count", 0),
-                new_candidates=cu.get("new_candidates", []) or [],
-                plan_phase=(subtask or {}).get("subtask_type", ""),
-            )
-        except Exception as e:
-            logger.debug(f"[Pipeline] iteration summary record error: {e}")
-
+    # RD step4b (tracing module): pure functions extracted to pipeline/tracing.py.
+    # Re-bound as class attributes to keep private-name call sites working.
+    _record_candidate_snapshot_for_trajectory = _tracing.record_candidate_snapshot_for_trajectory
+    _record_event_for_trajectory = _tracing.record_event_for_trajectory
+    _record_iteration_summary_for_trajectory = _tracing.record_iteration_summary_for_trajectory
 
     def _best_effort_finish(self, question: str, plan: Dict[str, Any], iteration: int, stop: Dict[str, Any]) -> Dict[str, Any]:
         compact_state = self.state_store.export_compact_state()
