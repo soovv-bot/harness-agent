@@ -53,6 +53,7 @@ py-modules = [
     "query_history",
     "regrade_results",
     "results_schema",
+    "run_benchmark",
     "run_browsecomp",
     "run_browsecomp_fixed_sample",
     "run_checkpoint",

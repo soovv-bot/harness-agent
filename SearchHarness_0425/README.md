@@ -71,9 +71,13 @@
 | `config.py` | 集中式配置（dataclass + 环境变量） |
 | `llm_client.py` / `openai_client_factory.py` / `llm_error_utils.py` | LLM 客户端工厂与错误分类 |
 | `llm_reasoning_compat.py` | 推理模型流式兼容层：处理 `reasoning_content` 字段、思考预算（`LLM_THINKING_BUDGET_TOKENS`）、工具调用流式解析 |
-| `run_browsecomp.py` | 全量 BrowseComp 评测入口 |
-| `run_browsecomp_fixed_sample.py` | 固定样本评测入口（可指定 positions） |
-| `run_seed_repeats.py` | 同一种子重复运行以测量稳定性 |
+| `run_benchmark.py` | 统一评测入口：`python run_benchmark.py browsecomp {sample,fixed,repeats} ...`（参数原样透传，旧入口均可用，`--list` 查看注册的 benchmark） |
+| `run_browsecomp.py` | 全量 BrowseComp 评测入口（= `run_benchmark.py browsecomp sample`） |
+| `run_browsecomp_fixed_sample.py` | 固定样本评测入口（= `browsecomp fixed`，可指定 positions） |
+| `run_seed_repeats.py` | 同一种子重复运行以测量稳定性（= `browsecomp repeats`） |
+| `benchmark_registry.py` | benchmark 声明式注册表（数据集 URL/本地缓存/canary 解密），新增 benchmark 只需注册 spec |
+| `disk_cache.py` | LLM/HTTP 磁盘缓存（`LLM_CACHE_MODE=off/record/replay`），`--replay` 支持离线复现 |
+| `results_schema.py` | 统一结果信封 schema（`schema_version` + `run_spec` 溯源 + 校验 + `strip_volatile` 重放对比） |
 | `regrade_results.py` | 用新 grader 对已有结果重打分 |
 | `build_seed123_k10_full.py` | 重建本地固定子集 `docs/seed123_k10_full.json` |
 
