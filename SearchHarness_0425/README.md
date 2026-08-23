@@ -57,7 +57,7 @@
 
 | 文件 | 职责 |
 |------|------|
-| `search_harness_pipeline_v4.py` | 流水线编排器：阶段流转、预算控制、有界停止、best-effort 终结 |
+| `pipeline/` | 流水线包：`orchestrator.py` 编排器（阶段流转、预算控制、有界停止、best-effort 终结）+ step4b 拆出的纯函数 helper 模块（`tracing` / `stages` / `candidates` / `feedback` / `finish` / `verification` / `subtasks`） |
 | `planning_agent_v3.py` | 规划 Agent：将问题拆解为子任务，反重复规则约束 |
 | `search_agent_v3.py` | 执行 Agent：调用 `search` / `visit_urls` / `search_wiki` / `add_candidates` / `update_candidate` |
 | `search_memory.py` | `SearchStateStore`：结构化候选记录（status / supporting / unresolved / hard_conflicts） |
@@ -67,10 +67,9 @@
 | `subtask_critic.py` | 子任务质量评估：reject / accept / suggest_pivot |
 | `planning_direction_critic.py` | 规划方向评估（可选，默认关闭） |
 | `search_finalizer.py` | 终结器：从 `candidate_records` 收敛出最终答案，硬冲突候选不会被轻易采纳 |
-| `trajectory_recorder.py` / `trajectory_recorder_enhanced.py` | 轨迹录制器。增强版输出 10 个结构化字段（事件流、搜索日志、LLM 调用元数据、候选快照、逐轮对话等），兼容 `convert_trajectory_to_offseeker_format.py` |
+| `trajectory/recorder.py` | 轨迹录制器（`TrajectoryRecorder` / `TrajectoryRecorderEnhanced`）。增强版输出 10 个结构化字段（事件流、搜索日志、LLM 调用元数据、候选快照、逐轮对话等），兼容 `convert_trajectory_to_offseeker_format.py` |
 | `config.py` | 集中式配置（dataclass + 环境变量） |
-| `llm_client.py` / `openai_client_factory.py` / `llm_error_utils.py` | LLM 客户端工厂与错误分类 |
-| `llm_reasoning_compat.py` | 推理模型流式兼容层：处理 `reasoning_content` 字段、思考预算（`LLM_THINKING_BUDGET_TOKENS`）、工具调用流式解析 |
+| `llm/` | LLM 层包：`factory.py` 客户端构造、`client.py` `get_llm_client()` 统一入口、`errors.py` 错误分类、`compat.py` 推理模型流式兼容（`reasoning_content` 字段、思考预算 `LLM_THINKING_BUDGET_TOKENS`）、`profiles.yaml` 按模型配置 |
 | `scripts/run/run_benchmark.py` | 统一评测入口：`python3 -m scripts.run.run_benchmark browsecomp {sample,fixed,repeats} ...`（参数原样透传，旧入口均可用，`--list` 查看注册的 benchmark） |
 | `scripts/run/run_browsecomp.py` | 全量 BrowseComp 评测入口（= `scripts/run/run_benchmark.py browsecomp sample`） |
 | `scripts/run/run_browsecomp_fixed_sample.py` | 固定样本评测入口（= `browsecomp fixed`，可指定 positions） |
@@ -97,51 +96,53 @@
 
 ```
 SearchHarness_0425/
-├── search_harness_pipeline_v4.py     # 流水线编排器
-├── planning_agent_v3.py              # 规划 Agent
-├── search_agent_v3.py                # 执行 Agent
-├── search_memory.py                  # 候选状态存储
-├── query_critic.py / query_history.py
-├── search_crawl_controller.py
-├── subtask_critic.py
-├── planning_direction_critic.py
-├── search_finalizer.py
-├── trajectory_recorder.py / trajectory_recorder_enhanced.py
-├── config.py                         # 集中式配置
-├── llm_client.py / openai_client_factory.py / llm_error_utils.py
-├── llm_reasoning_compat.py       # 推理模型流式兼容层（reasoning_content + 思考预算）
-├── scripts/run/run_browsecomp.py                 # 全量评测入口
-├── scripts/run/run_browsecomp_fixed_sample.py    # 固定样本评测入口
-├── scripts/run/run_seed_repeats.py               # 重复运行
-├── scripts/analysis/regrade_results.py                # 结果重打分
-├── scripts/analysis/build_seed123_k10_full.py         # 重建固定子集
-├── scripts/smoke/debug_llm_smoke.py           # LLM 端点冒烟测试（+ --verify-thinking 思考开关验证）
-├── scripts/smoke/debug_serper_smoke.py             # Serper 搜索冒烟测试
-├── scripts/smoke/smoke_test_simple.py              # 端到端 pipeline 冒烟（单问题）
-├── scripts/smoke/smoke_test_thinking.py            # 思考模式端到端冒烟（多 effort 对比）
-├── scripts/analysis/verify_source_accuracy.py         # 数据源准确性冒烟（真实 Serper before/after 对比）
-├── planning_agent_prompt_v3.md / search_agent_prompt_v3.md     # v3 通用 prompt
-├── planning_agent_prompt_simple.md / search_agent_prompt_simple.md  # 简化 prompt（compact，适配推理模型）
-├── requirements.txt
-├── tests/
-│   ├── test_core_rules.py            # pytest 单元测试（37 个）
-│   └── test_source_accuracy.py       # 数据源管控单测（35 例：可信度/时效/同源合并）
+├── contract/                        # L0 契约层：纯 dataclass（Plan / CandidateRecord / TrajectoryDoc 等），不依赖任何项目模块
+├── llm/                             # LLM 层：client / factory / errors / compat / profiles.yaml
+├── tools/                           # 工具层：search_tools / tool_processor / subprocess_interpreter
+├── pipeline/                        # 流水线：orchestrator.py + 7 个纯函数 helper 模块
+├── trajectory/                      # 轨迹录制：recorder.py（TrajectoryRecorder / Enhanced）
+├── scripts/
+│   ├── run/                         # 评测入口：run_benchmark（统一 CLI）/ run_browsecomp /
+│   │                                #   run_browsecomp_fixed_sample / run_seed_repeats /
+│   │                                #   run_checkpoint / run_single_verify
+│   ├── smoke/                       # 冒烟：smoke_test_simple / smoke_test_thinking /
+│   │                                #   debug_llm_smoke / debug_serper_smoke
+│   └── analysis/                    # 离线分析：regrade_results / build_seed123_k10_full /
+│                                    #   failure_taxonomy / diagnose_trajectories /
+│                                    #   analyze_failed_subtasks / verify_source_accuracy /
+│                                    #   build_results_from_trajectories
+├── data/                            # 基准数据：browse_comp_test_set.csv、seed123_*.json（子集与 manifest）
+│
+│   # Agent 与规则层（顶层模块）
+├── planning_agent_v3.py             # 规划 Agent：问题拆解为子任务
+├── search_agent_v3.py               # 执行 Agent：search / visit_urls / search_wiki / add_candidates / update_candidate
+├── search_memory.py                 # SearchStateStore：结构化候选记录
+├── query_critic.py / query_history.py          # 查询判重与历史记忆
+├── search_crawl_controller.py       # 搜索 vs 抓取决策（信号+规则优先，LLM 兜底）
+├── subtask_critic.py                # 子任务质量评估（reject / accept / suggest_pivot）
+├── planning_direction_critic.py     # 规划方向评估（可选，默认关闭）
+├── search_finalizer.py              # 终结器：从候选记录收敛最终答案
+├── answer_verifier.py               # 答案验证（plan-A verification 可选路径）
+│
+│   # 基础设施
+├── config.py                        # 集中式配置（dataclass + 环境变量）
+├── disk_cache.py                    # LLM/HTTP 磁盘缓存（off/record/replay）
+├── llm_usage.py                     # LLM 调用用量统计
+├── benchmark_registry.py            # benchmark 声明式注册表
+├── results_schema.py                # 统一结果信封 schema
+│
+├── planning_agent_prompt_v3.md / search_agent_prompt_v3.md          # v3 通用 prompt
+├── planning_agent_prompt_simple.md / search_agent_prompt_simple.md  # 简化 prompt（适配推理模型）
+├── requirements.txt / pyproject.toml
+├── tests/                           # pytest（309 例；conftest 注入 fake LLM/stub tools）
 ├── docs/
-│   ├── browse_comp_test_set.csv      # 缓存的 BrowseComp 数据集
-│   ├── seed123_k10_full.json         # 本地固定子集（seed=123, k=10）
-│   ├── seed123_k10_manifest.json     # 固定子集 manifest（含 gold answer）
-│   ├── seed123_k100_manifest.json    # k=100 manifest
-│   ├── ROADMAP.md                    # 统一问题清单与优先级路线图（总入口）
-│   ├── REFACTOR_DESIGN.md            # 代码层模块化改造设计
-│   ├── PROJECT_STRUCTURE_PLAN.md     # 项目结构整理与迁移规划
-│   ├── GAP_ANALYSIS.md               # 行业 harness 对标与能力差距分析
-│   └── experiments/                  # 一次性实验/分析报告（历史快照，共 13 份）
-│       ├── latency_optimization_20260731.md  # 耗时分析与优化方案
-│       ├── kimi_k3_effort_fix_2026-08-05_analysis.md  # effort-mapping 修复验证
-│       └── ...                            # smoke_test_* / insight_* / experiment_compare 等
-├── results/                           # 评测结果 JSON（gitignore）
-├── logs/                              # 轨迹与日志（gitignore）
-└── WORKLOG.md                         # 历史工作记录
+│   ├── ROADMAP.md                   # 统一问题清单与优先级路线图（总入口）
+│   ├── REFACTOR_DESIGN.md           # 代码层模块化改造设计
+│   ├── PROJECT_STRUCTURE_PLAN.md    # 项目结构整理与迁移规划
+│   ├── GAP_ANALYSIS.md              # 行业 harness 对标与能力差距分析
+│   └── experiments/                 # 一次性实验/分析报告（历史快照）
+├── results/                         # 评测结果 JSON（gitignore）
+└── logs/                            # 轨迹与日志（gitignore）
 ```
 
 > 注意：`results/`、`logs/`、`trajectories/`、`__pycache__/` 均在 `.gitignore` 中，运行时自动生成。
@@ -1359,7 +1360,7 @@ Pipeline 通过 `event_callback` 钩子将结构化事件推送到录制器。Ex
 
 ### 5. 历史背景
 
-`WORKLOG.md` 记录了从 `0413_v3` 沿袭而来的工作脉络、固定样本答案表、推荐验证顺序与失败模式分析。新接手者建议先读 `WORKLOG.md` 的 §15「Short Resume Summary」。
+项目从 `0413_v3` 沿袭而来；工作脉络、固定样本答案表、推荐验证顺序与失败模式分析已并入 `docs/ROADMAP.md` 与 git 历史，新接手者建议先读 `docs/ROADMAP.md` 与 `docs/GAP_ANALYSIS.md`。
 
 ---
 
@@ -1445,7 +1446,8 @@ Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key�
 
 ## 相关文档
 
-- `WORKLOG.md` — 历史工作记录与失败模式分析
+- `docs/ROADMAP.md` — 统一问题清单与优先级路线图（含历史失败模式摘要）
+- `docs/ARCHITECTURE.md` — 分层架构与模块地图
 - `docs/experiments/kimi_k3_effort_fix_2026-08-05_analysis.md` — Kimi-K3 effort-mapping 修复验证（最大提速杠杆）
 - `docs/experiments/latency_optimization_20260731.md` — 耗时分析与优化方案
 - `docs/experiments/smoke_test_2026-07-30.md` — 冒烟测试报告
