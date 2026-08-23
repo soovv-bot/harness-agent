@@ -69,13 +69,13 @@
 - ✅ ③ 统一 results schema + run spec（`16bd9b4`）：`results_schema.py` 加性信封（schema_version + run_spec 溯源，遗留键全保留），`strip_volatile` 支撑重放对比
 - ⏳ 人工演练待做：真实 record → replay 的 byte-level 一致性对比（需 API key 跑一次 record，再 `--replay` 复跑并用 `strip_volatile` 对比两 payload）
 
-**M2 状态（进行中，`feat/m1-repro`，pytest 309 passed）**：
+**M2 状态（✅ 完成，`feat/m1-repro`，pytest 309 passed）**：
 
 - ✅ step4a（`ef3c7ae`）：`search_harness_pipeline_v4.py` → `pipeline/orchestrator.py` git mv 迁移
 - ✅ step4b god-object 拆分完成（7 个纯函数 helper 模块，类属性重绑定保私有名；orchestrator 2353 → 801 行）：
   - tracing（`a9b859d`）、finish（`9c8b95d` + 修复 `c759094`）、feedback（`2ac36aa`）、stages（`47c7473`）、candidates（`fe99ea4`）、verification（`148337b`）、subtasks（`7d5976d`）
-- ⏳ step5（scripts/data 归位）进行中：17 脚本迁入 `scripts/{run,smoke,analysis}/`，7 个数据文件迁入 `data/`，`tools` 新增公开别名 `call_serper_api`/`postprocess_serper_results`（Q9 收口），路径锚点/导入/README 同步，pytest 309 全绿
-- ⏳ step6+：contract 层、LLM 层规整、双 recorder 合并未开始
+- ✅ step5（`29efd14`）：17 脚本迁入 `scripts/{run,smoke,analysis}/`，数据文件迁 `data/`，`tools` 公开别名 `call_serper_api`/`postprocess_serper_results`（Q9 收口），导入/路径/README 同步
+- ✅ step6（`b53ca4b`）：README 目录树重写为真实现状、新建 `docs/ARCHITECTURE.md`、scripts 包 docstring、WORKLOG 失效引用移除
 
 ## 4. 本轮已完成的整理动作（本分支）
 
