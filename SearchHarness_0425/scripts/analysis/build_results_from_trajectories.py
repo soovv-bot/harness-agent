@@ -11,7 +11,7 @@ as run_browsecomp.py.
 
 Usage:
     cd SearchHarness_0425
-    python build_results_from_trajectories.py \
+    python -m scripts.analysis.build_results_from_trajectories \
         --trajectory-dir logs/trajectories_v6 \
         --output results/browsecomp_v6.json \
         --seed 123 \
@@ -36,12 +36,12 @@ from dotenv import load_dotenv
 from loguru import logger
 from tqdm import tqdm
 
-_HERE = Path(__file__).resolve().parent
+_HERE = Path(__file__).resolve().parents[2]
 # .env lives one directory up (parent of SearchHarness_0425/)
 load_dotenv(_HERE.parent / ".env")
 
 # Reuse the grader + extraction logic from run_browsecomp.py
-from run_browsecomp import LLMGrader, extract_answer_from_pipeline, _decrypt  # noqa: E402
+from scripts.run.run_browsecomp import LLMGrader, extract_answer_from_pipeline, _decrypt  # noqa: E402
 
 TRAJ_MODEL_DIR = "GLM-5.2"  # sub-directory inside trajectory-dir
 

@@ -5,8 +5,8 @@ and grades answers with an LLM grader. No modifications to the pipeline itself.
 
 Usage:
     cd SearchHarness
-    python run_browsecomp.py --num-examples 5 --max-workers 1
-    python run_browsecomp.py --num-examples 50 --max-workers 3 --output results/browsecomp_v4.json
+    python -m scripts.run.run_browsecomp --num-examples 5 --max-workers 1
+    python -m scripts.run.run_browsecomp --num-examples 50 --max-workers 3 --output results/browsecomp_v4.json
 """
 
 import argparse

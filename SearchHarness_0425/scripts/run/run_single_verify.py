@@ -5,7 +5,7 @@ match the 50-question eval. Runs only the specified task indices.
 
 Usage:
     cd SearchHarness_0425
-    python run_single_verify.py --task-indices 8 23 38 44 \
+    python -m scripts.run.run_single_verify --task-indices 8 23 38 44 \
         --output results/verify_v7_lost4.json \
         --trajectory-dir logs/trajectories_v7_verify \
         --max-total-searches 160 --max-crawl-calls 40
@@ -23,10 +23,10 @@ import pandas as pd
 from dotenv import load_dotenv
 from loguru import logger
 
-_HERE = Path(__file__).resolve().parent
+_HERE = Path(__file__).resolve().parents[2]
 load_dotenv(_HERE.parent / ".env")
 
-from run_browsecomp import run_single_task, resolve_primary_model, resolve_grader_config  # noqa: E402
+from scripts.run.run_browsecomp import run_single_task, resolve_primary_model, resolve_grader_config  # noqa: E402
 from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
 from trajectory.recorder import TrajectoryRecorderEnhanced  # noqa: E402
 

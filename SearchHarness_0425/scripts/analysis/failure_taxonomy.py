@@ -25,7 +25,7 @@ Categories
 
 Usage
 -----
-    python failure_taxonomy.py [--root data/trajectories] \\
+    python -m scripts.analysis.failure_taxonomy [--root data/trajectories] \\
         [--out failure_taxonomy_report.json]
 
 The script is read-only: it never modifies trajectory files.

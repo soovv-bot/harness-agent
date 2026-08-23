@@ -30,15 +30,10 @@ test = ["pytest"]
 # Flat-layout packages: every top-level .py is an importable module.
 [tool.setuptools]
 py-modules = [
-    "analyze_failed_subtasks",
     "answer_verifier",
     "benchmark_registry",
-    "build_results_from_trajectories",
-    "build_seed123_k10_full",
     "config",
     "debug_llm_smoke",
-    "debug_serper_smoke",
-    "diagnose_trajectories",
     "disk_cache",
     "failure_taxonomy",
     "llm_usage",
@@ -46,24 +41,24 @@ py-modules = [
     "planning_direction_critic",
     "query_critic",
     "query_history",
-    "regrade_results",
     "results_schema",
-    "run_benchmark",
-    "run_browsecomp",
-    "run_browsecomp_fixed_sample",
-    "run_checkpoint",
-    "run_seed_repeats",
-    "run_single_verify",
     "search_agent_v3",
     "search_crawl_controller",
     "search_finalizer",
     "search_memory",
-    "smoke_test_simple",
-    "smoke_test_thinking",
     "subtask_critic",
-    "verify_source_accuracy",
 ]
-packages = ["tools", "contract", "llm", "trajectory", "pipeline"]
+packages = [
+    "tools",
+    "contract",
+    "llm",
+    "trajectory",
+    "pipeline",
+    "scripts",
+    "scripts.run",
+    "scripts.smoke",
+    "scripts.analysis",
+]
 
 [tool.setuptools.package-data]
 llm = ["*.yaml"]

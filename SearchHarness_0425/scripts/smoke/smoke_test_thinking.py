@@ -9,8 +9,8 @@ This is a behavioral smoke (does the pipeline still finish?), not a token-level
 assertion — for token-level verification use `debug_llm_smoke.py --verify-thinking`.
 
 Usage:
-    python smoke_test_thinking.py --efforts none high
-    python smoke_test_thinking.py --question "Who won the 2022 FIFA World Cup?" --efforts none low medium
+    python -m scripts.smoke.smoke_test_thinking --efforts none high
+    python -m scripts.smoke.smoke_test_thinking --question "Who won the 2022 FIFA World Cup?" --efforts none low medium
 
 Loads .env from the repo root (parent of this dir).
 """
@@ -27,7 +27,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 # Load .env from repo root (parent of SearchHarness_0425).
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 load_dotenv(_REPO_ROOT / ".env")
 
 from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402

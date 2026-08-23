@@ -4,7 +4,7 @@ Runs ONE trivial question with tight budgets to verify the batch QueryCritic
 refactor + finalizer fix don't break the real (non-fake) LLM path.
 
 Usage:
-    python smoke_test_simple.py [--question "..."] [--max-iterations 1]
+    python -m scripts.smoke.smoke_test_simple [--question "..."] [--max-iterations 1]
 
 Loads .env from the repo root (parent of this dir).
 """
@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 # Load .env from repo root (parent of SearchHarness_0425).
-_REPO_ROOT = Path(__file__).resolve().parent.parent
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 load_dotenv(_REPO_ROOT / ".env")
 
 from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402

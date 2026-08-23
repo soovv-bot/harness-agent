@@ -116,6 +116,7 @@ class TestStripVolatile:
 
 class TestRunnerWiring:
     def test_runners_import_schema(self):
-        import run_browsecomp, run_browsecomp_fixed_sample
+        import scripts.run.run_browsecomp as run_browsecomp
+        import scripts.run.run_browsecomp_fixed_sample as run_browsecomp_fixed_sample
         assert run_browsecomp.rs is rs
         assert run_browsecomp_fixed_sample.rs is rs

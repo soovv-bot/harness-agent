@@ -3,9 +3,9 @@ import re
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 PROJECT_ROOT = ROOT.parent
-OUTPUT_PATH = ROOT / "docs" / "seed123_k10_full.json"
+OUTPUT_PATH = ROOT / "data" / "seed123_k10_full.json"
 
 
 def _load_question_from_baseline(pos: int) -> tuple[str, str]:
@@ -34,7 +34,7 @@ def _load_question_from_trajectories(pos: int) -> str:
 
 
 def main() -> None:
-    manifest_path = ROOT / "docs" / "seed123_k10_manifest.json"
+    manifest_path = ROOT / "data" / "seed123_k10_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     by_pos = {int(item["sample_position"]): item for item in manifest}
     full = []

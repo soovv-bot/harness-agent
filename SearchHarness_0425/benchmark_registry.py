@@ -93,7 +93,7 @@ BROWSECOMP = BenchmarkSpec(
     name="browsecomp",
     display_name="BrowseComp",
     dataset_url="https://openaipublic.blob.core.windows.net/simple-evals/browse_comp_test_set.csv",
-    cache_relpath="docs/browse_comp_test_set.csv",
+    cache_relpath="data/browse_comp_test_set.csv",
 )
 
 _REGISTRY: Dict[str, BenchmarkSpec] = {spec.name: spec for spec in (BROWSECOMP,)}

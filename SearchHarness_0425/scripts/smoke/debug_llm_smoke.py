@@ -99,7 +99,7 @@ def main() -> int:
     parser.add_argument("--no-proxy", action="store_true", help="Clear *_PROXY env vars inside this process.")
     parser.add_argument(
         "--env-file",
-        default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env")),
+        default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env")),
         help="Path to a .env file to load if needed.",
     )
     parser.add_argument("--base-url", default=None)

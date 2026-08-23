@@ -51,7 +51,7 @@ class TestCanaryCrypto:
         assert result != "hello"
 
     def test_run_browsecomp_reexports(self):
-        from run_browsecomp import _decrypt, _derive_key  # noqa: F401
+        from scripts.run.run_browsecomp import _decrypt, _derive_key  # noqa: F401
 
         assert _decrypt is br.decrypt_field
 
@@ -102,8 +102,8 @@ class TestLoadExamples:
 
 class TestRunnerWiring:
     def test_both_runners_use_same_spec(self):
-        import run_browsecomp
-        import run_browsecomp_fixed_sample
+        import scripts.run.run_browsecomp as run_browsecomp
+        import scripts.run.run_browsecomp_fixed_sample as run_browsecomp_fixed_sample
 
         assert run_browsecomp.get_benchmark("browsecomp") is br.BROWSECOMP
         assert run_browsecomp_fixed_sample.get_benchmark("browsecomp") is br.BROWSECOMP

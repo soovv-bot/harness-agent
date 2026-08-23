@@ -23,11 +23,11 @@ from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
 import results_schema as rs
-from run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
-from run_checkpoint import RunCheckpoint
+from scripts.run.run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
+from scripts.run.run_checkpoint import RunCheckpoint
 
-_HERE = Path(__file__).resolve().parent
-LOCAL_FULL_SUBSET = _HERE / "docs" / "seed123_k10_full.json"
+_HERE = Path(__file__).resolve().parents[2]
+LOCAL_FULL_SUBSET = _HERE / "data" / "seed123_k10_full.json"
 
 
 def _configure_console_logging() -> None:
@@ -139,7 +139,7 @@ def run_fixed_evaluation(
 
     sample = _load_fixed_sample(seed=seed, sample_size=sample_size)
 
-    manifest_path = _HERE / "docs" / f"seed{seed}_k{sample_size}_manifest.json"
+    manifest_path = _HERE / "data" / f"seed{seed}_k{sample_size}_manifest.json"
     _save_manifest(sample, manifest_path)
     logger.info(f"Manifest saved to {manifest_path}")
 

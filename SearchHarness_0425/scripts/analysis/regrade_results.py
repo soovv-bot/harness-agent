@@ -7,7 +7,7 @@ is_correct was forced to False.
 
 Usage:
     cd SearchHarness_0425
-    python regrade_results.py \
+    python -m scripts.analysis.regrade_results \
         --input results/cluster_run_seed123_k100.json \
         --output results/cluster_run_seed123_k100_regraded.json \
         --max-workers 4
@@ -42,7 +42,7 @@ from llm.compat import build_chat_completion_kwargs  # noqa: E402
 from llm.factory import build_openai_client  # noqa: E402
 
 # Import the grader prompt + LLMGrader from the main eval module to stay in sync.
-from run_browsecomp import GRADER_PROMPT, LLMGrader, resolve_grader_config, resolve_primary_model  # noqa: E402
+from scripts.run.run_browsecomp import GRADER_PROMPT, LLMGrader, resolve_grader_config, resolve_primary_model  # noqa: E402
 
 
 def _resolve_grader_config() -> Dict[str, str]:

@@ -65,7 +65,8 @@ def _run_once(
 
     cmd = [
         sys.executable,
-        "run_browsecomp.py",
+        "-m",
+        "scripts.run.run_browsecomp",
         "--num-examples",
         "1",
         "--max-workers",
@@ -165,7 +166,7 @@ def main():
     if args.replay:
         os.environ["LLM_CACHE_MODE"] = "replay"
 
-    base_dir = Path(__file__).resolve().parent
+    base_dir = Path(__file__).resolve().parents[2]
     output_dir = (base_dir / args.output_dir).resolve()
     trajectory_root = (base_dir / args.trajectory_root).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)

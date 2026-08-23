@@ -10,7 +10,7 @@ import json, sys, re, os
 from pathlib import Path
 
 TRAJ_DIR = Path("logs/trajectories_eval10_hi/GLM-5.2")
-MANIFEST = {x["sample_position"]: x for x in json.load(open("docs/seed123_k10_manifest.json"))}
+MANIFEST = {x["sample_position"]: x for x in json.load(open("data/seed123_k10_manifest.json"))}
 RESULTS = {}  # populated by CLI below
 # (overridden by CLI args below if provided)
 

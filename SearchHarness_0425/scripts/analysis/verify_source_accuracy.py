@@ -6,7 +6,7 @@ before/after of `_postprocess_serper_results` so you can eyeball:
   - stale-result drop (time-sensitive query)
   - cross-domain repost merge
 
-Usage:  python verify_source_accuracy.py "your query here"
+Usage:  python -m scripts.analysis.verify_source_accuracy "your query here"
 Default query if none given: a 2026 time-sensitive topic.
 """
 from __future__ import annotations
@@ -16,8 +16,8 @@ import os
 import sys
 from pathlib import Path
 
-# Load .env from repo root (two levels up: SearchHarness_0425 -> repo root)
-ROOT = Path(__file__).resolve().parent.parent
+# Load .env from repo root (parent of SearchHarness_0425)
+ROOT = Path(__file__).resolve().parents[3]
 _env = ROOT / ".env"
 if _env.exists():
     for line in _env.read_text(encoding="utf-8").splitlines():
@@ -27,7 +27,7 @@ if _env.exists():
         k, _, v = line.partition("=")
         os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
-from tools.search_tools import _call_serper_api, _postprocess_serper_results  # type: ignore
+from tools import call_serper_api as _call_serper_api, postprocess_serper_results as _postprocess_serper_results
 
 
 def _print(label, results):

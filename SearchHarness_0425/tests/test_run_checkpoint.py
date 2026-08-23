@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import threading
 
-from run_checkpoint import DEFAULT_GOOD_STATUSES, RunCheckpoint
+from scripts.run.run_checkpoint import DEFAULT_GOOD_STATUSES, RunCheckpoint
 
 
 def _result(pos: int, status: str = "completed") -> dict:

@@ -28,7 +28,7 @@
 | **T8** | 执行层扩展 | 纯 ThreadPoolExecutor、worker 数硬编码 6+ 处、无 per-provider 并发治理、无分布式（合并原 GA 的 G6 + G11） | GA G6+G11 | **P2** |
 | **T9** | 评估严谨性 | 只有裸 accuracy，无置信区间/显著性；LLM judge 无人工校准基线（合并原 GA 的 G8 + G9） | GA G8+G9 | **P1** |
 | **T10** | 结构化观测 | 无 span 级 tracing；延迟分析靠事后人工报告，单任务时间线不可视 | GA G7 | **P1** |
-| **T11** | 资产治理 | `logs/` 955MB/354 目录无生命周期策略；根目录 272KB 孤儿产物；docs/ 平铺已部分解决（本轮），但 7 个数据文件仍滞留 docs/（`diagnose_trajectories.py` 硬编码引用，需随代码一起迁移）；README `WORKLOG.md` 引用失效 | SP §4/P3 | **P3** |
+| **T11** | 资产治理 | `logs/` 955MB/354 目录无生命周期策略；根目录 272KB 孤儿产物；docs/ 平铺已部分解决（本轮），~~7 个数据文件仍滞留 docs/~~（M2 step5 已迁 `data/`）；README `WORKLOG.md` 引用失效 | SP §4/P3 | **P3** |
 | **T12** | Prompt 版本管理 | prompt 为根目录裸 `.md` 文件，靠 `_v3/_simple` 文件名区分版本与适配模型 | SP §4 | **P2** |
 
 **合并去重说明**：三份文档共 24 个问题条目，合并为 12 个主题。主要合并：GA-G1+G10→T4（抽象与结果模式一体两面）、GA-G5+G12→T7（同属安全）、GA-G6+G11→T8（同属扩展性）、GA-G8+G9→T9（同属评测可信度）、RD 全部条目→T5（RD 本身是同一主题的设计稿）、SP 的文件归类/映射表 → T6/T11 的执行细节载体。
@@ -74,7 +74,8 @@
 - ✅ step4a（`ef3c7ae`）：`search_harness_pipeline_v4.py` → `pipeline/orchestrator.py` git mv 迁移
 - ✅ step4b god-object 拆分完成（7 个纯函数 helper 模块，类属性重绑定保私有名；orchestrator 2353 → 801 行）：
   - tracing（`a9b859d`）、finish（`9c8b95d` + 修复 `c759094`）、feedback（`2ac36aa`）、stages（`47c7473`）、candidates（`fe99ea4`）、verification（`148337b`）、subtasks（`7d5976d`）
-- ⏳ step5+：contract 层、LLM 层规整、双 recorder 合并未开始
+- ⏳ step5（scripts/data 归位）进行中：17 脚本迁入 `scripts/{run,smoke,analysis}/`，7 个数据文件迁入 `data/`，`tools` 新增公开别名 `call_serper_api`/`postprocess_serper_results`（Q9 收口），路径锚点/导入/README 同步，pytest 309 全绿
+- ⏳ step6+：contract 层、LLM 层规整、双 recorder 合并未开始
 
 ## 4. 本轮已完成的整理动作（本分支）
 
@@ -83,11 +84,11 @@
 - ✅ 13 份一次性实验报告归档至 `docs/experiments/`（`git mv`，历史保留）
 - ✅ README 全部受影响引用路径已更新（14 处）
 - ✅ 新增本文（总路线）与 `GAP_ANALYSIS.md`（行业对标）
-- ⏳ 数据文件（`browse_comp_test_set.csv`、seed manifests 共 7 个）**暂留** `docs/`：`diagnose_trajectories.py:13` 硬编码引用 `docs/seed123_k10_manifest.json`，迁移需与代码改动同行 → 归入 T11/M4+
+- ✅ 数据文件（`browse_comp_test_set.csv` + seed123 manifests/full 共 7 个）已迁 `data/`，`diagnose_trajectories.py` 等引用已同步（M2 step5）
 - ✅ `tools/` 提交、基线厘清——已在 M0 完成（tag `m0-baseline` + vendoring `e0b9310`，见上）
 
 ## 5. 不变量（任何里程碑都不得破坏）
 
 1. `python -m pytest tests/ -q` → 214 passed（随演进只增不减）
-2. `run_browsecomp_fixed_sample.py` 固定样本（seed=123, k=10）可跑通且轨迹 schema 不漂移（蒸馏下游依赖）
+2. `scripts/run/run_browsecomp_fixed_sample.py` 固定样本（seed=123, k=10）可跑通且轨迹 schema 不漂移（蒸馏下游依赖）
 3. 改造期间的 import 兼容期策略按 SP §9 执行（`__init__.py` 重导出过渡，禁止一次性断代）

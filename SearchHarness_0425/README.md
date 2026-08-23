@@ -71,15 +71,15 @@
 | `config.py` | 集中式配置（dataclass + 环境变量） |
 | `llm_client.py` / `openai_client_factory.py` / `llm_error_utils.py` | LLM 客户端工厂与错误分类 |
 | `llm_reasoning_compat.py` | 推理模型流式兼容层：处理 `reasoning_content` 字段、思考预算（`LLM_THINKING_BUDGET_TOKENS`）、工具调用流式解析 |
-| `run_benchmark.py` | 统一评测入口：`python run_benchmark.py browsecomp {sample,fixed,repeats} ...`（参数原样透传，旧入口均可用，`--list` 查看注册的 benchmark） |
-| `run_browsecomp.py` | 全量 BrowseComp 评测入口（= `run_benchmark.py browsecomp sample`） |
-| `run_browsecomp_fixed_sample.py` | 固定样本评测入口（= `browsecomp fixed`，可指定 positions） |
-| `run_seed_repeats.py` | 同一种子重复运行以测量稳定性（= `browsecomp repeats`） |
+| `scripts/run/run_benchmark.py` | 统一评测入口：`python3 -m scripts.run.run_benchmark browsecomp {sample,fixed,repeats} ...`（参数原样透传，旧入口均可用，`--list` 查看注册的 benchmark） |
+| `scripts/run/run_browsecomp.py` | 全量 BrowseComp 评测入口（= `scripts/run/run_benchmark.py browsecomp sample`） |
+| `scripts/run/run_browsecomp_fixed_sample.py` | 固定样本评测入口（= `browsecomp fixed`，可指定 positions） |
+| `scripts/run/run_seed_repeats.py` | 同一种子重复运行以测量稳定性（= `browsecomp repeats`） |
 | `benchmark_registry.py` | benchmark 声明式注册表（数据集 URL/本地缓存/canary 解密），新增 benchmark 只需注册 spec |
 | `disk_cache.py` | LLM/HTTP 磁盘缓存（`LLM_CACHE_MODE=off/record/replay`），`--replay` 支持离线复现 |
 | `results_schema.py` | 统一结果信封 schema（`schema_version` + `run_spec` 溯源 + 校验 + `strip_volatile` 重放对比） |
-| `regrade_results.py` | 用新 grader 对已有结果重打分 |
-| `build_seed123_k10_full.py` | 重建本地固定子集 `docs/seed123_k10_full.json` |
+| `scripts/analysis/regrade_results.py` | 用新 grader 对已有结果重打分 |
+| `scripts/analysis/build_seed123_k10_full.py` | 重建本地固定子集 `data/seed123_k10_full.json` |
 
 ### 工具集（Executor 可调用）
 
@@ -110,16 +110,16 @@ SearchHarness_0425/
 ├── config.py                         # 集中式配置
 ├── llm_client.py / openai_client_factory.py / llm_error_utils.py
 ├── llm_reasoning_compat.py       # 推理模型流式兼容层（reasoning_content + 思考预算）
-├── run_browsecomp.py                 # 全量评测入口
-├── run_browsecomp_fixed_sample.py    # 固定样本评测入口
-├── run_seed_repeats.py               # 重复运行
-├── regrade_results.py                # 结果重打分
-├── build_seed123_k10_full.py         # 重建固定子集
-├── debug_llm_smoke.py           # LLM 端点冒烟测试（+ --verify-thinking 思考开关验证）
-├── debug_serper_smoke.py             # Serper 搜索冒烟测试
-├── smoke_test_simple.py              # 端到端 pipeline 冒烟（单问题）
-├── smoke_test_thinking.py            # 思考模式端到端冒烟（多 effort 对比）
-├── verify_source_accuracy.py         # 数据源准确性冒烟（真实 Serper before/after 对比）
+├── scripts/run/run_browsecomp.py                 # 全量评测入口
+├── scripts/run/run_browsecomp_fixed_sample.py    # 固定样本评测入口
+├── scripts/run/run_seed_repeats.py               # 重复运行
+├── scripts/analysis/regrade_results.py                # 结果重打分
+├── scripts/analysis/build_seed123_k10_full.py         # 重建固定子集
+├── scripts/smoke/debug_llm_smoke.py           # LLM 端点冒烟测试（+ --verify-thinking 思考开关验证）
+├── scripts/smoke/debug_serper_smoke.py             # Serper 搜索冒烟测试
+├── scripts/smoke/smoke_test_simple.py              # 端到端 pipeline 冒烟（单问题）
+├── scripts/smoke/smoke_test_thinking.py            # 思考模式端到端冒烟（多 effort 对比）
+├── scripts/analysis/verify_source_accuracy.py         # 数据源准确性冒烟（真实 Serper before/after 对比）
 ├── planning_agent_prompt_v3.md / search_agent_prompt_v3.md     # v3 通用 prompt
 ├── planning_agent_prompt_simple.md / search_agent_prompt_simple.md  # 简化 prompt（compact，适配推理模型）
 ├── requirements.txt
@@ -461,7 +461,7 @@ PLANNER_SIMPLE_PROMPT=1             # 简化 planner prompt（3-phase 验证模�
 
 #### GLM-5.2 / tenyun 网关（实测 2026-08-04）
 
-GLM-5.2 只有 `max` 与 `high` 是原生取值，同一问题实测对比（`smoke_test_thinking.py`，"strawberry 里几个 r"）：
+GLM-5.2 只有 `max` 与 `high` 是原生取值，同一问题实测对比（`scripts/smoke/smoke_test_thinking.py`，"strawberry 里几个 r"）：
 
 | `EXECUTOR_THINKING` | 单轮耗时 | planner reasoning tokens | 说明 |
 |---|---|---|---|
@@ -483,10 +483,10 @@ EXECUTOR_THINKING=max
 
 ```bash
 # 1. 单元级：直接对比 reasoning_tokens（minimal vs 默认）
-python3 debug_llm_smoke.py --verify-thinking
+python3 -m scripts.smoke.debug_llm_smoke --verify-thinking
 
 # 2. 端到端：跑同一问题，对比 EXECUTOR_THINKING=minimal 与 high 的行为差异
-python3 smoke_test_thinking.py --question "..." --efforts "minimal high"
+python3 -m scripts.smoke.smoke_test_thinking --question "..." --efforts "minimal high"
 ```
 
 ---
@@ -501,31 +501,31 @@ python3 smoke_test_thinking.py --question "..." --efforts "minimal high"
 cd SearchHarness_0425
 
 # 1. LLM 端点冒烟测试（检查 /models 与 /chat/completions 连通性 + Key 权限）
-python3 debug_llm_smoke.py --no-proxy
+python3 -m scripts.smoke.debug_llm_smoke --no-proxy
 
 # 2. 思考模式开关冒烟（对比 EXECUTOR_THINKING=minimal vs 默认的 reasoning_tokens 差异）
-python3 debug_llm_smoke.py --verify-thinking
+python3 -m scripts.smoke.debug_llm_smoke --verify-thinking
 
 # 3. Serper 搜索冒烟测试
-python3 debug_serper_smoke.py
+python3 -m scripts.smoke.debug_serper_smoke
 
 # 4. 端到端 pipeline 冒烟（一个 trivial 问题，跑通 Planner→Executor→Finalizer 全链路）
-python3 smoke_test_simple.py
+python3 -m scripts.smoke.smoke_test_simple
 
 # 5. 思考模式端到端冒烟（同一问题对比 none/high 行为差异，验证 EXECUTOR_THINKING 传递链路）
-python3 smoke_test_thinking.py --efforts none high
+python3 -m scripts.smoke.smoke_test_thinking --efforts none high
 
 # 6. 数据源准确性冒烟（真实 Serper 查询，打印后处理前后对比 + source_quality 元数据）
-python3 verify_source_accuracy.py "best stock picks 2024 performance"
+python3 -m scripts.analysis.verify_source_accuracy "best stock picks 2024 performance"
 ```
 
 预期输出：
-- `debug_llm_smoke.py`：`/models` 与 `/chat/completions` 均 `status: 200`，`reasoning_content` 字段正常返回
-- `debug_llm_smoke.py --verify-thinking`：`minimal` 分支 `reasoning_tokens` 应显著低于默认分支
-- `debug_serper_smoke.py`：`status_code: 200`，返回搜索结果
-- `smoke_test_simple.py`：`RESULT = PASS`，答案非空
-- `smoke_test_thinking.py`：各组 effort 均完成；`minimal` 组工具调用更早、`high` 组 reasoning_tokens 更高
-- `verify_source_accuracy.py`：BEFORE 段 `tier=- fresh=-`（未标注）；AFTER 段每条带 `tier` 与 `freshness_flag`，过期 2023/2024 结果进入 `freshness_dropped`，UGC（reddit 等）排末位，结果 ≤ top-8
+- `scripts/smoke/debug_llm_smoke.py`：`/models` 与 `/chat/completions` 均 `status: 200`，`reasoning_content` 字段正常返回
+- `scripts/smoke/debug_llm_smoke.py --verify-thinking`：`minimal` 分支 `reasoning_tokens` 应显著低于默认分支
+- `scripts/smoke/debug_serper_smoke.py`：`status_code: 200`，返回搜索结果
+- `scripts/smoke/smoke_test_simple.py`：`RESULT = PASS`，答案非空
+- `scripts/smoke/smoke_test_thinking.py`：各组 effort 均完成；`minimal` 组工具调用更早、`high` 组 reasoning_tokens 更高
+- `scripts/analysis/verify_source_accuracy.py`：BEFORE 段 `tier=- fresh=-`（未标注）；AFTER 段每条带 `tier` 与 `freshness_flag`，过期 2023/2024 结果进入 `freshness_dropped`，UGC（reddit 等）排末位，结果 ≤ top-8
 
 若 Serper 返回 `{"message":"Not enough credits","statusCode":400}`，说明额度耗尽，需充值或更换 Key。
 
@@ -591,7 +591,7 @@ P1-D 时 pos5 在 9 次迭代中始终停留在 "Shaun Murphy"，从未验证 Di
 
 ### 单题评测（固定样本）
 
-固定样本为 seed `123`、k `10`，**1-indexed**（position `1` = 第一题 = Achimota School，position `2-10` 是其余题）。`docs/seed123_k10_manifest.json` 含 gold answer。
+固定样本为 seed `123`、k `10`，**1-indexed**（position `1` = 第一题 = Achimota School，position `2-10` 是其余题）。`data/seed123_k10_manifest.json` 含 gold answer。
 
 **运行前请确保 `.env` 已配置 tool-first 加速**（详见"工具调用加速"章节）：
 
@@ -606,7 +606,7 @@ P1-D 时 pos5 在 9 次迭代中始终停留在 "Shaun Murphy"，从未验证 Di
 
 ```bash
 # 评测 position 5（gold: Ding Junhui，历史错误答案: Mark Selby，用于验证硬冲突消除）
-python3 run_browsecomp_fixed_sample.py \
+python3 -m scripts.run.run_browsecomp_fixed_sample \
   --seed 123 \
   --sample-size 10 \
   --positions 5 \
@@ -626,7 +626,7 @@ python3 run_browsecomp_fixed_sample.py \
 ```bash
 # 单题快速并发评测（pos5 示例）
 # 两层并发：题内 subtask 并发（EXECUTOR_SUBTASK_CONCURRENCY）+ 不开题间并发（max-workers 1）
-EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
+EXECUTOR_SUBTASK_CONCURRENCY=2 python3 -m scripts.run.run_browsecomp_fixed_sample \
   --seed 123 --sample-size 10 --positions 5 \
   --output results/seed123_pos5_fast.json \
   --trajectory-dir logs/trajectories_pos5_fast \
@@ -639,7 +639,7 @@ EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
 # 多题批量快速并发评测（positions 1-10）
 # 两层并发叠加：题内 subtask（SUBTASK_CONCURRENCY=2）+ 题间（max-workers 3）
 # 实测 10 题 31.5 分钟、40% 准确率、19 个并发批次（14×batch=3 + 5×batch=2）
-EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
+EXECUTOR_SUBTASK_CONCURRENCY=2 python3 -m scripts.run.run_browsecomp_fixed_sample \
   --seed 123 --sample-size 10 --positions 1-10 \
   --output results/seed123_pos1to10_fast.json \
   --trajectory-dir logs/trajectories_pos1to10_fast \
@@ -669,7 +669,7 @@ EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
 
 | 并发层 | 控制参数 | 作用域 |
 |--------|----------|--------|
-| 题间并发 | `--max-workers N` | N 个题目同时跑（`run_browsecomp_fixed_sample.py` 的 `ThreadPoolExecutor`） |
+| 题间并发 | `--max-workers N` | N 个题目同时跑（`scripts/run/run_browsecomp_fixed_sample.py` 的 `ThreadPoolExecutor`） |
 | 题内 subtask 并发 | `EXECUTOR_SUBTASK_CONCURRENCY` | 单题内 2–3 个 planner step 同时执行（pipeline 的 `_run_subtasks_concurrent`） |
 
 > 注意：两层并发会乘积增加 LLM 请求并发度。`max-workers 3 × SUBTASK_CONCURRENCY 2` 峰值约 6 路并发请求，需确认 LLM 端点配额承载。单题测试用 `--max-workers 1` 只开题内并发。
@@ -678,7 +678,7 @@ EXECUTOR_SUBTASK_CONCURRENCY=2 python3 run_browsecomp_fixed_sample.py \
 
 ```bash
 # 评测 position 2-10
-python3 run_browsecomp_fixed_sample.py \
+python3 -m scripts.run.run_browsecomp_fixed_sample \
   --seed 123 --sample-size 10 --positions 2-10 \
   --output results/seed123_pos2to9.json \
   --trajectory-dir logs/trajectories_pos2to9 \
@@ -690,7 +690,7 @@ python3 run_browsecomp_fixed_sample.py \
 ### 全量 BrowseComp 评测
 
 ```bash
-python3 run_browsecomp.py \
+python3 -m scripts.run.run_browsecomp \
   --num-examples 50 \
   --max-workers 3 \
   --output results/browsecomp_v4.json \
@@ -703,7 +703,7 @@ python3 run_browsecomp.py \
   --seed 123
 ```
 
-> **推理模型提示**：使用推理模型时，设置 `LLM_THINKING_BUDGET_TOKENS`（如 `4096`）可让模型充分推理后再决策。默认 `1000` 对复杂多跳问题可能不足，导致规划过浅。设置方法：在 `.env` 中配置或运行时前缀 `LLM_THINKING_BUDGET_TOKENS=4096 python3 run_browsecomp_fixed_sample.py ...`。
+> **推理模型提示**：使用推理模型时，设置 `LLM_THINKING_BUDGET_TOKENS`（如 `4096`）可让模型充分推理后再决策。默认 `1000` 对复杂多跳问题可能不足，导致规划过浅。设置方法：在 `.env` 中配置或运行时前缀 `LLM_THINKING_BUDGET_TOKENS=4096 python3 -m scripts.run.run_browsecomp_fixed_sample ...`。
 
 ---
 
@@ -748,7 +748,7 @@ export EXECUTOR_TOOL_CHOICE=first_turn   # 首轮强制工具调用（6.2× 加�
 export LLM_THINKING_BUDGET_TOKENS=0      # planner/critic/grader：0→minimal→low（profile）
 
 # 2. 单题评测（pos 5，gold: Ding Junhui；1-indexed）
-python3 run_browsecomp_fixed_sample.py \
+python3 -m scripts.run.run_browsecomp_fixed_sample \
   --seed 123 --sample-size 10 --positions 5 \
   --output results/seed123_pos5.json \
   --trajectory-dir logs/trajectories_pos5 \
@@ -783,11 +783,11 @@ echo $EXECUTOR_TOOL_CHOICE       # 应输出: first_turn
 echo $EXECUTOR_SIMPLE_PROMPT     # 应输出: 1
 
 # 2. 确认 LLM 端点连通
-python3 debug_llm_smoke.py --verify-thinking
+python3 -m scripts.smoke.debug_llm_smoke --verify-thinking
 
 # 3. 单题冒烟（5–13min，验证整链路 + tool-first 是否生效）
 #    注意：--positions 是 1-indexed（1 = 第一题），范围 1..sample-size
-python3 run_browsecomp_fixed_sample.py \
+python3 -m scripts.run.run_browsecomp_fixed_sample \
   --seed 123 --sample-size 10 --positions 5 \
   --output /tmp/smoke_pos5.json \
   --trajectory-dir /tmp/smoke_traj \
@@ -879,7 +879,7 @@ python3 run_browsecomp_fixed_sample.py \
 
 ## 评测脚本
 
-### `run_browsecomp.py` — 全量评测
+### `scripts/run/run_browsecomp.py` — 全量评测
 
 | 参数 | 默认 | 说明 |
 |------|------|------|
@@ -896,7 +896,7 @@ python3 run_browsecomp_fixed_sample.py \
 | `--seed` | — | 随机种子 |
 | `--skip` | `0` | 跳过前 N 题（用于断点续跑） |
 
-### `run_browsecomp_fixed_sample.py` — 固定样本评测
+### `scripts/run/run_browsecomp_fixed_sample.py` — 固定样本评测
 
 | 参数 | 默认 | 说明 |
 |------|------|------|
@@ -909,10 +909,10 @@ python3 run_browsecomp_fixed_sample.py \
 | `--disable-query-critic` | — | 关闭查询判重（允许重复 query） |
 | 预算参数同上 | | |
 
-### `run_seed_repeats.py` — 重复运行
+### `scripts/run/run_seed_repeats.py` — 重复运行
 
 ```bash
-python3 run_seed_repeats.py \
+python3 -m scripts.run.run_seed_repeats \
   --seed 123 \
   --repeats 10 \
   --parallelism 3 \
@@ -920,20 +920,20 @@ python3 run_seed_repeats.py \
   --trajectory-root logs/repeats
 ```
 
-### `regrade_results.py` — 结果重打分
+### `scripts/analysis/regrade_results.py` — 结果重打分
 
 ```bash
-python3 regrade_results.py \
+python3 -m scripts.analysis.regrade_results \
   --input results/old_run.json \
   --output results/old_run_regraded.json \
   --max-workers 4
 ```
 
-### `build_seed123_k10_full.py` — 重建固定子集
+### `scripts/analysis/build_seed123_k10_full.py` — 重建固定子集
 
 ```bash
-python3 build_seed123_k10_full.py
-# 输出: docs/seed123_k10_full.json
+python3 -m scripts.analysis.build_seed123_k10_full
+# 输出: data/seed123_k10_full.json
 ```
 
 ---
@@ -996,14 +996,14 @@ python3 build_seed123_k10_full.py
 
 #### 真实 Serper 验证（2026-08-07）
 
-用 `verify_source_accuracy.py` 跑真实查询，确认三条原则在真实流量上生效：
+用 `scripts/analysis/verify_source_accuracy.py` 跑真实查询，确认三条原则在真实流量上生效：
 
 - **时效敏感题** `best stock picks 2024 performance`：`kiplinger.com` 的 "10 2024 Stock Picks"（`Jan 1, 2024`，age_days=949 > 730 窗口）被硬过滤并记入 `freshness_dropped`；`query_time_sensitive=true`；"4 days ago"→`fresh`、"7 months ago"→`recent` 解析正确；新鲜度参与排序（`fresh` 排前，`recent` 次之，无日期 `unknown` 在后）。
 - **AI 模型题** `latest AI model release 2026`：`reddit.com/r/singularity`（UGC，tier 1）排到末位；权威来源 `blog.google`、`orca.security` 上浮；结果截断到 top-8。
 
 复跑命令：
 ```bash
-python3 verify_source_accuracy.py "你的查询"      # 默认 query 见脚本顶部
+python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 query 见脚本顶部
 ```
 
 ### 权威共识早停（查询效率优化）
@@ -1065,7 +1065,7 @@ python3 verify_source_accuracy.py "你的查询"      # 默认 query 见脚本�
 | A. 自验证终结器 | Self-Verification / Chain-of-Verification (CoVe, Lightman et al. 2022) | 新增 `answer_verifier.py` + 改 `search_finalizer.py` | `ANSWER_VERIFIER_ENABLED`（默认开） | `answer_verifier.py`, `search_finalizer.py` |
 | B. 候选置信度排序 | 过程奖励 / Implicit Process Reward | 改 `search_finalizer.py` 排序逻辑 | 自动启用 | `search_finalizer.py` |
 | C. 自适应提前停止 | Anytime / Adaptive Compute | 改 `search_harness_pipeline_v4.py` `_check_stop` | 自动启用 | `search_harness_pipeline_v4.py` |
-| E. 失败分类分析 | Error Taxonomy / Error Analysis | 新增 `failure_taxonomy.py`（离线脚本） | 手动运行 | `failure_taxonomy.py` |
+| E. 失败分类分析 | Error Taxonomy / Error Analysis | 新增 `scripts/analysis/failure_taxonomy.py`（离线脚本） | 手动运行 | `scripts/analysis/failure_taxonomy.py` |
 
 ### A. 自验证终结器（`answer_verifier.py`）
 
@@ -1115,7 +1115,7 @@ python3 verify_source_accuracy.py "你的查询"      # 默认 query 见脚本�
 
 **论文对应。** 方法章节"自适应计算预算"小节，对应 anytime algorithm / adaptive compute；消融表给出 搜索次数 vs. 正确率 的 Pareto 曲线（开关 early-stop 两条线）。
 
-### E. 失败分类分析（`failure_taxonomy.py`）
+### E. 失败分类分析（`scripts/analysis/failure_taxonomy.py`）
 
 **动机。** 项目的 41% 错误率是一个整体数字，但论文需要把错误**拆成可归因的子类**，才能说明每个增强模块攻击的是哪部分错误。这是一个**纯离线分析脚本**，不改动任何核心代码。
 
@@ -1132,7 +1132,7 @@ python3 verify_source_accuracy.py "你的查询"      # 默认 query 见脚本�
 **用法。**
 ```bash
 cd SearchHarness_0425
-python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
+python3 -m scripts.analysis.failure_taxonomy --root ../data/trajectories/deepseek-chat \
     --out failure_taxonomy_report.json --csv failure_taxonomy.csv
 ```
 
@@ -1235,19 +1235,19 @@ python failure_taxonomy.py --root ../data/trajectories/deepseek-chat \
 
 ```bash
 # Baseline (Plan A off)
-ENABLE_PLAN_A_VERIFICATION=0 python run_browsecomp_fixed_sample.py \
+ENABLE_PLAN_A_VERIFICATION=0 python3 -m scripts.run.run_browsecomp_fixed_sample \
     --seed 123 --sample-size 10 --positions 1-3 \
     --output results/planA_baseline_pos1to3.json \
     2>&1 | tee logs/run_baseline_noPlanA.log
 
 # Treatment (Plan A on, full-path, pre-fix)
-ENABLE_PLAN_A_VERIFICATION=1 python run_browsecomp_fixed_sample.py \
+ENABLE_PLAN_A_VERIFICATION=1 python3 -m scripts.run.run_browsecomp_fixed_sample \
     --seed 123 --sample-size 10 --positions 1-3 \
     --output results/planA_treatment_full_pos1to3.json \
     2>&1 | tee logs/run_treatment_full.log
 
 # Treatment (Plan A on, post-fix, type-aware) — 2026-08-04 17:24 acc=3/3
-ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_sample.py \
+ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python3 -m scripts.run.run_browsecomp_fixed_sample \
     --seed 123 --sample-size 10 --positions 1-3 \
     --output results/planA_treatment_fixed_pos1to3.json \
     2>&1 | tee logs/run_treatment_fixed_pos1to3.log
@@ -1261,13 +1261,13 @@ ENABLE_PLAN_A_VERIFICATION=1 VERIFIER_TYPE_AWARE=1 python run_browsecomp_fixed_s
 
 | 脚本 | 用途 | 关键参数 |
 |------|------|---------|
-| `debug_llm_smoke.py` | 验证 LLM 端点可达性、Key 模型权限 | `--no-proxy` 清除代理环境变量 |
-| `debug_llm_smoke.py` | 验证思考模式开关（对比 `minimal` vs 默认的 `reasoning_tokens`） | `--verify-thinking` |
-| `debug_serper_smoke.py` | 验证 Serper 搜索可用性、Key 额度 | 无参数 |
-| `smoke_test_simple.py` | 端到端 pipeline 冒烟（trivial 问题跑通全链路） | `--question`、`--max-iterations` |
-| `smoke_test_thinking.py` | 思考模式端到端冒烟（同一问题对比多个 `EXECUTOR_THINKING` 取值） | `--efforts none high`、`--question` |
+| `scripts/smoke/debug_llm_smoke.py` | 验证 LLM 端点可达性、Key 模型权限 | `--no-proxy` 清除代理环境变量 |
+| `scripts/smoke/debug_llm_smoke.py` | 验证思考模式开关（对比 `minimal` vs 默认的 `reasoning_tokens`） | `--verify-thinking` |
+| `scripts/smoke/debug_serper_smoke.py` | 验证 Serper 搜索可用性、Key 额度 | 无参数 |
+| `scripts/smoke/smoke_test_simple.py` | 端到端 pipeline 冒烟（trivial 问题跑通全链路） | `--question`、`--max-iterations` |
+| `scripts/smoke/smoke_test_thinking.py` | 思考模式端到端冒烟（同一问题对比多个 `EXECUTOR_THINKING` 取值） | `--efforts none high`、`--question` |
 
-`debug_llm_smoke.py` 会打印：API 端点、Key 前缀（脱敏）、代理快照、`/models` 与 `/chat/completions` 的状态码与响应前缀。若看到 model-access denial，说明当前 Key 无权访问指定模型——需更换 Key 或改用 Key 可访问的模型。加 `--verify-thinking` 时会额外发起两次 `chat/completions`：一次 `reasoning_effort=minimal`、一次默认，对比 `reasoning_tokens` 差异以确认思考开关在 API 层生效（OpenAI 标准，仅顶层 kwarg，不注入 extra_body）。
+`scripts/smoke/debug_llm_smoke.py` 会打印：API 端点、Key 前缀（脱敏）、代理快照、`/models` 与 `/chat/completions` 的状态码与响应前缀。若看到 model-access denial，说明当前 Key 无权访问指定模型——需更换 Key 或改用 Key 可访问的模型。加 `--verify-thinking` 时会额外发起两次 `chat/completions`：一次 `reasoning_effort=minimal`、一次默认，对比 `reasoning_tokens` 差异以确认思考开关在 API 层生效（OpenAI 标准，仅顶层 kwarg，不注入 extra_body）。
 
 ### 2. 查看轨迹
 
@@ -1424,7 +1424,7 @@ python convert_trajectory_to_offseeker_format.py \
 ## 常见问题
 
 ### Q1: 启动报 `model-access denial` / 模型不可用
-当前 API Key 无权访问 `MODEL_NAME` 指定的模型。运行 `debug_llm_smoke.py` 确认可用模型列表，将 `MODEL_NAME` 改为 Key 可访问的模型（部分模型需额外授权，以 `/models` 接口返回的可用列表为准）。
+当前 API Key 无权访问 `MODEL_NAME` 指定的模型。运行 `scripts/smoke/debug_llm_smoke.py` 确认可用模型列表，将 `MODEL_NAME` 改为 Key 可访问的模型（部分模型需额外授权，以 `/models` 接口返回的可用列表为准）。
 
 ### Q2: Serper 返回 `Not enough credits`
 Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key，更新 `.env` 中的 `SERPER_API_KEY`。
@@ -1436,10 +1436,10 @@ Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key�
 这正是 v4 结构化候选状态要解决的问题。检查轨迹中的 `candidate_records`：错误候选是否积累了 `hard_conflicts` 但未被 eliminate，或者 finalizer 在仍有未解决冲突时过早收敛。
 
 ### Q5: 代理环境变量导致请求失败
-`debug_llm_smoke.py` 的 `--no-proxy` 参数会清除 `HTTP_PROXY` / `HTTPS_PROXY` 等环境变量。若公司网络强制代理，需确保代理允许访问 LLM 端点与 `google.serper.dev`。
+`scripts/smoke/debug_llm_smoke.py` 的 `--no-proxy` 参数会清除 `HTTP_PROXY` / `HTTPS_PROXY` 等环境变量。若公司网络强制代理，需确保代理允许访问 LLM 端点与 `google.serper.dev`。
 
 ### Q6: 如何只重打分不重跑
-使用 `regrade_results.py`，传入已有结果 JSON，用新 grader 模型重新判定 `correct` 字段，无需消耗搜索配额。
+使用 `scripts/analysis/regrade_results.py`，传入已有结果 JSON，用新 grader 模型重新判定 `correct` 字段，无需消耗搜索配额。
 
 ---
 

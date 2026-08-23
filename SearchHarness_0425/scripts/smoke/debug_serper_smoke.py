@@ -6,7 +6,10 @@ from dotenv import load_dotenv
 
 
 def main() -> None:
-    load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"), override=True)
+    load_dotenv(
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), ".env"),
+        override=True,
+    )
     for key in ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]:
         os.environ.pop(key, None)
 

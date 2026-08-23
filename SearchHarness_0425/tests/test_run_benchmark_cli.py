@@ -5,7 +5,7 @@ import sys
 
 import pytest
 
-import run_benchmark as rb
+import scripts.run.run_benchmark as rb
 
 
 def _run(argv):
