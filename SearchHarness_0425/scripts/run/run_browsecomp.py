@@ -29,6 +29,7 @@ from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
 import results_schema as rs
+import stats_utils as su
 from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm.errors import classify_infra_error
 from llm.factory import build_openai_client
@@ -405,6 +406,7 @@ def run_evaluation(
     correct = sum(1 for r in results if r.get("is_correct"))
     total = len(results)
     accuracy = correct / total if total > 0 else 0
+    acc_stats = su.accuracy_stats(results)
 
     # Print summary
     print(f"\n{'=' * 60}")
@@ -415,6 +417,7 @@ def run_evaluation(
     print(f"Examples:       {total}")
     print(f"Correct:        {correct}")
     print(f"Accuracy:       {accuracy:.2%}")
+    print(f"  {su.format_accuracy_line(acc_stats)}")
     print(f"Total time:     {total_elapsed:.1f}s ({total_elapsed / max(total, 1):.1f}s/task)")
     print(f"Max workers:    {max_workers}")
     print(f"Pipeline:       max_iter={max_iterations}, planner_search={max_planner_searches}, executor_search={max_executor_searches}, total_search={max_total_searches}, max_crawl={max_crawl_calls}")
@@ -450,6 +453,7 @@ def run_evaluation(
                 "num_examples": total,
                 "correct_count": correct,
                 "accuracy": accuracy,
+                "accuracy_stats": acc_stats,
                 "total_elapsed_seconds": round(total_elapsed, 1),
                 "pipeline_config": pipeline_kwargs,
             },

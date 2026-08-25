@@ -9,6 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
+import stats_utils as su
+
 # Statuses from a previous run that count as finished — anything else is re-run.
 RESUMABLE_BAD_STATUSES = {"unfinished", "error", "infra_error", ""}
 
@@ -223,6 +225,8 @@ def main():
     total_elapsed = round(time.time() - overall_start, 1)
     correct = sum(1 for r in runs if r.get("is_correct"))
     accuracy = correct / len(runs) if runs else 0.0
+    run_accuracies = [float(r.get("accuracy") or 0.0) for r in runs]
+    rep_stats = su.repeats_stats(run_accuracies)
 
     summary = {
         "timestamp": datetime.now().isoformat(),
@@ -232,6 +236,7 @@ def main():
         "total_elapsed_seconds": total_elapsed,
         "correct_count": correct,
         "accuracy": accuracy,
+        "repeats_stats": rep_stats,
         "runs": runs,
     }
 
@@ -246,6 +251,8 @@ def main():
     print(f"Parallelism:   {args.parallelism}")
     print(f"Correct:       {correct}")
     print(f"Accuracy:      {accuracy:.2%}")
+    if rep_stats.get("mean") is not None:
+        print(f"  {su.format_accuracy_line(rep_stats)} | std={rep_stats['std']:.1%}")
     print(f"Total time:    {total_elapsed:.1f}s")
     print(f"Summary file:  {summary_path}")
     print("=" * 60)

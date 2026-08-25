@@ -23,6 +23,7 @@ from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
 import results_schema as rs
+import stats_utils as su
 from scripts.run.run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
 from scripts.run.run_checkpoint import RunCheckpoint
 
@@ -267,6 +268,7 @@ def run_fixed_evaluation(
     correct = sum(1 for r in results if r.get("is_correct"))
     total = len(results)
     accuracy = correct / total if total else 0.0
+    acc_stats = su.accuracy_stats(results)
     usage_snapshot = tracker.snapshot()
 
     pipeline_config = {
@@ -299,6 +301,7 @@ def run_fixed_evaluation(
             "num_examples": total,
             "correct_count": correct,
             "accuracy": accuracy,
+            "accuracy_stats": acc_stats,
             "total_elapsed_seconds": round(total_elapsed, 1),
             "resume": {
                 "enabled": resume,
@@ -327,6 +330,7 @@ def run_fixed_evaluation(
     print(f"Examples:       {total}", flush=True)
     print(f"Correct:        {correct}", flush=True)
     print(f"Accuracy:       {accuracy:.2%}", flush=True)
+    print(f"  {su.format_accuracy_line(acc_stats)}", flush=True)
     print(f"Total time:     {total_elapsed:.1f}s", flush=True)
     print(f"Max workers:    {max_workers}", flush=True)
     u = usage_snapshot["total"]
