@@ -1265,15 +1265,26 @@ def search_wiki(entities: List[str]) -> str:
     return json.dumps(final_result, ensure_ascii=False)
 
 
+def get_code_exec_interpreter(execution_timeout: int = 300):
+    """Select code-execution backend via CODE_EXEC_BACKEND (M3 ①).
+
+    subprocess (default) or docker (hardened sandbox, auto-fallback to
+    subprocess when docker is unavailable).
+    """
+    from .docker_interpreter import select_interpreter
+
+    backend = (os.getenv("CODE_EXEC_BACKEND", "subprocess") or "subprocess").strip().lower()
+    return select_interpreter(execution_timeout=execution_timeout, backend=backend)
+
+
 def execute_code(code: str) -> str:
     """
     Execute Python code.
-    
+
     Args:
         code: Python code string to execute
-        
+
     Returns:
         Execution result as string
     """
-    interpreter = SubprocessInterpreter(execution_timeout=300)
-    return interpreter.run(code)
+    return get_code_exec_interpreter(execution_timeout=300).run(code)

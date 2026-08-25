@@ -12,6 +12,37 @@ from pathlib import Path
 from loguru import logger
 
 
+def maybe_wrap_last_expr(source: str) -> str:
+    """If the final statement is a bare expression, wrap it in print(repr(...)).
+
+    Kept identical between subprocess and docker backends so execute_code
+    output parity holds across backends.
+    """
+    tree = ast.parse(source)
+    if tree.body:
+        last_node = tree.body[-1]
+        if isinstance(last_node, ast.Expr):
+            if not (isinstance(last_node.value, ast.Call) and
+                    isinstance(last_node.value.func, ast.Name) and
+                    last_node.value.func.id == 'print'):
+                tree.body[-1] = ast.Expr(
+                    value=ast.Call(
+                        func=ast.Name(id='print', ctx=ast.Load()),
+                        args=[
+                            ast.Call(
+                                func=ast.Name(id='repr', ctx=ast.Load()),
+                                args=[last_node.value],
+                                keywords=[],
+                            )
+                        ],
+                        keywords=[],
+                    )
+                )
+        ast.fix_missing_locations(tree)
+        return ast.unparse(tree)  # py>=3.9 stdlib, 不再依赖 astor
+    return source
+
+
 class SubprocessInterpreter:
     """Execute Python code in subprocess."""
 
@@ -52,35 +83,9 @@ class SubprocessInterpreter:
             with open(file, 'r', encoding='utf-8') as f:
                 source = f.read()
 
-            tree = ast.parse(source)
-            
-            if tree.body:
-                last_node = tree.body[-1]
-                if isinstance(last_node, ast.Expr):
-                    if not (isinstance(last_node.value, ast.Call) and 
-                           isinstance(last_node.value.func, ast.Name) and
-                           last_node.value.func.id == 'print'):
-                        # Wrap the expression in print(repr())
-                        tree.body[-1] = ast.Expr(
-                            value=ast.Call(
-                                func=ast.Name(id='print', ctx=ast.Load()),
-                                args=[
-                                    ast.Call(
-                                        func=ast.Name(id='repr', ctx=ast.Load()),
-                                        args=[last_node.value],
-                                        keywords=[],
-                                    )
-                                ],
-                                keywords=[],
-                            )
-                        )
-                ast.fix_missing_locations(tree)
-                # Convert AST back to source code
-                import astor
-                modified_source = astor.to_source(tree)
-                # Create temporary file
-                temp_file = self._create_temp_file(modified_source)
-                cmd = ["python", str(temp_file)]
+            modified_source = maybe_wrap_last_expr(source)
+            temp_file = self._create_temp_file(modified_source)
+            cmd = ["python", str(temp_file)]
         except Exception as e:
             logger.warning(f"Failed to parse Python code: {e}")
             cmd = ["python", str(file)]
