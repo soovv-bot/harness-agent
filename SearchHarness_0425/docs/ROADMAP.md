@@ -77,6 +77,15 @@
 - ✅ step5（`29efd14`）：17 脚本迁入 `scripts/{run,smoke,analysis}/`，数据文件迁 `data/`，`tools` 公开别名 `call_serper_api`/`postprocess_serper_results`（Q9 收口），导入/路径/README 同步
 - ✅ step6（`b53ca4b`）：README 目录树重写为真实现状、新建 `docs/ARCHITECTURE.md`、scripts 包 docstring、WORKLOG 失效引用移除
 
+**M3 状态（✅ 四项全部完成，`feat/m1-repro`，pytest 372 passed）**：
+
+- ✅ ② 统计置信区间（`stats_utils.py`，commit `eb4d87e`）：bootstrap 95% CI（确定性 seed=20260825，同输入 byte-identical，M1 replay 兼容），三个 runner（`run_browsecomp`/`fixed_sample`/`seed_repeats`）的 metrics 与日志均附 CI 与重复方差
+- ✅ ④ span 级 tracing（`trajectory/spans.py`，同 commit）：从富化轨迹离线派生 OTEL 风格 span 树（task → iteration → llm/工具/区间事件），`python -m trajectory.spans <traj.json> --out x.json --timeline`；不改热路径，轨迹 schema 不漂移，可显示渲染 ASCII 时间线
+- ✅ ① docker 代码执行沙箱（commit `5aa2520`）：`CODE_EXEC_BACKEND=docker` 选择 `DockerSandboxInterpreter`（`--network none`、`--read-only`、tmpfs `/tmp` noexec、内存/CPU/pids 限额、drop all caps、no-new-privileges），docker 不可用自动回退 `SubprocessInterpreter`；两后端共用 `maybe_wrap_last_expr`（astor → stdlib `ast.unparse`），execute_code 输出契约一致
+- ✅ ③ judge 人工校准基线（`scripts/analysis/judge_calibration.py`）：`sample` 分层确定性抽样生成人工标注模板（覆盖 correct/incorrect/grader_error/ungraded 四桶），`agreement` 计算 accuracy + bootstrap CI + Cohen's kappa + 按桶分层 + 分歧样本复核清单；闭环：sample → 人工填 `human_correct` → agreement → 敏感度监控 judge 漂移
+
+**M3 门禁复核**：pytest **372 passed**（M2 基线 309 + 63 新增）；docker live 冒烟通过（断网生效：`socket.gethostbyname` 在容器内失败）；校准 CLI 在真实 `cluster_run_seed123_k100.json` 上端到端跑通。
+
 ## 4. 本轮已完成的整理动作（本分支）
 
 ## 4. 本轮已完成的整理动作（本分支）
