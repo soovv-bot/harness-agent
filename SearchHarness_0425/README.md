@@ -58,25 +58,29 @@
 | 文件 | 职责 |
 |------|------|
 | `pipeline/` | 流水线包：`orchestrator.py` 编排器（阶段流转、预算控制、有界停止、best-effort 终结）+ step4b 拆出的纯函数 helper 模块（`tracing` / `stages` / `candidates` / `feedback` / `finish` / `verification` / `subtasks`） |
-| `planning_agent.py` | 规划 Agent：将问题拆解为子任务，反重复规则约束 |
-| `search_agent.py` | 执行 Agent：调用 `search` / `visit_urls` / `search_wiki` / `add_candidates` / `update_candidate` |
-| `search_memory.py` | `SearchStateStore`：结构化候选记录（status / supporting / unresolved / hard_conflicts） |
-| `query_critic.py` | 查询判重：规则层（字面重复、空历史、Jaccard）+ LLM 兜底 |
-| `query_history.py` | 查询历史记忆，供 QueryCritic 判重 |
-| `search_crawl_controller.py` | 搜索 vs 抓取决策：信号计算 + 规则优先 + LLM 兜底 |
-| `subtask_critic.py` | 子任务质量评估：reject / accept / suggest_pivot |
-| `planning_direction_critic.py` | 规划方向评估（可选，默认关闭） |
-| `search_finalizer.py` | 终结器：从 `candidate_records` 收敛出最终答案，硬冲突候选不会被轻易采纳 |
+| `agents/planning_agent.py` | 规划 Agent：将问题拆解为子任务，反重复规则约束 |
+| `agents/search_agent.py` | 执行 Agent：调用 `search` / `visit_urls` / `search_wiki` / `add_candidates` / `update_candidate` |
+| `agents/search_finalizer.py` | 终结器：从 `candidate_records` 收敛出最终答案，硬冲突候选不会被轻易采纳 |
+| `memory/search_memory.py` | `SearchStateStore`：结构化候选记录（status / supporting / unresolved / hard_conflicts） |
+| `critics/query_critic.py` | 查询判重：规则层（字面重复、空历史、Jaccard）+ LLM 兜底 |
+| `memory/query_history.py` | 查询历史记忆，供 QueryCritic 判重 |
+| `memory/search_crawl_controller.py` | 搜索 vs 抓取决策：信号计算 + 规则优先 + LLM 兜底 |
+| `critics/subtask_critic.py` | 子任务质量评估：reject / accept / suggest_pivot |
+| `critics/planning_direction_critic.py` | 规划方向评估（可选，默认关闭） |
 | `trajectory/recorder.py` | 轨迹录制器（`TrajectoryRecorder` / `TrajectoryRecorderEnhanced`）。增强版输出 10 个结构化字段（事件流、搜索日志、LLM 调用元数据、候选快照、逐轮对话等），兼容 `convert_trajectory_to_offseeker_format.py` |
-| `config.py` | 集中式配置（dataclass + 环境变量） |
+| `core/config.py` | 集中式配置（dataclass + 环境变量） |
 | `llm/` | LLM 层包：`factory.py` 客户端构造、`client.py` `get_llm_client()` 统一入口、`errors.py` 错误分类、`compat.py` 推理模型流式兼容（`reasoning_content` 字段、思考预算 `LLM_THINKING_BUDGET_TOKENS`）、`profiles.yaml` 按模型配置 |
 | `scripts/run/run_benchmark.py` | 统一评测入口：`python3 -m scripts.run.run_benchmark browsecomp {sample,fixed,repeats} ...`（参数原样透传，旧入口均可用，`--list` 查看注册的 benchmark） |
 | `scripts/run/run_browsecomp.py` | 全量 BrowseComp 评测入口（= `scripts/run/run_benchmark.py browsecomp sample`） |
 | `scripts/run/run_browsecomp_fixed_sample.py` | 固定样本评测入口（= `browsecomp fixed`，可指定 positions） |
 | `scripts/run/run_seed_repeats.py` | 同一种子重复运行以测量稳定性（= `browsecomp repeats`） |
-| `benchmark_registry.py` | benchmark 声明式注册表（数据集 URL/本地缓存/canary 解密），新增 benchmark 只需注册 spec |
-| `disk_cache.py` | LLM/HTTP 磁盘缓存（`LLM_CACHE_MODE=off/record/replay`），`--replay` 支持离线复现 |
-| `results_schema.py` | 统一结果信封 schema（`schema_version` + `run_spec` 溯源 + 校验 + `strip_volatile` 重放对比） |
+| `core/benchmark_registry.py` | benchmark 声明式注册表（数据集 URL/本地缓存/canary 解密），新增 benchmark 只需注册 spec |
+| `utils/disk_cache.py` | LLM/HTTP 磁盘缓存（`LLM_CACHE_MODE=off/record/replay`），`--replay` 支持离线复现 |
+| `core/results_schema.py` | 统一结果信封 schema（`schema_version` + `run_spec` 溯源 + 校验 + `strip_volatile` 重放对比） |
+| `utils/stats_utils.py` | 确定性 bootstrap 置信区间（accuracy_stats / repeats_stats） |
+| `trajectory/spans.py` | 由轨迹离线派生 OTEL span 与 ASCII 时间线 |
+| `tools/docker_interpreter.py` | 硬化 docker 沙箱代码执行（`CODE_EXEC_BACKEND=docker` 启用） |
+| `scripts/analysis/judge_calibration.py` | judge 人工校准基线（分层抽样 + agreement/kappa/CI） |
 | `scripts/analysis/regrade_results.py` | 用新 grader 对已有结果重打分 |
 | `scripts/analysis/build_seed123_k10_full.py` | 重建本地固定子集 `data/seed123_k10_full.json` |
 
@@ -96,11 +100,17 @@
 
 ```
 SearchHarness_0425/
+├── core/                            # 基础设施：config / benchmark_registry / results_schema
+├── agents/                          # 行为主体：planning_agent / search_agent / search_finalizer
+│   │                                #   + 各 agent 的 *_prompt.md（与模块同目录，按 __file__ 相对定位）
+├── critics/                         # 评审否决：query_critic / subtask_critic / planning_direction_critic
+├── memory/                          # 状态节流：search_memory / query_history / search_crawl_controller
+├── utils/                           # 无状态支撑：answer_verifier / disk_cache / llm_usage（含 model_pricing.yaml）/ stats_utils
 ├── contract/                        # L0 契约层：纯 dataclass（Plan / CandidateRecord / TrajectoryDoc 等），不依赖任何项目模块
 ├── llm/                             # LLM 层：client / factory / errors / compat / profiles.yaml
-├── tools/                           # 工具层：search_tools / tool_processor / subprocess_interpreter
+├── tools/                           # 工具层：search_tools / tool_processor / subprocess_interpreter / docker_interpreter
 ├── pipeline/                        # 流水线：orchestrator.py + 7 个纯函数 helper 模块
-├── trajectory/                      # 轨迹录制：recorder.py（TrajectoryRecorder / Enhanced）
+├── trajectory/                      # 轨迹录制：recorder.py（TrajectoryRecorder / Enhanced）+ spans.py
 ├── scripts/
 │   ├── run/                         # 评测入口：run_benchmark（统一 CLI）/ run_browsecomp /
 │   │                                #   run_browsecomp_fixed_sample / run_seed_repeats /
@@ -110,31 +120,10 @@ SearchHarness_0425/
 │   └── analysis/                    # 离线分析：regrade_results / build_seed123_k10_full /
 │                                    #   failure_taxonomy / diagnose_trajectories /
 │                                    #   analyze_failed_subtasks / verify_source_accuracy /
-│                                    #   build_results_from_trajectories
+│                                    #   build_results_from_trajectories / judge_calibration
 ├── data/                            # 基准数据：browse_comp_test_set.csv、seed123_*.json（子集与 manifest）
-│
-│   # Agent 与规则层（顶层模块）
-├── planning_agent.py             # 规划 Agent：问题拆解为子任务
-├── search_agent.py               # 执行 Agent：search / visit_urls / search_wiki / add_candidates / update_candidate
-├── search_memory.py                 # SearchStateStore：结构化候选记录
-├── query_critic.py / query_history.py          # 查询判重与历史记忆
-├── search_crawl_controller.py       # 搜索 vs 抓取决策（信号+规则优先，LLM 兜底）
-├── subtask_critic.py                # 子任务质量评估（reject / accept / suggest_pivot）
-├── planning_direction_critic.py     # 规划方向评估（可选，默认关闭）
-├── search_finalizer.py              # 终结器：从候选记录收敛最终答案
-├── answer_verifier.py               # 答案验证（plan-A verification 可选路径）
-│
-│   # 基础设施
-├── config.py                        # 集中式配置（dataclass + 环境变量）
-├── disk_cache.py                    # LLM/HTTP 磁盘缓存（off/record/replay）
-├── llm_usage.py                     # LLM 调用用量统计
-├── benchmark_registry.py            # benchmark 声明式注册表
-├── results_schema.py                # 统一结果信封 schema
-│
-├── planning_agent_prompt.md / search_agent_prompt.md          # v3 通用 prompt
-├── planning_agent_prompt_simple.md / search_agent_prompt_simple.md  # 简化 prompt（适配推理模型）
 ├── requirements.txt / pyproject.toml
-├── tests/                           # pytest（309 例；conftest 注入 fake LLM/stub tools）
+├── tests/                           # pytest（372 例；conftest 注入 fake LLM/stub tools）
 ├── docs/
 │   ├── ROADMAP.md                   # 统一问题清单与优先级路线图（总入口）
 │   ├── REFACTOR_DESIGN.md           # 代码层模块化改造设计
@@ -144,6 +133,8 @@ SearchHarness_0425/
 ├── results/                         # 评测结果 JSON（gitignore）
 └── logs/                            # 轨迹与日志（gitignore）
 ```
+
+> 每个包内的 `doc.py` 用一句话说清该包的「能力边界 / 各模块职责 / 禁止项」，新模块归档前先读对应包的 doc.py。
 
 > 注意：`results/`、`logs/`、`trajectories/`、`__pycache__/` 均在 `.gitignore` 中，运行时自动生成。
 
@@ -255,7 +246,7 @@ EXECUTOR_TOOL_CHOICE=first_turn     # auto / required / first_turn
 
 ## 配置说明
 
-所有配置集中在 `config.py`，通过 `settings()` 惰性读取环境变量（不在 import 时求值，便于测试 monkeypatch）：
+所有配置集中在 `core/config.py`，通过 `settings()` 惰性读取环境变量（不在 import 时求值，便于测试 monkeypatch）：
 
 ```python
 from config import settings
@@ -532,7 +523,7 @@ python3 -m scripts.analysis.verify_source_accuracy "best stock picks 2024 perfor
 
 ### 回归冒烟测试（subtask 优化项单测）
 
-对 `search_harness_pipeline_v4.py` / `search_agent.py` 做过任何 subtask 调度、早停、兜底、重试相关的改动后，**必须**先跑一遍回归冒烟测试，确认既有的优化行为没有被破坏：
+对 `pipeline/orchestrator.py` / `search_agent.py` 做过任何 subtask 调度、早停、兜底、重试相关的改动后，**必须**先跑一遍回归冒烟测试，确认既有的优化行为没有被破坏：
 
 ```bash
 cd SearchHarness_0425
@@ -1028,7 +1019,7 @@ python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 
 两层触发，叠加生效：
 
 1. **执行器层**（`search_agent.py` `_consensus_candidate`）— 在 verification 类 subtask 内，每轮工具结果后扫描已累积的 `candidate_assessments.evidence`，统计每个候选的独立高权重/权威域名数；达到阈值则注入 wrap-up 消息，让 agent 立即输出 findings 结束该 subtask（省 subtask 内剩余 turn）。candidate_expansion 类 subtask 不触发（需广召回）。
-2. **流水线层**（`search_harness_pipeline_v4.py` `_authoritative_consensus_early_stop`）— 在 `_check_stop` 中、`_verified_candidate_early_stop` 之后调用，扫描 `candidate_records.evidence`；按上述两段优先级判定，命中任一则返回对应 trigger 终止整个 pipeline（省剩余 planner/executor 迭代）。即使 executor 尚未自报 `verification_status=verified` 也会触发——客观证据计数足够时不必再等 LLM 自我标记。
+2. **流水线层**（`pipeline/orchestrator.py` `_authoritative_consensus_early_stop`）— 在 `_check_stop` 中、`_verified_candidate_early_stop` 之后调用，扫描 `candidate_records.evidence`；按上述两段优先级判定，命中任一则返回对应 trigger 终止整个 pipeline（省剩余 planner/executor 迭代）。即使 executor 尚未自报 `verification_status=verified` 也会触发——客观证据计数足够时不必再等 LLM 自我标记。
 
 - **"独立"** = 不同 base 域名（同一 `reuters.com` 的两篇文章只算 1；`ir.apple.com` 归 `apple.com`），由 `high_weight_sources_in()` / `authoritative_domains_in()` 去重统计。
 - **判定复用** `_domain_credibility`（tier→权重映射 `_SOURCE_WEIGHTS = {5:10, 4:8, 3:5, 2:3, 1:2}`），与数据源分级同一张表，独立于 `SRC_CREDIBILITY_ENABLED` 开关。
@@ -1063,12 +1054,12 @@ python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 
 
 | 改动 | 理论锚点 | 改动量 | 开关 | 文件 |
 |------|---------|-------|------|------|
-| A. 自验证终结器 | Self-Verification / Chain-of-Verification (CoVe, Lightman et al. 2022) | 新增 `answer_verifier.py` + 改 `search_finalizer.py` | `ANSWER_VERIFIER_ENABLED`（默认开） | `answer_verifier.py`, `search_finalizer.py` |
-| B. 候选置信度排序 | 过程奖励 / Implicit Process Reward | 改 `search_finalizer.py` 排序逻辑 | 自动启用 | `search_finalizer.py` |
-| C. 自适应提前停止 | Anytime / Adaptive Compute | 改 `search_harness_pipeline_v4.py` `_check_stop` | 自动启用 | `search_harness_pipeline_v4.py` |
+| A. 自验证终结器 | Self-Verification / Chain-of-Verification (CoVe, Lightman et al. 2022) | 新增 `utils/answer_verifier.py` + 改 `agents/search_finalizer.py` | `ANSWER_VERIFIER_ENABLED`（默认开） | `answer_verifier.py`, `search_finalizer.py` |
+| B. 候选置信度排序 | 过程奖励 / Implicit Process Reward | 改 `agents/search_finalizer.py` 排序逻辑 | 自动启用 | `search_finalizer.py` |
+| C. 自适应提前停止 | Anytime / Adaptive Compute | 改 `pipeline/orchestrator.py` `_check_stop` | 自动启用 | `pipeline/orchestrator.py` |
 | E. 失败分类分析 | Error Taxonomy / Error Analysis | 新增 `scripts/analysis/failure_taxonomy.py`（离线脚本） | 手动运行 | `scripts/analysis/failure_taxonomy.py` |
 
-### A. 自验证终结器（`answer_verifier.py`）
+### A. 自验证终结器（`utils/answer_verifier.py`）
 
 **动机。** BrowseComp 上的主要错误模式是"强但假"候选——Agent 自信地提交一个具体答案但与 ground truth 不符（当前 14.2%）。原 `SearchFinalizer` 直接取首个 viable 候选作为答案，没有任何落地证据复核。
 
@@ -1100,7 +1091,7 @@ python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 
 
 **论文对应。** 方法章节"答案落地验证"小节，引用 CoVe / Self-Verification；消融表对比 开/关验证器 下的 wrong-answer 率变化；**类型感知修复**作为 precision 提升的消融点（VERIFIER_TYPE_AWARE 0 vs 1）。
 
-### B. 候选置信度排序（`search_finalizer.py`）
+### B. 候选置信度排序（`agents/search_finalizer.py`）
 
 **动机。** 原 finalizer 在多个 viable 候选中**取第一个**，没有利用已积累的过程信号。`candidate_records` 里的 `supporting_constraints` 数量是一个天然的过程奖励（satisfied constraint 越多越可信），却未被使用。
 
@@ -1108,7 +1099,7 @@ python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 
 
 **论文对应。** 方法章节"候选排序"小节，定位为 implicit process reward 的轻量实例；消融表对比 取第一个 vs. 按支持度排序 的正确率。
 
-### C. 自适应提前停止（`search_harness_pipeline_v4.py`）
+### C. 自适应提前停止（`pipeline/orchestrator.py`）
 
 **动机。** 原停止策略是纯预算门（`max_iterations` / `max_total_searches` / `max_crawl_calls`），即使候选已被验证且无硬冲突，Agent 仍会耗尽预算才停——浪费搜索调用、拖长轨迹。
 
