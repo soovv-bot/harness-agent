@@ -94,3 +94,6 @@ tmp_*/
 # LLM/HTTP disk cache (M1 replay)
 .llm_cache/
 *.egg-info/
+
+# Orphan analysis outputs (plan P0-4)
+failure_taxonomy_report*.json
