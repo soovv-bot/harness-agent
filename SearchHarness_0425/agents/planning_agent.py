@@ -42,8 +42,8 @@ def _env_flag(name: str, default: str = "1") -> bool:
     return raw in {"1", "true", "yes", "y", "on"}
 
 
-class PlanningAgentV3:
-    SYSTEM_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt_v3.md')
+class PlanningAgent:
+    SYSTEM_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'planning_agent_prompt.md')
 
     def __init__(
         self,
@@ -67,7 +67,7 @@ class PlanningAgentV3:
         self.max_output_tokens = _env_int("PLANNER_MAX_TOKENS", 1200)
         self.fail_fast_on_malformed_plan = _env_flag("PLANNER_FAIL_FAST_ON_MALFORMED_PLAN", "1")
         self._event_callback = event_callback  # callable(event_type, data) for trajectory recording
-        # Per-role reasoning control (mirrors SearchAgentV3). When None, falls
+        # Per-role reasoning control (mirrors SearchAgent). When None, falls
         # back to LLM_THINKING_BUDGET_TOKENS via _resolve_effort() in the compat
         # layer. Pass explicitly to avoid the "minimal → ignored by endpoint →
         # 30K reasoning with 0 content" trap on GLM-5.2/tenyun.

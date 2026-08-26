@@ -114,7 +114,7 @@ def test_next_subtasks_batch_fewer_than_k():
 
 
 class _MockExecutor:
-    """Mock SearchAgentV3.run — records calls, optionally triggers early stop."""
+    """Mock SearchAgent.run — records calls, optionally triggers early stop."""
 
     def __init__(self, idx, findings, triggers_stop=False, stop_event_holder=None):
         self._idx = idx

@@ -301,8 +301,8 @@ def test_authoritative_domains_empty_and_non_http():
 # ── Executor authority-consensus early-stop ──────────────────────────────────
 
 def _make_executor_for_authority(monkeypatch):
-    """Build a SearchAgentV3-ish stub exercising only the consensus check."""
-    import agents.search_agent_v3 as search_agent_v3
+    """Build a SearchAgent-ish stub exercising only the consensus check."""
+    import agents.search_agent as search_agent_mod
     # Minimal stand-in: only the fields the consensus check touches.
     class _Stub:
         def __init__(self):
@@ -311,9 +311,9 @@ def _make_executor_for_authority(monkeypatch):
             self._authority_min_sources = 2
             self._fact_confirm_min_sources = 2
             self._candidate_tool_updates = {"candidate_assessments": []}
-        _candidate_name = search_agent_v3.SearchAgentV3._candidate_name  # bound below
-        _consensus_candidate = search_agent_v3.SearchAgentV3._consensus_candidate
-        _authority_consensus_candidate = search_agent_v3.SearchAgentV3._authority_consensus_candidate
+        _candidate_name = search_agent_mod.SearchAgent._candidate_name  # bound below
+        _consensus_candidate = search_agent_mod.SearchAgent._consensus_candidate
+        _authority_consensus_candidate = search_agent_mod.SearchAgent._authority_consensus_candidate
     # Bind the real instance methods onto stub instances (they use self).
     return _Stub()
 

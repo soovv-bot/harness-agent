@@ -58,8 +58,8 @@
 | 文件 | 职责 |
 |------|------|
 | `pipeline/` | 流水线包：`orchestrator.py` 编排器（阶段流转、预算控制、有界停止、best-effort 终结）+ step4b 拆出的纯函数 helper 模块（`tracing` / `stages` / `candidates` / `feedback` / `finish` / `verification` / `subtasks`） |
-| `planning_agent_v3.py` | 规划 Agent：将问题拆解为子任务，反重复规则约束 |
-| `search_agent_v3.py` | 执行 Agent：调用 `search` / `visit_urls` / `search_wiki` / `add_candidates` / `update_candidate` |
+| `planning_agent.py` | 规划 Agent：将问题拆解为子任务，反重复规则约束 |
+| `search_agent.py` | 执行 Agent：调用 `search` / `visit_urls` / `search_wiki` / `add_candidates` / `update_candidate` |
 | `search_memory.py` | `SearchStateStore`：结构化候选记录（status / supporting / unresolved / hard_conflicts） |
 | `query_critic.py` | 查询判重：规则层（字面重复、空历史、Jaccard）+ LLM 兜底 |
 | `query_history.py` | 查询历史记忆，供 QueryCritic 判重 |
@@ -114,8 +114,8 @@ SearchHarness_0425/
 ├── data/                            # 基准数据：browse_comp_test_set.csv、seed123_*.json（子集与 manifest）
 │
 │   # Agent 与规则层（顶层模块）
-├── planning_agent_v3.py             # 规划 Agent：问题拆解为子任务
-├── search_agent_v3.py               # 执行 Agent：search / visit_urls / search_wiki / add_candidates / update_candidate
+├── planning_agent.py             # 规划 Agent：问题拆解为子任务
+├── search_agent.py               # 执行 Agent：search / visit_urls / search_wiki / add_candidates / update_candidate
 ├── search_memory.py                 # SearchStateStore：结构化候选记录
 ├── query_critic.py / query_history.py          # 查询判重与历史记忆
 ├── search_crawl_controller.py       # 搜索 vs 抓取决策（信号+规则优先，LLM 兜底）
@@ -131,7 +131,7 @@ SearchHarness_0425/
 ├── benchmark_registry.py            # benchmark 声明式注册表
 ├── results_schema.py                # 统一结果信封 schema
 │
-├── planning_agent_prompt_v3.md / search_agent_prompt_v3.md          # v3 通用 prompt
+├── planning_agent_prompt.md / search_agent_prompt.md          # v3 通用 prompt
 ├── planning_agent_prompt_simple.md / search_agent_prompt_simple.md  # 简化 prompt（适配推理模型）
 ├── requirements.txt / pyproject.toml
 ├── tests/                           # pytest（309 例；conftest 注入 fake LLM/stub tools）
@@ -298,7 +298,7 @@ EXECUTOR_THINKING=high       # 执行 Agent：high（Kimi-K3/GLM-5.2 推荐；mi
 SearchHarnessPipelineV4(executor_reasoning_effort="high")
        │
        ▼
-SearchAgentV3(reasoning_effort="high")
+SearchAgent(reasoning_effort="high")
        │
        ▼
 chat_completion_with_structuring(
@@ -532,7 +532,7 @@ python3 -m scripts.analysis.verify_source_accuracy "best stock picks 2024 perfor
 
 ### 回归冒烟测试（subtask 优化项单测）
 
-对 `search_harness_pipeline_v4.py` / `search_agent_v3.py` 做过任何 subtask 调度、早停、兜底、重试相关的改动后，**必须**先跑一遍回归冒烟测试，确认既有的优化行为没有被破坏：
+对 `search_harness_pipeline_v4.py` / `search_agent.py` 做过任何 subtask 调度、早停、兜底、重试相关的改动后，**必须**先跑一遍回归冒烟测试，确认既有的优化行为没有被破坏：
 
 ```bash
 cd SearchHarness_0425
@@ -1027,7 +1027,7 @@ python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 
 
 两层触发，叠加生效：
 
-1. **执行器层**（`search_agent_v3.py` `_consensus_candidate`）— 在 verification 类 subtask 内，每轮工具结果后扫描已累积的 `candidate_assessments.evidence`，统计每个候选的独立高权重/权威域名数；达到阈值则注入 wrap-up 消息，让 agent 立即输出 findings 结束该 subtask（省 subtask 内剩余 turn）。candidate_expansion 类 subtask 不触发（需广召回）。
+1. **执行器层**（`search_agent.py` `_consensus_candidate`）— 在 verification 类 subtask 内，每轮工具结果后扫描已累积的 `candidate_assessments.evidence`，统计每个候选的独立高权重/权威域名数；达到阈值则注入 wrap-up 消息，让 agent 立即输出 findings 结束该 subtask（省 subtask 内剩余 turn）。candidate_expansion 类 subtask 不触发（需广召回）。
 2. **流水线层**（`search_harness_pipeline_v4.py` `_authoritative_consensus_early_stop`）— 在 `_check_stop` 中、`_verified_candidate_early_stop` 之后调用，扫描 `candidate_records.evidence`；按上述两段优先级判定，命中任一则返回对应 trigger 终止整个 pipeline（省剩余 planner/executor 迭代）。即使 executor 尚未自报 `verification_status=verified` 也会触发——客观证据计数足够时不必再等 LLM 自我标记。
 
 - **"独立"** = 不同 base 域名（同一 `reuters.com` 的两篇文章只算 1；`ir.apple.com` 归 `apple.com`），由 `high_weight_sources_in()` / `authoritative_domains_in()` 去重统计。
@@ -1038,7 +1038,7 @@ python3 -m scripts.analysis.verify_source_accuracy "你的查询"      # 默认 
 
 > 设计取舍：与既有 `_verified_candidate_early_stop`（要求 `verified` + 无冲突 + 无未决约束）互补——后者等 executor 自报验证完成，较保守；本机制以"客观证据计数"为准，更早触发，在 BrowseComp 等长尾问题上显著降低平均搜索轮次。fact_confirmed（权重=10）比 authoritative_consensus（权重≥8）更强：官方文档+学术/财报一致即判定事实成立，无需继续求证。两者都满足时 `_verified_candidate_early_stop` 先返回。
 
-### 证据锚定（`search_agent_v3.py` `_coerce_findings`）
+### 证据锚定（`search_agent.py` `_coerce_findings`）
 执行器输出的 `candidate_updates.candidate_assessments` 中，`verification_status: "verified"` 的候选**必须**至少有一条 `evidence` 条目包含 `source_url` + `quote`。没有 `source_url` 的"verified"会被自动降级为 `partial`，并标注 `_downgrade_reason: "no_anchored_evidence"`。
 
 这确保蒸馏训练数据展示"证据→结论"链条，而非模型凭记忆断言。
@@ -1454,6 +1454,6 @@ Serper 额度耗尽。在 [serper.dev](https://serper.dev) 充值或更换 Key�
 - `docs/experiments/insight_candidate_generation_bottleneck.md` — 候选生成瓶颈分析
 - `docs/experiments/insight_verification_ordering_failure.md` — 验证排序失败分析
 - `docs/experiments/experiment_compare_20260804.md` — Plan A 自验证消融实验报告
-- `planning_agent_prompt_v3.md` / `search_agent_prompt_v3.md` — v3 通用 prompt
+- `planning_agent_prompt.md` / `search_agent_prompt.md` — v3 通用 prompt
 - `planning_agent_prompt_simple.md` / `search_agent_prompt_simple.md` — 简化 prompt（compact，适配推理模型）
 - 上级目录 `CLAUDE.md` — 整体项目（OffSeeker 蒸馏）说明

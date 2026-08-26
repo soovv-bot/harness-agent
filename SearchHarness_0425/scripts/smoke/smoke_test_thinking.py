@@ -2,7 +2,7 @@
 
 Runs the SAME question under multiple EXECUTOR_THINKING values (e.g. none vs
 high) and reports per-effort: status, iterations, elapsed, answer. Confirms the
-executor_reasoning_effort → SearchAgentV3 → build_chat_completion_kwargs chain
+executor_reasoning_effort → SearchAgent → build_chat_completion_kwargs chain
 propagates without breaking the pipeline.
 
 This is a behavioral smoke (does the pipeline still finish?), not a token-level

@@ -39,8 +39,8 @@ if PROJECT_ROOT not in sys.path:
 # Consumer modules that do `from llm.factory import build_openai_client`
 # and store the imported name in their own namespace. Each must be patched.
 LLM_CLIENT_CONSUMERS = [
-    "agents.planning_agent_v3",
-    "agents.search_agent_v3",
+    "agents.planning_agent",
+    "agents.search_agent",
     "critics.subtask_critic",
     "critics.query_critic",
     "memory.search_crawl_controller",

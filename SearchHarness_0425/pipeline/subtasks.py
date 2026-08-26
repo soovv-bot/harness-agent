@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from loguru import logger
 
 from critics.query_critic import QueryCritic
-from agents.search_agent_v3 import SearchAgentV3
+from agents.search_agent import SearchAgent
 from memory.search_crawl_controller import SearchCrawlController
 
 if TYPE_CHECKING:
@@ -283,7 +283,7 @@ def decide_concurrency(pipeline: "SearchHarnessPipelineV4", question: str, plan:
     return k
 
 
-def build_executor_pool(pipeline: "SearchHarnessPipelineV4", k: int) -> List["SearchAgentV3"]:
+def build_executor_pool(pipeline: "SearchHarnessPipelineV4", k: int) -> List["SearchAgent"]:
     """Create k independent executor instances for concurrent subtasks.
 
     Each gets its own query_critic/crawl_controller (isolated caches and
@@ -291,13 +291,13 @@ def build_executor_pool(pipeline: "SearchHarnessPipelineV4", k: int) -> List["Se
     lock-protected) and the OpenAI client (connection pool reuse).
     """
     shared_client = getattr(pipeline.executor, "client", None)
-    pool: List["SearchAgentV3"] = []
+    pool: List["SearchAgent"] = []
     _rec = pipeline.trajectory_recorder
     _current_iter = pipeline._trajectory_current_iter
     for i in range(k):
         qc = QueryCritic(pipeline.query_memory, api_base=pipeline._api_base, api_key=pipeline._api_key, model_id=pipeline._model_id)
         cc = SearchCrawlController(pipeline.query_memory, api_base=pipeline._api_base, api_key=pipeline._api_key, model_id=pipeline._model_id)
-        exec_ = SearchAgentV3(
+        exec_ = SearchAgent(
             api_base=pipeline._api_base, api_key=pipeline._api_key, model_id=pipeline._executor_model_id,
             state_store=pipeline.state_store, query_memory=pipeline.query_memory,
             query_critic=qc, crawl_controller=cc,
@@ -325,7 +325,7 @@ def run_subtasks_concurrent(pipeline: "SearchHarnessPipelineV4", question: str, 
     pool = pipeline._build_executor_pool(k)
     stop_event = threading.Event()
     results: List[Optional[Dict[str, Any]]] = [None] * k
-    def run_one(i: int, exec_: "SearchAgentV3", st: Dict[str, Any]) -> None:
+    def run_one(i: int, exec_: "SearchAgent", st: Dict[str, Any]) -> None:
         try:
             state = pipeline.state_store.export_executor_state()
             res = exec_.run(question=question, overall_plan=plan, subtask=st, executor_state=state, stop_event=stop_event)

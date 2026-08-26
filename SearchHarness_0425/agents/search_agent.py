@@ -44,8 +44,8 @@ def _env_int(name: str, default: int) -> int:
     return value if value > 0 else default
 
 
-class SearchAgentV3:
-    SYSTEM_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'search_agent_prompt_v3.md')
+class SearchAgent:
+    SYSTEM_PROMPT_PATH = os.path.join(os.path.dirname(__file__), 'search_agent_prompt.md')
 
     def __init__(
         self,

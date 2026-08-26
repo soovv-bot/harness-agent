@@ -16,8 +16,8 @@ from typing import Any, Dict, List, Optional
 from loguru import logger
 
 from memory.search_memory import SearchStateStore
-from agents.planning_agent_v3 import PlanningAgentV3
-from agents.search_agent_v3 import SearchAgentV3
+from agents.planning_agent import PlanningAgent
+from agents.search_agent import SearchAgent
 from core.config import settings
 from agents.search_finalizer import SearchFinalizer
 from critics.subtask_critic import SubtaskCritic
@@ -95,7 +95,7 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
         self.query_memory = QueryHistoryMemory()
         self.query_critic = QueryCritic(self.query_memory, api_base=api_base, api_key=api_key, model_id=model_id)
         self.crawl_controller = SearchCrawlController(self.query_memory, api_base=api_base, api_key=api_key, model_id=model_id)
-        self.planner = PlanningAgentV3(
+        self.planner = PlanningAgent(
             api_base=api_base,
             api_key=api_key,
             model_id=model_id,
@@ -103,7 +103,7 @@ The ranked_indices MUST be a permutation of [0, 1, ..., {n_minus_one}], with the
             reasoning_effort=executor_reasoning_effort,
             temperature=float(os.getenv("PLANNER_TEMPERATURE", "0.4") or "0.4"),
         )
-        self.executor = SearchAgentV3(
+        self.executor = SearchAgent(
             api_base=api_base,
             api_key=api_key,
             model_id=self._executor_model_id,

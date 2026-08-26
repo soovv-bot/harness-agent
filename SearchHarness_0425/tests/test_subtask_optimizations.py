@@ -20,7 +20,7 @@ from types import SimpleNamespace
 import pytest
 
 from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
-from agents.search_agent_v3 import SearchAgentV3  # noqa: E402
+from agents.search_agent import SearchAgent  # noqa: E402
 from llm.errors import classify_infra_error  # noqa: E402
 
 
@@ -178,7 +178,7 @@ class TestBuildSubtaskPromptCrawlNudge:
         # build_subtask_prompt is a pure text method — create an
         # uninitialized instance so we don't need the full dependency graph
         # (state_store, query_critic, crawl_controller, ...).
-        agent = object.__new__(SearchAgentV3)
+        agent = object.__new__(SearchAgent)
         return agent
 
     def test_verification_prompt_has_page_evidence_rule(self, fake_llm):
@@ -214,8 +214,8 @@ class TestPlannerAntiPrematureElimination:
     never issued a verification subtask, dropping the correct answer)."""
 
     def _make_planner(self):
-        from agents.planning_agent_v3 import PlanningAgentV3
-        return object.__new__(PlanningAgentV3)
+        from agents.planning_agent import PlanningAgent
+        return object.__new__(PlanningAgent)
 
     def test_generation_message_has_anti_elimination_directive(self):
         planner = self._make_planner()
