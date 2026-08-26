@@ -17,7 +17,7 @@ from types import SimpleNamespace
 import pytest
 
 from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
-from search_memory import SearchStateStore  # noqa: E402
+from memory.search_memory import SearchStateStore  # noqa: E402
 
 
 def _make_pipeline(fake_llm, responder=None):
@@ -223,7 +223,7 @@ class TestFinalizerSkipsEliminated:
     """Verify the bug fix: finalizer must not pick an eliminated candidate as the answer."""
 
     def test_build_prompt_uses_viable_candidate(self, fake_llm):
-        from search_finalizer import SearchFinalizer
+        from agents.search_finalizer import SearchFinalizer
         f = SearchFinalizer(api_base="x", api_key="y", model_id="GLM-5.2")
         # Use the real state store so the exported shape matches production.
         store = SearchStateStore(keep_recent_observations=3)
@@ -247,7 +247,7 @@ class TestFinalizerSkipsEliminated:
         assert "Answer: BadOne" not in prompt
 
     def test_all_eliminated_yields_unknown(self, fake_llm):
-        from search_finalizer import SearchFinalizer
+        from agents.search_finalizer import SearchFinalizer
         f = SearchFinalizer(api_base="x", api_key="y", model_id="GLM-5.2")
         store = SearchStateStore(keep_recent_observations=3)
         store.set_question("Q?")

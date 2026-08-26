@@ -15,20 +15,20 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from search_memory import SearchStateStore
-from planning_agent_v3 import PlanningAgentV3
-from search_agent_v3 import SearchAgentV3
+from memory.search_memory import SearchStateStore
+from agents.planning_agent_v3 import PlanningAgentV3
+from agents.search_agent_v3 import SearchAgentV3
 from config import settings
-from search_finalizer import SearchFinalizer
-from subtask_critic import SubtaskCritic
-from planning_direction_critic import DirectionCritic
+from agents.search_finalizer import SearchFinalizer
+from critics.subtask_critic import SubtaskCritic
+from critics.planning_direction_critic import DirectionCritic
 from trajectory.recorder import TrajectoryRecorder
 from llm.compat import chat_completion_with_structuring
 from llm.factory import build_openai_client
 
-from query_history import QueryHistoryMemory
-from query_critic import QueryCritic
-from search_crawl_controller import SearchCrawlController
+from memory.query_history import QueryHistoryMemory
+from critics.query_critic import QueryCritic
+from memory.search_crawl_controller import SearchCrawlController
 from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore
 
 from pipeline import candidates as _candidates

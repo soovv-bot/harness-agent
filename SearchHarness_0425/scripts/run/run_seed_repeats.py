@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
-import stats_utils as su
+import utils.stats_utils as su
 
 # Statuses from a previous run that count as finished — anything else is re-run.
 RESUMABLE_BAD_STATUSES = {"unfinished", "error", "infra_error", ""}

@@ -20,7 +20,7 @@ from types import SimpleNamespace
 import pytest
 
 from pipeline.orchestrator import SearchHarnessPipelineV4  # noqa: E402
-from search_agent_v3 import SearchAgentV3  # noqa: E402
+from agents.search_agent_v3 import SearchAgentV3  # noqa: E402
 from llm.errors import classify_infra_error  # noqa: E402
 
 
@@ -214,7 +214,7 @@ class TestPlannerAntiPrematureElimination:
     never issued a verification subtask, dropping the correct answer)."""
 
     def _make_planner(self):
-        from planning_agent_v3 import PlanningAgentV3
+        from agents.planning_agent_v3 import PlanningAgentV3
         return object.__new__(PlanningAgentV3)
 
     def test_generation_message_has_anti_elimination_directive(self):
@@ -259,7 +259,7 @@ class TestSalvageClearsErrorType:
     protocol_error. The salvaged answer is graded on its own merits."""
 
     def test_salvage_clears_protocol_error(self, fake_llm):
-        from search_finalizer import FinalizationResult
+        from agents.search_finalizer import FinalizationResult
         from unittest.mock import MagicMock
         p = _make_pipeline(fake_llm)
         _add_candidate(p, "Whitesnake", verification_status="verified", support=["c1"])
@@ -299,7 +299,7 @@ class TestFinalizerUncertaintyGuards:
     isinstance checks."""
 
     def _make_finalizer(self):
-        from search_finalizer import SearchFinalizer
+        from agents.search_finalizer import SearchFinalizer
         return object.__new__(SearchFinalizer)
 
     def test_string_pool_assessment(self):

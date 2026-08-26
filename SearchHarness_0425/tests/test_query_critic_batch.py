@@ -19,14 +19,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from query_critic import (  # noqa: E402
+from critics.query_critic import (  # noqa: E402
     ALLOW,
     ALLOW_WITH_WARNING,
     REJECT_AS_REDUNDANT,
     SUGGEST_PIVOT,
     QueryCritic,
 )
-from query_history import QueryHistoryMemory  # noqa: E402
+from memory.query_history import QueryHistoryMemory  # noqa: E402
 
 
 def _responder_with_count(responses):

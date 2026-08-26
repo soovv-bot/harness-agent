@@ -11,9 +11,9 @@ from types import SimpleNamespace
 
 import pytest
 
-import disk_cache as dc
+import utils.disk_cache as dc
 from llm.compat import chat_completion_with_structuring
-from llm_usage import UsageTracker
+from utils.llm_usage import UsageTracker
 
 
 @pytest.fixture(autouse=True)

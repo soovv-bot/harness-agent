@@ -22,7 +22,7 @@ from typing import Dict, List, Optional
 
 from loguru import logger
 
-from query_history import QueryHistoryMemory
+from memory.query_history import QueryHistoryMemory
 
 from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm.factory import build_openai_client

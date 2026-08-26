@@ -23,7 +23,7 @@ from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
 import results_schema as rs
-import stats_utils as su
+import utils.stats_utils as su
 from scripts.run.run_browsecomp import LLMGrader, _decrypt, resolve_grader_config, resolve_primary_model, run_single_task
 from scripts.run.run_checkpoint import RunCheckpoint
 

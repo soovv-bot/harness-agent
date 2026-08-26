@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-import disk_cache as dc
+import utils.disk_cache as dc
 
 
 @pytest.fixture(autouse=True)

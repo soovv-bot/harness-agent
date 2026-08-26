@@ -28,7 +28,7 @@ import sys as _sys
 if str(_HERE) not in _sys.path:
     _sys.path.insert(0, str(_HERE))
 
-import stats_utils as su
+import utils.stats_utils as su
 
 DEFAULT_SEED = 20260825
 

@@ -74,7 +74,7 @@ def llm_chat_completion(
         try:
             resp = client.chat.completions.create(model=model, messages=messages, **kwargs)
             try:
-                from llm_usage import record_usage
+                from utils.llm_usage import record_usage
 
                 record_usage(model, getattr(resp, "usage", None), caller="llm_chat_completion")
             except Exception:

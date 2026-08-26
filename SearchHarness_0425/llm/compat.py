@@ -337,7 +337,7 @@ class _StreamedMessage:
 def _record_usage_safely(model_id: str, usage: Any, *, caller: str = "") -> None:
     """Best-effort usage recording — metering must never break generation."""
     try:
-        from llm_usage import record_usage
+        from utils.llm_usage import record_usage
 
         record_usage(model_id, usage, caller=caller)
     except Exception:
@@ -461,7 +461,7 @@ def _stream_completion(
         _record_usage_safely(kwargs.get("model", ""), stream_usage, caller=progress_label)
         if stream_usage:
             try:
-                from llm_usage import normalize_usage
+                from utils.llm_usage import normalize_usage
                 n = normalize_usage(stream_usage)
                 msg.usage_metadata = n  # surfaced for recorder attribution
             except Exception:
@@ -535,7 +535,7 @@ def _chat_completion_with_structuring_impl(
         response = completion.choices[0].message
         _record_usage_safely(model_id, getattr(completion, "usage", None), caller="primary")
         try:
-            from llm_usage import normalize_usage
+            from utils.llm_usage import normalize_usage
             response.usage_metadata = normalize_usage(getattr(completion, "usage", None))
         except Exception:
             pass
@@ -686,7 +686,7 @@ def chat_completion_with_structuring(
     the usage tracker (no real API spend). Caching must never break the call.
     """
     try:
-        import disk_cache as dc
+        import utils.disk_cache as dc
         enabled = dc.cache_enabled()
     except Exception:
         enabled = False

@@ -16,9 +16,9 @@ from __future__ import annotations
 
 import pytest
 
-from query_critic import _normalize_query, QueryCritic, QueryVerdict  # noqa: E402
-from query_history import QueryHistoryMemory  # noqa: E402
-from search_crawl_controller import SearchCrawlController  # noqa: E402
+from critics.query_critic import _normalize_query, QueryCritic, QueryVerdict  # noqa: E402
+from memory.query_history import QueryHistoryMemory  # noqa: E402
+from memory.search_crawl_controller import SearchCrawlController  # noqa: E402
 from config import settings  # noqa: E402
 from llm.client import _is_retryable  # noqa: E402
 
@@ -308,7 +308,7 @@ class TestCrawlControllerCache:
     def test_store_then_lookup_hits(self):
         mem = QueryHistoryMemory()
         ctrl = SearchCrawlController(mem, "", "", "test-model")
-        from search_crawl_controller import SearchCrawlVerdict
+        from memory.search_crawl_controller import SearchCrawlVerdict
         v = SearchCrawlVerdict(decision="crawl_now", reason="test", signals={})
         key = ctrl._decision_cache_key("discover", ["u1"], [])
         ctrl._store_decision_cache(key, v)

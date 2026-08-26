@@ -18,9 +18,9 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from loguru import logger
 
-from query_critic import QueryCritic
-from search_agent_v3 import SearchAgentV3
-from search_crawl_controller import SearchCrawlController
+from critics.query_critic import QueryCritic
+from agents.search_agent_v3 import SearchAgentV3
+from memory.search_crawl_controller import SearchCrawlController
 
 if TYPE_CHECKING:
     from pipeline.orchestrator import SearchHarnessPipelineV4

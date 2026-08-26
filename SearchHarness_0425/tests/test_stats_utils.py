@@ -1,7 +1,7 @@
 """Tests for stats_utils: bootstrap CI, repeats variance aggregation, formatting."""
 from __future__ import annotations
 
-import stats_utils as su
+import utils.stats_utils as su
 
 
 class TestBootstrapCi:

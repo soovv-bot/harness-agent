@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import llm_usage
-from llm_usage import UsageTracker, normalize_usage
+import utils.llm_usage as llm_usage
+from utils.llm_usage import UsageTracker, normalize_usage
 
 
 @pytest.fixture(autouse=True)

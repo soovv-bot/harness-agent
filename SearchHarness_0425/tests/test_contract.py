@@ -46,12 +46,12 @@ from contract.candidate import (  # noqa: E402
 # ----------------------------------------------------------------------
 
 def test_query_record_alias_identity():
-    from query_history import QueryRecord as LegacyQR
+    from memory.query_history import QueryRecord as LegacyQR
     assert LegacyQR is QueryRecord
 
 
 def test_query_verdict_alias_and_constants():
-    import query_critic
+    import critics.query_critic as query_critic
     assert query_critic.QueryVerdict is QueryVerdict
     assert query_critic.ALLOW == ALLOW
     assert query_critic.ALLOW_WITH_WARNING == ALLOW_WITH_WARNING
@@ -60,7 +60,7 @@ def test_query_verdict_alias_and_constants():
 
 
 def test_tool_observation_alias_identity():
-    from search_memory import ToolObservation
+    from memory.search_memory import ToolObservation
     assert ToolObservation is ToolResult
 
 
@@ -95,7 +95,7 @@ def test_query_record_post_init_mutation_supported():
 
 def test_query_record_to_dict_keys_and_turn_index_pattern():
     """Mirror of QueryHistoryMemory.record()/load() usage."""
-    from query_history import QueryHistoryMemory
+    from memory.query_history import QueryHistoryMemory
     mem = QueryHistoryMemory()
     entry = mem.record(query="albrecht penck", phase="source_identification",
                        subtask="identify scientist", new_candidates=["Albrecht Penck"])

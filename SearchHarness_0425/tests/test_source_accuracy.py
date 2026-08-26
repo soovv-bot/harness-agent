@@ -302,7 +302,7 @@ def test_authoritative_domains_empty_and_non_http():
 
 def _make_executor_for_authority(monkeypatch):
     """Build a SearchAgentV3-ish stub exercising only the consensus check."""
-    import search_agent_v3
+    import agents.search_agent_v3 as search_agent_v3
     # Minimal stand-in: only the fields the consensus check touches.
     class _Stub:
         def __init__(self):

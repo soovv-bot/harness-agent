@@ -39,13 +39,13 @@ if PROJECT_ROOT not in sys.path:
 # Consumer modules that do `from llm.factory import build_openai_client`
 # and store the imported name in their own namespace. Each must be patched.
 LLM_CLIENT_CONSUMERS = [
-    "planning_agent_v3",
-    "search_agent_v3",
-    "subtask_critic",
-    "query_critic",
-    "search_crawl_controller",
-    "search_finalizer",
-    "planning_direction_critic",
+    "agents.planning_agent_v3",
+    "agents.search_agent_v3",
+    "critics.subtask_critic",
+    "critics.query_critic",
+    "memory.search_crawl_controller",
+    "agents.search_finalizer",
+    "critics.planning_direction_critic",
     "llm.client",
     # pipeline 自身也在 L28 `from llm.factory import build_openai_client`
     # 并在 L117 直接构建 client；漏挂会导致测试真实建连

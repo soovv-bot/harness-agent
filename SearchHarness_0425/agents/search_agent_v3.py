@@ -19,11 +19,11 @@ _offseeker_src_path = None  # legacy path removed
 
 from tools.tool_processor import ToolProcessor  # type: ignore
 from tools.search_tools import authoritative_domains_in, high_weight_sources_in  # type: ignore
-from search_memory import SearchStateStore
+from memory.search_memory import SearchStateStore
 
-from query_history import QueryHistoryMemory
-from query_critic import QueryCritic, QueryVerdict, SUGGEST_PIVOT, _normalize_query
-from search_crawl_controller import SearchCrawlController
+from memory.query_history import QueryHistoryMemory
+from critics.query_critic import QueryCritic, QueryVerdict, SUGGEST_PIVOT, _normalize_query
+from memory.search_crawl_controller import SearchCrawlController
 from llm.compat import (
     assistant_message_to_dict,
     build_chat_completion_kwargs,
@@ -622,7 +622,7 @@ Candidate handling is critical:
         # explode (pos9 had 90 candidates added in one subtask, swamping
         # verification). Reuses the shared _is_pseudo_candidate helper from
         # search_memory to stay consistent with the state-store gate.
-        from search_memory import _is_pseudo_candidate  # local import to avoid cycle
+        from memory.search_memory import _is_pseudo_candidate  # local import to avoid cycle
         max_per_subtask = 15
         for name in names:
             candidate_name = str(name).strip()

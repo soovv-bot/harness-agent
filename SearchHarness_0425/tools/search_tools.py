@@ -308,7 +308,7 @@ def call_llm(
 def _http_cache_get(kind: str, *parts: str):
     """Return (key, text) where key is None when the cache is disabled."""
     try:
-        import disk_cache as dc
+        import utils.disk_cache as dc
         if not dc.cache_enabled():
             return None, None
         key = dc.make_http_key(kind, *parts)
@@ -327,7 +327,7 @@ def _http_cache_put(kind: str, key, parts, text: str) -> None:
     if key is None:
         return
     try:
-        import disk_cache as dc
+        import utils.disk_cache as dc
         dc.put_entry("http", key, {"text": text, "kind": kind, "parts": list(parts)})
     except Exception:
         pass

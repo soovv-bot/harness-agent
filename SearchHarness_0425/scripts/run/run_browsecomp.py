@@ -29,7 +29,7 @@ from tqdm import tqdm
 
 from benchmark_registry import get_benchmark
 import results_schema as rs
-import stats_utils as su
+import utils.stats_utils as su
 from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm.errors import classify_infra_error
 from llm.factory import build_openai_client
@@ -320,7 +320,7 @@ def run_evaluation(
 ):
     from pipeline.orchestrator import SearchHarnessPipelineV4
     from trajectory.recorder import TrajectoryRecorderEnhanced
-    from llm_usage import get_tracker
+    from utils.llm_usage import get_tracker
 
     tracker = get_tracker()
     tracker.reset()
