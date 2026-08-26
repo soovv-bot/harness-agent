@@ -9,7 +9,7 @@ new refactors; legacy os.getenv calls remain for backward compatibility
 but should migrate over time.
 
 Usage:
-    from config import settings
+    from core.config import settings
     s = settings()
     client = build_openai_client(s.api_base, s.api_key)
     model_id = s.model_id

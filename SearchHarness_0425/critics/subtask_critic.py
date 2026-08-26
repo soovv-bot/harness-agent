@@ -19,7 +19,7 @@ from loguru import logger
 
 from llm.compat import build_chat_completion_kwargs, chat_completion_with_structuring
 from llm.factory import build_openai_client
-from config import settings
+from core.config import settings
 
 
 # Verdict constants

@@ -17,7 +17,7 @@ import argparse
 import importlib
 import sys
 
-from benchmark_registry import get_benchmark, list_benchmarks
+from core.benchmark_registry import get_benchmark, list_benchmarks
 
 # mode -> module exposing main()
 _MODES = {

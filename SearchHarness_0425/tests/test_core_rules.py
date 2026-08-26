@@ -19,7 +19,7 @@ import pytest
 from critics.query_critic import _normalize_query, QueryCritic, QueryVerdict  # noqa: E402
 from memory.query_history import QueryHistoryMemory  # noqa: E402
 from memory.search_crawl_controller import SearchCrawlController  # noqa: E402
-from config import settings  # noqa: E402
+from core.config import settings  # noqa: E402
 from llm.client import _is_retryable  # noqa: E402
 
 

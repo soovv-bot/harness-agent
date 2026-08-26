@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-import benchmark_registry as br
+import core.benchmark_registry as br
 
 
 @pytest.fixture

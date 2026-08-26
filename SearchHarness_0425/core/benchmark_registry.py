@@ -6,7 +6,7 @@ by name instead of hardcoding paths/URLs, so adding a new benchmark means
 registering one more spec.
 
 Usage:
-    from benchmark_registry import get_benchmark
+    from core.benchmark_registry import get_benchmark
     spec = get_benchmark("browsecomp")
     examples = spec.load_examples()              # caches CSV on first fetch
     question = spec.decode_field(example, "problem")
@@ -24,7 +24,7 @@ from typing import Dict, List, Tuple
 import pandas as pd
 from loguru import logger
 
-_REPO_ROOT = Path(__file__).resolve().parent
+_REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 # ── canary XOR decryption (BrowseComp ships canary-encrypted fields) ────

@@ -2,7 +2,7 @@
 validation, and volatile-field stripping for byte-level replay diffs."""
 from __future__ import annotations
 
-import results_schema as rs
+import core.results_schema as rs
 
 
 def _spec(**kwargs):

@@ -27,28 +27,13 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest"]
 
-# Flat-layout packages: every top-level .py is an importable module.
 [tool.setuptools]
-py-modules = [
-    "answer_verifier",
-    "benchmark_registry",
-    "config",
-    "debug_llm_smoke",
-    "disk_cache",
-    "failure_taxonomy",
-    "llm_usage",
-    "planning_agent_v3",
-    "planning_direction_critic",
-    "query_critic",
-    "query_history",
-    "results_schema",
-    "search_agent_v3",
-    "search_crawl_controller",
-    "search_finalizer",
-    "search_memory",
-    "subtask_critic",
-]
 packages = [
+    "core",
+    "agents",
+    "critics",
+    "memory",
+    "utils",
     "tools",
     "contract",
     "llm",
@@ -62,3 +47,4 @@ packages = [
 
 [tool.setuptools.package-data]
 llm = ["*.yaml"]
+utils = ["*.yaml"]

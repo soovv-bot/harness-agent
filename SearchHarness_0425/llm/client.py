@@ -8,7 +8,7 @@ transient errors, so callers don't each reimplement try/except loops.
 
 Usage:
     from llm.client import get_llm_client, llm_chat_completion
-    from config import settings
+    from core.config import settings
 
     s = settings()
     client = get_llm_client(s.api_base, s.api_key)

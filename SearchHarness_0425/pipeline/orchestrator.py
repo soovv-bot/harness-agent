@@ -18,7 +18,7 @@ from loguru import logger
 from memory.search_memory import SearchStateStore
 from agents.planning_agent_v3 import PlanningAgentV3
 from agents.search_agent_v3 import SearchAgentV3
-from config import settings
+from core.config import settings
 from agents.search_finalizer import SearchFinalizer
 from critics.subtask_critic import SubtaskCritic
 from critics.planning_direction_critic import DirectionCritic
