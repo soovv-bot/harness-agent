@@ -62,6 +62,7 @@ tmp/
 *.json
 logs/
 *.env*
+!.env.example
 # Large extracted text files
 EigentSearch_extracted.txt
 
